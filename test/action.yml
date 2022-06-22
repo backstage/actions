@@ -10,4 +10,4 @@ outputs:
     description: The time of the test
 runs:
   using: node16
-  main: dist/index.js
+  main: ./entry.js
