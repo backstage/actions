@@ -1,0 +1,19 @@
+name: Test
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    env:
+      CI: true
+
+    steps:
+      - uses: backstage/actions/test@test-1
+        name: boopidi boop
