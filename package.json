@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test:dev": "nodemon --ext js,ts test/entry.js"
+  },
   "packageManager": "yarn@3.2.1",
   "dependencies": {
     "@actions/core": "^1.9.0",
