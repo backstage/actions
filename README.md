@@ -4,12 +4,12 @@ This repository contains GitHub actions related to Backstage. The goal of the
 current actions are to help manage the maintenance of the main Backstage
 repository.
 
-## TODO:
+## TODO
 
 - [ ] Get this repo set up with two initial actions, one for PR sync, and one
-  for cron polling.
-- [ ] Migrate all existing custom workflow scripts from backstage/backstage
-  into these new actions.
+      for cron polling.
+- [ ] Migrate all existing custom workflow scripts from backstage/backstage into
+      these new actions.
 
   - [ ] Migrate `.github/workflows/automate_merge_renovate_prs.yaml`
   - [ ] Migrate `.github/workflows/automate_review-labels-scheduled.yaml`
@@ -23,5 +23,9 @@ repository.
 - New features targeting the maintenance project board:
   - [ ] Remove items from the board instead of setting the status to "Done".
   - [ ] Automate the move to the "Changes Requested" column.
-  - [ ] Custom logic for adding PRs to the board, skip PRs that do not have
-    DCO, but add them once they do.
+  - [ ] Custom logic for adding PRs to the board, skip PRs that do not have DCO,
+        but add them once they do.
+
+## Docs
+
+https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
