@@ -28,4 +28,5 @@ repository.
 
 ## Docs
 
-https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
+- [Creating a JavaScript action](https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action)
+- [actions/github-script](https://github.com/actions/github-script)
