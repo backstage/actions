@@ -1,0 +1,13 @@
+name: Testing
+description: Greet someone and record the time
+inputs:
+  test:
+    description: Testing
+    required: false
+    default: test
+outputs:
+  time:
+    description: The time of the test
+runs:
+  using: node16
+  main: dist/index.js
