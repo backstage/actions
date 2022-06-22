@@ -15,5 +15,5 @@ jobs:
       CI: true
 
     steps:
-      - uses: backstage/actions/test@test-1
+      - uses: backstage/actions/test@test-2
         name: boopidi boop
