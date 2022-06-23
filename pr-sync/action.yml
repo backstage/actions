@@ -1,0 +1,7 @@
+name: Backstage PR Sync
+description: Action to sync Backstage PR tracking
+inputs: {}
+outputs: {}
+runs:
+  using: node16
+  main: ./entry.js

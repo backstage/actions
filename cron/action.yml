@@ -1,0 +1,7 @@
+name: Backstage Cron
+description: Repository operations on a schedule
+inputs: {}
+outputs: {}
+runs:
+  using: node16
+  main: ./entry.js
