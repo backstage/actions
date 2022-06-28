@@ -5,7 +5,7 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@actions/core@npm:^1.9.0":
+"@actions/core@npm:1.9.0":
   version: 1.9.0
   resolution: "@actions/core@npm:1.9.0"
   dependencies:
@@ -14,7 +14,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions/github@npm:^5.0.3":
+"@actions/github@npm:5.0.3":
   version: 5.0.3
   resolution: "@actions/github@npm:5.0.3"
   dependencies:
@@ -556,7 +556,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/globals@npm:^28.1.1":
+"@jest/globals@npm:28.1.1, @jest/globals@npm:^28.1.1":
   version: 28.1.1
   resolution: "@jest/globals@npm:28.1.1"
   dependencies:
@@ -869,7 +869,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/types@npm:^6.0.3, @octokit/types@npm:^6.16.1, @octokit/types@npm:^6.36.0, @octokit/types@npm:^6.37.0":
+"@octokit/types@npm:6.37.0, @octokit/types@npm:^6.0.3, @octokit/types@npm:^6.16.1, @octokit/types@npm:^6.36.0":
   version: 6.37.0
   resolution: "@octokit/types@npm:6.37.0"
   dependencies:
@@ -1013,7 +1013,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^28.1.3":
+"@types/jest@npm:28.1.3":
   version: 28.1.3
   resolution: "@types/jest@npm:28.1.3"
   dependencies:
@@ -1023,7 +1023,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.0.0":
+"@types/node@npm:*, @types/node@npm:18.0.0":
   version: 18.0.0
   resolution: "@types/node@npm:18.0.0"
   checksum: aab2b325727a2599f6d25ebe0dedf58c40fb66a51ce4ca9c0226ceb70fcda2d3afccdca29db5942eb48b158ee8585a274a1e3750c718bbd5399d7f41d62dfdcc
@@ -2606,7 +2606,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^28.1.1":
+"jest@npm:28.1.1":
   version: 28.1.1
   resolution: "jest@npm:28.1.1"
   dependencies:
@@ -3264,16 +3264,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@actions/core": ^1.9.0
-    "@actions/github": ^5.0.3
-    "@jest/globals": ^28.1.1
-    "@octokit/types": ^6.37.0
-    "@types/jest": ^28.1.3
-    "@types/node": ^18.0.0
-    jest: ^28.1.1
-    ts-jest: ^28.0.5
-    ts-node: ^10.8.1
-    typescript: ^4.7.4
+    "@actions/core": 1.9.0
+    "@actions/github": 5.0.3
+    "@jest/globals": 28.1.1
+    "@octokit/types": 6.37.0
+    "@types/jest": 28.1.3
+    "@types/node": 18.0.0
+    jest: 28.1.1
+    ts-jest: 28.0.5
+    ts-node: 10.8.1
+    typescript: 4.7.4
   languageName: unknown
   linkType: soft
 
@@ -3608,7 +3608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^28.0.5":
+"ts-jest@npm:28.0.5":
   version: 28.0.5
   resolution: "ts-jest@npm:28.0.5"
   dependencies:
@@ -3638,7 +3638,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.8.1":
+"ts-node@npm:10.8.1":
   version: 10.8.1
   resolution: "ts-node@npm:10.8.1"
   dependencies:
@@ -3697,7 +3697,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.7.4":
+"typescript@npm:4.7.4":
   version: 4.7.4
   resolution: "typescript@npm:4.7.4"
   bin:
@@ -3707,7 +3707,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@4.7.4#~builtin<compat/typescript>":
   version: 4.7.4
   resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"
   bin:
