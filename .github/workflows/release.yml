@@ -1,7 +1,8 @@
 name: CI
 on:
   push:
-
+    branches:
+      - main
 jobs:
   verify:
     runs-on: ubuntu-latest
