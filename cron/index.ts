@@ -1,15 +1,15 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+import { verifyDCO } from "./verifyDCO";
 
-try {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = core.getInput("test");
-  console.log(`Hello ${nameToGreet}!`);
-  const time = new Date().toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2);
-  console.log(`The event payload: ${payload}`);
-} catch (error) {
-  core.setFailed(String(error));
+async function main() {
+  console.log(`Running cron!`);
+  const token = core.getInput("github-token", { required: true });
+  await verifyDCO(github.getOctokit(token), github.context.repo);
 }
+
+main().catch((error) => {
+  console.error(error.stack);
+  core.setFailed(String(error));
+  process.exit(1);
+});
