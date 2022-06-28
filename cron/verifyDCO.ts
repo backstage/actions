@@ -2,10 +2,10 @@ import * as github from "@actions/github";
 
 export async function verifyDCO(
   client: ReturnType<typeof github.getOctokit>,
+  repoInfo: { owner: string; repo: string },
   log = console.log
 ) {
-  const owner = "backstage";
-  const repo = "backstage";
+  const { owner, repo } = repoInfo;
 
   const pulls = await client.paginate(client.rest.pulls.list, {
     state: "open",
@@ -43,10 +43,10 @@ export async function verifyDCO(
           c.body?.includes("<!-- dco -->")
       )
     ) {
-      log(`already commented on PR #${pull.number}, skipping`);
+      log(`Already commented on PR #${pull.number}, skipping`);
       continue;
     }
-    log(`creating comment on PR #${pull.number}`);
+    log(`Creating comment on PR #${pull.number}`);
     const body = `
         Thanks for the contribution!
         All commits need to be DCO signed before they are reviewed. Please refer to the the [DCO section in CONTRIBUTING.md](https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md#developer-certificate-of-origin) or the [DCO](${checks.data.check_runs[0].html_url}) status for more info.
