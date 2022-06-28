@@ -48,9 +48,9 @@ export async function verifyDCO(
     }
     log(`Creating comment on PR #${pull.number}`);
     const body = `
-        Thanks for the contribution!
-        All commits need to be DCO signed before they are reviewed. Please refer to the the [DCO section in CONTRIBUTING.md](https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md#developer-certificate-of-origin) or the [DCO](${checks.data.check_runs[0].html_url}) status for more info.
-        <!-- dco -->`;
+Thanks for the contribution!
+All commits need to be DCO signed before they are reviewed. Please refer to the the [DCO section in CONTRIBUTING.md](https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md#developer-certificate-of-origin) or the [DCO](${checks.data.check_runs[0].html_url}) status for more info.
+<!-- dco -->`;
     await client.rest.issues.createComment({
       repo,
       owner,
