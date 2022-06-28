@@ -1,17 +1,17 @@
-import * as github from "@actions/github";
-import { Repository } from "@octokit/graphql-schema";
+import * as github from '@actions/github';
+import { Repository } from '@octokit/graphql-schema';
 
 export async function mergeRenovatePRs(
   client: ReturnType<typeof github.getOctokit>,
   repoInfo: { owner: string; repo: string },
   log = console.log,
-  waitTimeMs = 2000
+  waitTimeMs = 2000,
 ) {
   const { owner, repo } = repoInfo;
 
   const date = new Date();
   if (date.getDay() === 2) {
-    log("Skipping auto merge because Tuesday is release day");
+    log('Skipping auto merge because Tuesday is release day');
     return;
   }
 
@@ -36,7 +36,7 @@ export async function mergeRenovatePRs(
               nodes {
                 commit {
                   statusCheckRollup {
-                    state 
+                    state
                   }
                 }
               }
@@ -53,24 +53,24 @@ export async function mergeRenovatePRs(
         }
       }
     }`,
-    { owner, repo }
+    { owner, repo },
   );
   if (!data.repository) {
     throw new Error(`No such repository ${owner}/${repo}`);
   }
 
   const mergeable = data.repository.pullRequests.nodes?.filter(
-    (pr) =>
+    pr =>
       pr &&
-      pr.author?.login === "renovate" &&
-      pr.mergeable === "MERGEABLE" &&
+      pr.author?.login === 'renovate' &&
+      pr.mergeable === 'MERGEABLE' &&
       pr.changedFiles === 1 &&
-      pr.files?.nodes?.[0]?.path.split("/").slice(-1)[0] === "yarn.lock" &&
-      pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state === "SUCCESS" &&
-      pr.reviewDecision === "APPROVED"
+      pr.files?.nodes?.[0]?.path.split('/').slice(-1)[0] === 'yarn.lock' &&
+      pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state === 'SUCCESS' &&
+      pr.reviewDecision === 'APPROVED',
   );
   if (!mergeable?.length) {
-    log("No mergeable PRs");
+    log('No mergeable PRs');
     return;
   }
 
@@ -86,7 +86,7 @@ export async function mergeRenovatePRs(
     });
 
     if (waitTimeMs) {
-      await new Promise((r) => setTimeout(r, waitTimeMs));
+      await new Promise(r => setTimeout(r, waitTimeMs));
     }
   }
 }

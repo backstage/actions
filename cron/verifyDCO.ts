@@ -1,14 +1,14 @@
-import * as github from "@actions/github";
+import * as github from '@actions/github';
 
 export async function verifyDCO(
   client: ReturnType<typeof github.getOctokit>,
   repoInfo: { owner: string; repo: string },
-  log = console.log
+  log = console.log,
 ) {
   const { owner, repo } = repoInfo;
 
   const pulls = await client.paginate(client.rest.pulls.list, {
-    state: "open",
+    state: 'open',
     owner,
     repo,
   });
@@ -19,15 +19,15 @@ export async function verifyDCO(
       owner,
       repo,
       ref: pull.head.sha,
-      check_name: "DCO",
-      status: "completed",
+      check_name: 'DCO',
+      status: 'completed',
     });
     // Skip if there are no checks
     if (!checks.data.check_runs.length) {
       continue;
     }
     // Skip if the conclusion is not action_required
-    if (checks.data.check_runs[0].conclusion !== "action_required") {
+    if (checks.data.check_runs[0].conclusion !== 'action_required') {
       log(`No checks found for PR #${pull.number}, skipping`);
       continue;
     }
@@ -38,9 +38,9 @@ export async function verifyDCO(
     });
     if (
       comments.find(
-        (c) =>
-          c.user?.login === "github-actions[bot]" &&
-          c.body?.includes("<!-- dco -->")
+        c =>
+          c.user?.login === 'github-actions[bot]' &&
+          c.body?.includes('<!-- dco -->'),
       )
     ) {
       log(`Already commented on PR #${pull.number}, skipping`);
