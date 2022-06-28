@@ -1,6 +1,9 @@
 import * as github from "@actions/github";
 
-export async function verifyDCO(client: ReturnType<typeof github.getOctokit>) {
+export async function verifyDCO(
+  client: ReturnType<typeof github.getOctokit>,
+  log = console.log
+) {
   const owner = "backstage";
   const repo = "backstage";
 
@@ -25,7 +28,7 @@ export async function verifyDCO(client: ReturnType<typeof github.getOctokit>) {
     }
     // Skip if the conclusion is not action_required
     if (checks.data.check_runs[0].conclusion !== "action_required") {
-      console.log(`No checks found for PR #${pull.number}, skipping`);
+      log(`No checks found for PR #${pull.number}, skipping`);
       continue;
     }
     const comments = await client.paginate(client.rest.issues.listComments, {
@@ -40,10 +43,10 @@ export async function verifyDCO(client: ReturnType<typeof github.getOctokit>) {
           c.body?.includes("<!-- dco -->")
       )
     ) {
-      console.log(`already commented on PR #${pull.number}, skipping`);
+      log(`already commented on PR #${pull.number}, skipping`);
       continue;
     }
-    console.log(`creating comment on PR #${pull.number}`);
+    log(`creating comment on PR #${pull.number}`);
     const body = `
         Thanks for the contribution!
         All commits need to be DCO signed before they are reviewed. Please refer to the the [DCO section in CONTRIBUTING.md](https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md#developer-certificate-of-origin) or the [DCO](${checks.data.check_runs[0].html_url}) status for more info.
