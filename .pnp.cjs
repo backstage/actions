@@ -36,7 +36,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/core", "npm:1.9.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
-            ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/types", "npm:6.37.1"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["jest", "virtual:dc3fc578bfa5e06182a4d2be39ede0bc5b74940b1ffe0d70c26892ab140a4699787750fba175dc306292e80b4aa2c8c5f68c2a821e69b2c37e360c0dff36ff66#npm:28.1.1"],\
@@ -1359,6 +1359,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@octokit-types-npm-6.37.0-236ca6b745-7de86fbe0d.zip/node_modules/@octokit/types/",\
           "packageDependencies": [\
             ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/openapi-types", "npm:12.4.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:6.37.1", {\
+          "packageLocation": "./.yarn/cache/@octokit-types-npm-6.37.1-90a7b79715-d4d2b96fd4.zip/node_modules/@octokit/types/",\
+          "packageDependencies": [\
+            ["@octokit/types", "npm:6.37.1"],\
             ["@octokit/openapi-types", "npm:12.4.0"]\
           ],\
           "linkType": "HARD"\
@@ -4189,7 +4197,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/core", "npm:1.9.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
-            ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/types", "npm:6.37.1"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["jest", "virtual:dc3fc578bfa5e06182a4d2be39ede0bc5b74940b1ffe0d70c26892ab140a4699787750fba175dc306292e80b4aa2c8c5f68c2a821e69b2c37e360c0dff36ff66#npm:28.1.1"],\
