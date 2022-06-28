@@ -1,7 +1,6 @@
-import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-export async function dcoCheck(client: ReturnType<typeof github.getOctokit>) {
+export async function verifyDCO(client: ReturnType<typeof github.getOctokit>) {
   const owner = "backstage";
   const repo = "backstage";
 

@@ -1,7 +1,6 @@
-import { dcoCheck } from "./dco";
 import { describe, it, expect, jest } from "@jest/globals";
 import { getOctokit } from "@actions/github";
-import { OctokitResponse } from "@octokit/types";
+import { verifyDCO } from "./verifyDCO";
 
 type Octokit = ReturnType<typeof getOctokit>;
 
@@ -44,7 +43,7 @@ describe("DCO notice", () => {
     mockClient.rest.issues.listComments.mockResolvedValue({
       data: [{ user: { login: "boopy" } }],
     } as any);
-    await dcoCheck(client);
+    await verifyDCO(client);
 
     expect(mockClient.rest.checks.listForRef).toHaveBeenCalledWith({
       repo: "backstage",
@@ -87,7 +86,7 @@ describe("DCO notice", () => {
         },
       ],
     } as any);
-    await dcoCheck(client);
+    await verifyDCO(client);
 
     expect(mockClient.rest.checks.listForRef).toHaveBeenCalledWith({
       repo: "backstage",
@@ -116,7 +115,7 @@ describe("DCO notice", () => {
     mockClient.rest.checks.listForRef.mockResolvedValue({
       data: { check_runs: [{ conclusion: "ongoing" }] },
     } as any);
-    await dcoCheck(client);
+    await verifyDCO(client);
 
     expect(mockClient.rest.checks.listForRef).toHaveBeenCalledWith({
       repo: "backstage",

@@ -16,7 +16,7 @@ repository.
   - [ ] Migrate `.github/workflows/automate_review-labels.yaml`
   - [ ] Migrate `.github/workflows/sync_approve_renovate_pr.yaml`
   - [ ] Migrate `.github/workflows/sync_issue-labels.yml`
-  - [ ] Migrate `.github/workflows/verify_dco.yaml`
+  - [x] Migrate `.github/workflows/verify_dco.yaml`
   - [ ] Maybe migrate `.github/workflows/sync_dependabot-changesets.yml`?
   - [ ] Maybe migrate `.github/workflows/sync_renovate-changesets.yml`?
 
