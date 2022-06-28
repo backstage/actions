@@ -36,6 +36,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/core", "npm:1.9.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
+            ["@octokit/graphql-schema", "npm:10.74.1"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
@@ -1267,6 +1268,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/request", "npm:5.6.3"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["universal-user-agent", "npm:6.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@octokit/graphql-schema", [\
+        ["npm:10.74.1", {\
+          "packageLocation": "./.yarn/cache/@octokit-graphql-schema-npm-10.74.1-a085178d08-4d1a7db19b.zip/node_modules/@octokit/graphql-schema/",\
+          "packageDependencies": [\
+            ["@octokit/graphql-schema", "npm:10.74.1"],\
+            ["graphql", "npm:15.8.0"],\
+            ["graphql-tag", "virtual:a085178d0810b2274c9824e9c18b3396b0b7e840e15d21c62687125dea55f951d355ed77c1b11e8b56dff5c7117106a40912d00abda5bbc9bce0ab8cfa3286b9#npm:2.12.6"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2615,6 +2627,38 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/graceful-fs-npm-4.2.10-79c70989ca-3f109d70ae.zip/node_modules/graceful-fs/",\
           "packageDependencies": [\
             ["graceful-fs", "npm:4.2.10"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["graphql", [\
+        ["npm:15.8.0", {\
+          "packageLocation": "./.yarn/cache/graphql-npm-15.8.0-0156c66b65-423325271d.zip/node_modules/graphql/",\
+          "packageDependencies": [\
+            ["graphql", "npm:15.8.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["graphql-tag", [\
+        ["npm:2.12.6", {\
+          "packageLocation": "./.yarn/cache/graphql-tag-npm-2.12.6-99a5a7f6de-b15162a3d6.zip/node_modules/graphql-tag/",\
+          "packageDependencies": [\
+            ["graphql-tag", "npm:2.12.6"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:a085178d0810b2274c9824e9c18b3396b0b7e840e15d21c62687125dea55f951d355ed77c1b11e8b56dff5c7117106a40912d00abda5bbc9bce0ab8cfa3286b9#npm:2.12.6", {\
+          "packageLocation": "./.yarn/__virtual__/graphql-tag-virtual-6f0c4f8223/0/cache/graphql-tag-npm-2.12.6-99a5a7f6de-b15162a3d6.zip/node_modules/graphql-tag/",\
+          "packageDependencies": [\
+            ["graphql-tag", "virtual:a085178d0810b2274c9824e9c18b3396b0b7e840e15d21c62687125dea55f951d355ed77c1b11e8b56dff5c7117106a40912d00abda5bbc9bce0ab8cfa3286b9#npm:2.12.6"],\
+            ["@types/graphql", null],\
+            ["graphql", "npm:15.8.0"],\
+            ["tslib", "npm:2.4.0"]\
+          ],\
+          "packagePeers": [\
+            "@types/graphql",\
+            "graphql"\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4189,6 +4233,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/core", "npm:1.9.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
+            ["@octokit/graphql-schema", "npm:10.74.1"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
@@ -4665,6 +4710,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "@types/swc__wasm",\
             "@types/typescript",\
             "typescript"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["tslib", [\
+        ["npm:2.4.0", {\
+          "packageLocation": "./.yarn/cache/tslib-npm-2.4.0-9cb6dc5030-8c4aa6a3c5.zip/node_modules/tslib/",\
+          "packageDependencies": [\
+            ["tslib", "npm:2.4.0"]\
           ],\
           "linkType": "HARD"\
         }]\
