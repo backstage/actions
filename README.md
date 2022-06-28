@@ -6,12 +6,12 @@ repository.
 
 ## TODO
 
-- [ ] Get this repo set up with two initial actions, one for PR sync, and one
+- [x] Get this repo set up with two initial actions, one for PR sync, and one
       for cron polling.
 - [ ] Migrate all existing custom workflow scripts from backstage/backstage into
       these new actions.
 
-  - [ ] Migrate `.github/workflows/automate_merge_renovate_prs.yaml`
+  - [x] Migrate `.github/workflows/automate_merge_renovate_prs.yaml`
   - [ ] Migrate `.github/workflows/automate_review-labels-scheduled.yaml`
   - [ ] Migrate `.github/workflows/automate_review-labels.yaml`
   - [ ] Migrate `.github/workflows/sync_approve_renovate_pr.yaml`
