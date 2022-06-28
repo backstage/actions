@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.2",
   "scripts": {
     "test:dev": "nodemon --ext js,ts test/entry.js",
     "test": "yarn jest"
