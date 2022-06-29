@@ -1,10 +1,10 @@
-name: Sync Issue Labels
+name: Issue
 on:
   issues:
     types: [opened]
 
 jobs:
-  label-issue:
+  sync:
     runs-on: ubuntu-latest
 
     steps:

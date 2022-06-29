@@ -1,9 +1,9 @@
-name: PR Sync
+name: PR
 on:
   pull_request_target:
 
 jobs:
-  cron:
+  sync:
     runs-on: ubuntu-latest
 
     steps:
