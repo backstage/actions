@@ -3,11 +3,18 @@ import * as github from '@actions/github';
 import { verifyDCO } from './verifyDCO';
 import { mergeRenovatePRs } from './mergeRenovatePRs';
 import { mkLog } from '../lib/mkLog';
+import {
+  getApplicationToken,
+  readGetApplicationTokenOptions,
+} from '../lib/getApplicationToken';
 
 async function main() {
   core.info(`Running cron!`);
-  const token = core.getInput('github-token', { required: true });
-  const client = github.getOctokit(token);
+
+  const client = getApplicationToken(readGetApplicationTokenOptions());
+
+  // const token = core.getInput('github-token', { required: true });
+  // const client = github.getOctokit(token);
   const repoInfo = github.context.repo;
 
   await Promise.all([

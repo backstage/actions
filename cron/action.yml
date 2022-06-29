@@ -1,10 +1,20 @@
 name: Backstage Cron
 description: Repository operations on a schedule
 inputs:
-  github-token:
-    description: The GitHub token used to create an authenticated client
-    default: ${{ github.token }}
-    required: false
+  # github-token:
+  #   description: The GitHub token used to create an authenticated client
+  #   default: ${{ github.token }}
+  #   required: false
+  app-id:
+    description: The Application ID of the GitHub App to use for authentication
+    required: true
+  private-key:
+    description: The Private Key of the GitHub App to use for authentication
+    required: true
+  # organization:
+  #   description: The GitHub token used to create an authenticated client
+  #   default: ${{ github.token }}
+  #   required: true
 outputs: {}
 runs:
   using: node16
