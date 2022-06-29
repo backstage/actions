@@ -1,6 +1,10 @@
 name: Backstage PR Sync
 description: Action to sync Backstage PR tracking
-inputs: {}
+inputs:
+  github-token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: false
 outputs: {}
 runs:
   using: node16
