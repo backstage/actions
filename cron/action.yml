@@ -11,6 +11,9 @@ inputs:
   private-key:
     description: The Private Key of the GitHub App to use for authentication
     required: true
+  installation-id:
+    description: The Installation ID of the GitHub App to use for authentication
+    required: true
   # organization:
   #   description: The GitHub token used to create an authenticated client
   #   default: ${{ github.token }}
