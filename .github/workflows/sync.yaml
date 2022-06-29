@@ -7,6 +7,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: backstage/actions/pr-sync@v0.1.5
+      - uses: backstage/actions/pr-sync@v0.1.6
         with:
           github-token: ${{ secrets.GH_SERVICE_ACCOUNT_TOKEN }}
