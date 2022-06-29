@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import * as github from '@actions/github';
+import { GitHub } from '@actions/github/lib/utils';
 import { createAppAuth } from '@octokit/auth-app';
 
 export function createAppClient() {
@@ -9,7 +9,7 @@ export function createAppClient() {
   core.info(`appId: ${appId}`);
   core.setSecret(privateKey);
 
-  return github.getOctokit('', {
+  return new GitHub({
     authStrategy: createAppAuth,
     auth: {
       appId,
