@@ -1,0 +1,12 @@
+name: Sync Issue Labels
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync Issues
+        uses: backstage/actions/issue-sync@v0.1.7

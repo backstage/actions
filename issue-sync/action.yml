@@ -1,0 +1,11 @@
+name: Backstage Issue Sync
+description: Action to sync Backstage Issue tracking
+inputs:
+  github-token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: false
+outputs: {}
+runs:
+  using: node16
+  main: ./entry.js

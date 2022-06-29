@@ -13,8 +13,8 @@ repository.
 
   - [x] Migrate `.github/workflows/automate_merge_renovate_prs.yaml`
   - [ ] Migrate `.github/workflows/automate_review-labels-scheduled.yaml`
-  - [ ] Migrate `.github/workflows/automate_review-labels.yaml`
-  - [ ] Migrate `.github/workflows/sync_approve_renovate_pr.yaml`
+  - [x] Migrate `.github/workflows/automate_review-labels.yaml`
+  - [x] Migrate `.github/workflows/sync_approve_renovate_pr.yaml`
   - [ ] Migrate `.github/workflows/sync_issue-labels.yml`
   - [x] Migrate `.github/workflows/verify_dco.yaml`
   - [ ] Maybe migrate `.github/workflows/sync_dependabot-changesets.yml`?
