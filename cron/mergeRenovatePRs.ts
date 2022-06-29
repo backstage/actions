@@ -17,7 +17,7 @@ export async function mergeRenovatePRs(
   }
 
   const data = await client.graphql<{ repository?: Repository }>(
-    `{
+    `query ($owner: String!, $repo: String!) {
       repository(owner: $owner, name: $repo) {
         pullRequests(labels: ["dependencies"], last: 10, states: [OPEN]) {
           nodes {
@@ -26,7 +26,7 @@ export async function mergeRenovatePRs(
               login
             }
             number
-            mergable
+            mergeable
             files(first: 1) {
               nodes {
                 path
