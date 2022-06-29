@@ -15,7 +15,7 @@ async function main() {
       {
         ...repoInfo,
         issueNumber: github.context.issue.number,
-        issueTitle: (github.context.issue as { title?: string }).title,
+        issueTitle: github.context.payload.issue?.title,
       },
       mkLog('sync-issue-labels'),
     ),
