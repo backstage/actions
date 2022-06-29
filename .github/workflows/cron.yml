@@ -11,5 +11,5 @@ jobs:
     steps:
       - uses: backstage/actions/cron@v0.1.10
         with:
-          app-id: ${{ secrets.BACKSTAGE_GOALIE_APPLICATION_ID }}
+          app-id: '165448'
           private-key: ${{ secrets.BACKSTAGE_GOALIE_PRIVATE_KEY }}
