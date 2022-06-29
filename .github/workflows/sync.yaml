@@ -1,0 +1,10 @@
+name: PR Sync
+on:
+  pull_request_target:
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: backstage/actions/pr-sync@v0.1.5
