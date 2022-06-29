@@ -1,10 +1,11 @@
+import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Repository } from '@octokit/graphql-schema';
 
 export async function mergeRenovatePRs(
   client: ReturnType<typeof github.getOctokit>,
   repoInfo: { owner: string; repo: string },
-  log = console.log,
+  log = core.info,
   waitTimeMs = 2000,
 ) {
   const { owner, repo } = repoInfo;
