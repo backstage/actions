@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  verify:
+  release:
     runs-on: ubuntu-latest
 
     steps:
