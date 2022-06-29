@@ -1,9 +1,10 @@
+import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 export async function verifyDCO(
   client: ReturnType<typeof github.getOctokit>,
   repoInfo: { owner: string; repo: string },
-  log = console.log,
+  log = core.info,
 ) {
   const { owner, repo } = repoInfo;
 
