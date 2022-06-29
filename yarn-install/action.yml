@@ -1,4 +1,4 @@
-name: Yarn Setup
+name: Yarn Install
 description: Runs yarn install using caching with monorepo support
 inputs:
   cache-prefix:
