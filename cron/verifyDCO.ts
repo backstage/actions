@@ -37,13 +37,7 @@ export async function verifyDCO(
       repo,
       issue_number: pull.number,
     });
-    if (
-      comments.find(
-        c =>
-          c.user?.login === 'github-actions[bot]' &&
-          c.body?.includes('<!-- dco -->'),
-      )
-    ) {
+    if (comments.find(c => c.body?.includes('<!-- dco -->'))) {
       log(`Already commented on PR #${pull.number}, skipping`);
       continue;
     }
