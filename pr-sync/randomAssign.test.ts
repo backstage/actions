@@ -80,8 +80,13 @@ describe('randomAssign', () => {
     );
   });
 
-  it('should skip non open|reopen events', async () => {
+  it('should skip non open events', async () => {
     await randomAssign(client, { ...ctx, action: 'closed' }, log);
     expect(log).toHaveBeenCalledWith('Skipping assignment for closed action');
+  });
+
+  it('should skip assign if there is an owning team', async () => {
+    await randomAssign(client, { ...ctx, owningTeam: 'boopy' }, log);
+    expect(log).toHaveBeenCalledWith(`Skipping assignment for team boopy`);
   });
 });

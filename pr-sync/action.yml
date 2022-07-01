@@ -16,6 +16,9 @@ inputs:
   excluded-users:
     description: A comma separated list of usernames of users that should not be assigned PRs
     required: false
+  owning-teams:
+    description: A comma separated list of team IDs that can be assigned PRs
+    required: false
 outputs: {}
 runs:
   using: node16

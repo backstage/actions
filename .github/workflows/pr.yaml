@@ -12,10 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: backstage/actions/pr-sync@v0.3.4
+      - uses: backstage/actions/pr-sync@v0.3.5
         with:
           app-id: ${{ secrets.BACKSTAGE_GOALIE_APPLICATION_ID }}
           private-key: ${{ secrets.BACKSTAGE_GOALIE_PRIVATE_KEY }}
           installation-id: ${{ secrets.BACKSTAGE_GOALIE_INSTALLATION_ID }}
           project-id: PVT_kwDOBFKqdc02LQ
           excluded-users: freben
+          owning-teams: '@backstage/techdocs'

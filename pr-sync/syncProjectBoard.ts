@@ -1,6 +1,13 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Repository, Project, Organization } from '@octokit/graphql-schema';
+import {
+  Repository,
+  Organization,
+  AddProjectV2ItemByIdPayload,
+  UpdateProjectV2ItemFieldValuePayload,
+  ProjectV2,
+  ProjectV2SingleSelectField,
+} from '@octokit/graphql-schema';
 
 interface Options {
   owner: string;
@@ -8,6 +15,7 @@ interface Options {
   issueNumber: number;
   projectId: string;
   action?: string;
+  owningTeam?: string;
 }
 
 export async function syncProjectBoard(
@@ -49,7 +57,9 @@ async function addToBoard(
     throw new Error(`Failed to look up PR ID for #${options.issueNumber}`);
   }
 
-  await client.graphql(
+  const addedItem = await client.graphql<{
+    addProjectV2ItemById?: AddProjectV2ItemByIdPayload;
+  }>(
     `
     mutation($projectId: ID!, $contentId: ID!) {
       addProjectV2ItemById(input: {
@@ -67,6 +77,93 @@ async function addToBoard(
       contentId: prId,
     },
   );
+
+  if (options.owningTeam) {
+    const itemId = addedItem.addProjectV2ItemById?.item?.id;
+    if (!itemId) {
+      throw new Error(`Adding board item did not return an item ID`);
+    }
+    log(
+      `Marking item ${itemId} as external as PR is owned by ${options.owningTeam}`,
+    );
+
+    const projectInfo = await client.graphql<{ node?: ProjectV2 }>(
+      `
+      query (projectId: String!) {
+        node(id: $projectId) {
+          ... on ProjectV2 {
+            fields(first: 100) {
+              nodes {
+                ... on ProjectV2SingleSelectField {
+                  id
+                  name
+                  options {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`,
+      { projectId: options.projectId },
+    );
+
+    const statusField = projectInfo.node?.fields?.nodes?.find(
+      field => field?.name === 'Status',
+    );
+    if (!statusField) {
+      throw new Error(
+        `Unable to find status field, got ${JSON.stringify(
+          projectInfo,
+          null,
+          2,
+        )}`,
+      );
+    }
+    const optionField = (
+      statusField as ProjectV2SingleSelectField
+    ).options.find(o => o.name === 'External');
+    if (!optionField) {
+      throw new Error(
+        `Unable to find option 'External', got ${JSON.stringify(
+          statusField,
+          null,
+          2,
+        )}`,
+      );
+    }
+    await client.graphql<{
+      updateProjectV2ItemFieldValue: UpdateProjectV2ItemFieldValuePayload;
+    }>(
+      `
+      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+        updateProjectV2ItemFieldValue(
+          input: {
+            projectId: $projectId
+            itemId: $itemId
+            fieldId: $fieldId
+            value: {
+              singleSelectOptionId: $optionId
+            }
+          }
+        ) {
+          item {
+            id
+          }
+        }
+      }'
+
+    `,
+      {
+        itemId,
+        projectId: options.projectId,
+        fieldId: statusField.id,
+        optionId: optionField.id,
+      },
+    );
+  }
 }
 
 async function removeFromBoard(

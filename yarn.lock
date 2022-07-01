@@ -1624,6 +1624,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"codeowners-utils@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "codeowners-utils@npm:1.0.2"
+  dependencies:
+    cross-spawn: ^7.0.2
+    find-up: ^4.1.0
+    ignore: ^5.1.4
+    locate-path: ^5.0.0
+  checksum: 1e1c1f271ad4d4b4b25f6d19fc61f177f010bfb95de9af26662bb09c2f4f5572c1f3c8e9552aff15924f1c97058812bd5b5064d1eea721cc70e17490dae3fb02
+  languageName: node
+  linkType: hard
+
 "collect-v8-coverage@npm:^1.0.0":
   version: 1.0.1
   resolution: "collect-v8-coverage@npm:1.0.1"
@@ -1702,7 +1714,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.3":
+"cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3":
   version: 7.0.3
   resolution: "cross-spawn@npm:7.0.3"
   dependencies:
@@ -2178,6 +2190,13 @@ __metadata:
   dependencies:
     safer-buffer: ">= 2.1.2 < 3.0.0"
   checksum: 3f60d47a5c8fc3313317edfd29a00a692cc87a19cac0159e2ce711d0ebc9019064108323b5e493625e25594f11c6236647d8e256fbe7a58f4a3b33b89e6d30bf
+  languageName: node
+  linkType: hard
+
+"ignore@npm:^5.1.4":
+  version: 5.2.0
+  resolution: "ignore@npm:5.2.0"
+  checksum: 6b1f926792d614f64c6c83da3a1f9c83f6196c2839aa41e1e32dd7b8d174cef2e329d75caabb62cb61ce9dc432f75e67d07d122a037312db7caa73166a1bdb77
   languageName: node
   linkType: hard
 
@@ -3529,6 +3548,7 @@ __metadata:
     "@octokit/types": ^6.37.0
     "@types/jest": ^28.1.3
     "@types/node": ^18.0.0
+    codeowners-utils: ^1.0.2
     jest: ^28.1.1
     ts-jest: ^28.0.5
     ts-node: ^10.8.1
