@@ -89,7 +89,7 @@ async function addToBoard(
 
     const projectInfo = await client.graphql<{ node?: ProjectV2 }>(
       `
-      query (projectId: String!) {
+      query ($projectId: String!) {
         node(id: $projectId) {
           ... on ProjectV2 {
             fields(first: 100) {
