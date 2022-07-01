@@ -52,12 +52,19 @@ repository.
                      changes requested
   ```
 
+  Assign: The PR is assigned to a random user
+
+  Triage:
+
+  - If the PR is touching only files that are owned by a particular group, then remove the assignment, and external state, or remove from the board?
+
 - TODO:
 
   - Random Assign
     -> [x] Each PR that is opened should randomly be assigned to a mammal
     -> [ ] Try to automate pulp PRs as external (if only containing docs or search label)
     -> [x] Exclude OOO members, make this action input and store the state in a secret
+    -> [x] Do not assign author to their own PR
   - Triage
     -> [ ] add new triage result states as needed
   - Needs review

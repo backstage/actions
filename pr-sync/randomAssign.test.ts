@@ -18,6 +18,7 @@ const ctx = {
   issueNumber: 1,
   excludedUsers: '',
   action: 'opened',
+  author: 'le-actor',
 };
 const log = jest.fn();
 
@@ -36,7 +37,9 @@ describe('randomAssign', () => {
         expect.stringMatching(new RegExp(`^${REVIEWERS.join('|')}$`)),
       ],
     });
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('Assigned #1 to'));
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('Assigning #1 by @le-actor to @'),
+    );
   });
 
   it('should not assign to an excluded user', async () => {
@@ -51,7 +54,30 @@ describe('randomAssign', () => {
       issue_number: 1,
       assignees: [REVIEWERS[0]],
     });
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('Assigned #1 to'));
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('Assigning #1 by @le-actor to @'),
+    );
+  });
+
+  it('should not assign to the author', async () => {
+    await randomAssign(
+      client,
+      {
+        ...ctx,
+        author: 'Rugvip',
+        excludedUsers: REVIEWERS.slice(2).join(','),
+      },
+      log,
+    );
+    expect(mockClient.rest.issues.addAssignees).toHaveBeenCalledWith({
+      owner: 'le-owner',
+      repo: 'le-repo',
+      issue_number: 1,
+      assignees: [REVIEWERS[0]],
+    });
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('Assigning #1 by @Rugvip to @jhaals'),
+    );
   });
 
   it('should skip non open|reopen events', async () => {

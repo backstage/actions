@@ -7,6 +7,7 @@ interface Options {
   issueNumber: number;
   action?: string;
   excludedUsers?: string;
+  author?: string;
 }
 
 export const REVIEWERS = ['jhaals', 'Rugvip', 'benjdlambert', 'freben'];
@@ -16,23 +17,25 @@ export async function randomAssign(
   options: Options,
   log = core.info,
 ) {
-  const { owner, repo, issueNumber, action, excludedUsers } = options;
+  const { author, owner, repo, issueNumber, action, excludedUsers } = options;
 
   if (action !== 'opened') {
     log(`Skipping assignment for ${action} action`);
     return;
   }
 
-  const reviewer = await getRandomReviewer(
-    excludedUsers?.split(',').map(u => u.trim()),
-  );
+  const excludes = excludedUsers?.split(',').map(u => u.trim()) ?? [];
+  if (author) excludes.push(author);
+
+  const reviewer = await getRandomReviewer(excludes);
+  log(`Assigning #${issueNumber} by @${author} to @${reviewer}`);
+
   await client.rest.issues.addAssignees({
     owner,
     repo,
     issue_number: issueNumber,
     assignees: [reviewer],
   });
-  log(`Assigned #${issueNumber} to ${reviewer}`);
 }
 
 async function getRandomReviewer(excludedUsers?: string[]): Promise<string> {

@@ -18,6 +18,7 @@ async function main() {
     issueNumber: github.context.issue.number,
     projectId,
     actor: github.context.actor,
+    author: github.context.payload.pull_request?.user?.login,
     excludedUsers,
   };
 
