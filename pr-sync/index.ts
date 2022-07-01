@@ -11,7 +11,6 @@ async function main() {
   const boardNumberStr = core.getInput('board-number', { required: true });
   const excludedUsers = core.getInput('excluded-users', { required: false });
   const client = createAppClient();
-  const action = github.context.payload.action;
 
   const boardNumber = parseInt(boardNumberStr, 10);
   if (Number.isNaN(boardNumber)) {

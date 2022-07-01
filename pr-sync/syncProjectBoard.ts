@@ -52,6 +52,9 @@ async function addToBoard(
     { ...options },
   );
 
+  log(`DEBUG: prLookup = ${JSON.stringify(prLookup, null, 2)}`);
+  log(`DEBUG: boardNumber = ${JSON.stringify(options, null, 2)}`);
+
   const project = prLookup.organization?.projectsV2?.nodes?.find(
     p => p?.number === options.boardNumber,
   );

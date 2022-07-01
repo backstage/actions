@@ -18,7 +18,7 @@ export async function randomAssign(
 ) {
   const { owner, repo, issueNumber, action, excludedUsers } = options;
 
-  if (!action || !['opened', 'reopened'].includes(action)) {
+  if (action !== 'opened') {
     log(`Skipping assignment for ${action} action`);
     return;
   }
