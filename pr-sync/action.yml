@@ -13,6 +13,9 @@ inputs:
   board-number:
     description: The number of the project board to sync PRs towards
     required: false
+  excluded-users:
+    description: A comma separated list of usernames of users that should not be assigned PRs
+    required: false
 outputs: {}
 runs:
   using: node16

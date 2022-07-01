@@ -1,14 +1,25 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Repository } from '@octokit/graphql-schema';
+
+interface Options {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+  actor: string;
+  action?: string;
+}
 
 export async function approveRenovatePRs(
   client: ReturnType<typeof github.getOctokit>,
-  options: { owner: string; repo: string; issueNumber: number; actor: string },
+  options: Options,
   log = core.info,
   waitTimeMs = 2000,
 ) {
-  const { actor, owner, repo, issueNumber } = options;
+  const { actor, owner, repo, issueNumber, action } = options;
+
+  if (action === 'closed') {
+    return;
+  }
 
   if (actor !== 'renovate[bot]') {
     return;

@@ -4,12 +4,13 @@ import { mkLog } from '../lib/mkLog';
 import { approveRenovatePRs } from './approveRenovatePRs';
 import { syncProjectBoard } from './syncProjectBoard';
 import { createAppClient } from '../lib/createAppClient';
+import { randomAssign } from './randomAssign';
 
 async function main() {
   core.info(`Running pr-sync!`);
   const boardNumberStr = core.getInput('board-number', { required: true });
+  const excludedUsers = core.getInput('excluded-users', { required: false });
   const client = createAppClient();
-  const repoInfo = github.context.repo;
   const action = github.context.payload.action;
 
   const boardNumber = parseInt(boardNumberStr, 10);
@@ -18,34 +19,20 @@ async function main() {
     return;
   }
 
-  const promises = [
-    syncProjectBoard(
-      client,
-      {
-        ...repoInfo,
-        issueNumber: github.context.issue.number,
-        boardNumber,
-        action,
-      },
-      mkLog('approve-renovate-prs'),
-    ),
-  ];
+  const commonOptions = {
+    ...github.context.repo,
+    action: github.context.payload.action,
+    issueNumber: github.context.issue.number,
+    boardNumber,
+    actor: github.context.actor,
+    excludedUsers,
+  };
 
-  if (action !== 'closed') {
-    promises.push(
-      approveRenovatePRs(
-        client,
-        {
-          ...repoInfo,
-          issueNumber: github.context.issue.number,
-          actor: github.context.actor,
-        },
-        mkLog('approve-renovate-prs'),
-      ),
-    );
-  }
-
-  await Promise.all(promises);
+  await Promise.all([
+    syncProjectBoard(client, commonOptions, mkLog('approve-renovate-prs')),
+    randomAssign(client, commonOptions, mkLog('random-assign')),
+    approveRenovatePRs(client, commonOptions, mkLog('approve-renovate-prs')),
+  ]);
 }
 
 main().catch(error => {

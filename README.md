@@ -55,9 +55,9 @@ repository.
 - TODO:
 
   - Random Assign
-    -> [ ] Each PR that is opened should randomly be assigned to a mammal
+    -> [x] Each PR that is opened should randomly be assigned to a mammal
     -> [ ] Try to automate pulp PRs as external (if only containing docs or search label)
-    -> [ ] Exclude OOO members, make this action input and store the state in a secret
+    -> [x] Exclude OOO members, make this action input and store the state in a secret
   - Triage
     -> [ ] add new triage result states as needed
   - Needs review
