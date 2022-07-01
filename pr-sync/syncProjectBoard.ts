@@ -52,27 +52,23 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
 }`,
     { ...options },
   );
-  log(`Data: ${JSON.stringify(data)}`);
 
   const items =
     data.organization?.repository?.pullRequest?.projectItems?.nodes ?? [];
 
-  log(`Found items: ${JSON.stringify(items)}`);
-
   const item = items.find(i => i?.project?.number === options.boardNumber);
-  log(`Selected item: ${JSON.stringify(item)}`);
+  log(`Project board item is ${JSON.stringify(item)}`);
   if (!item) {
     return;
   }
 
-  const res = await client.graphql<{ repository?: Repository }>(
+  await client.graphql<{ repository?: Repository }>(
     `
-mutation {
+mutation($projectId: String!, $itemId: String!) {
   deleteProjectV2Item(input:{ projectId: $projectId, itemId: $itemId }) {
     deletedItemId
   }
 }`,
     { projectId: item.project.id, itemId: item.id },
   );
-  log(`Delete response: ${JSON.stringify(res)}`);
 }
