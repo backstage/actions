@@ -21,10 +21,52 @@ repository.
   - [ ] Maybe migrate `.github/workflows/sync_renovate-changesets.yml`?
 
 - New features targeting the maintenance project board:
+
   - [x] Remove items from the board instead of setting the status to "Done".
   - [ ] Automate the move to the "Changes Requested" column.
   - [ ] Custom logic for adding PRs to the board, skip PRs that do not have DCO,
         but add them once they do.
+
+- Assigning PRs:
+
+  - Pros:
+    - Less context switching for reviewers
+    - Higher throughput
+    - PRs are assigned to people familiar with the code
+    - Goalie workload is reduced
+    - Goalie can join the mob
+  - Cons:
+    - Needs tooling / processes
+  - Risks:
+    - When do we review PRs then? Needs dedicated time?
+    - Assigning PRs based on familiarity can lead to silos
+    - Stale waiting on reviewer because of unknown reasons? Vacations or sickness?
+
+- PR WoW changes?
+
+  ```
+  assign -> triage -> needs review -> merge/close
+              |             ^
+              v             |
+          external          v
+                     changes requested
+  ```
+
+- TODO:
+
+  - Random Assign
+    -> [ ] Each PR that is opened should randomly be assigned to a mammal
+    -> [ ] Try to automate pulp PRs as external (if only containing docs or search label)
+    -> [ ] Exclude OOO members, make this action input and store the state in a secret
+  - Triage
+    -> [ ] add new triage result states as needed
+  - Needs review
+    -> [ ] use the built-in changes request automation
+  - Changes requested
+    -> [ ] Migrate awaiting review label workflow to this
+    -> [ ] build automation for moving PRs back to 'needs review' when needed
+  - Merge/close
+    -> [x] remove from board
 
 ## Docs
 
