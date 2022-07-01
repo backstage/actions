@@ -36,7 +36,7 @@ async function addToBoard(
     `
     query($owner: String!, $repo: String!, $issueNumber: Int!){
       repository(owner: $owner, name: $repo) {
-        pullRequest(number: $number) {
+        pullRequest(number: $issueNumber) {
           id
         }
       }
