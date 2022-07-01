@@ -15,3 +15,4 @@ jobs:
       - uses: backstage/actions/pr-sync@v0.2.3
         with:
           github-token: ${{ secrets.GH_SERVICE_ACCOUNT_TOKEN }}
+          board-number: 2
