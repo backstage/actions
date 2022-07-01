@@ -20,7 +20,7 @@ export async function syncProjectBoard(
   }
 }
 
-export async function removeFromBoard(
+async function removeFromBoard(
   client: ReturnType<typeof github.getOctokit>,
   options: Options,
   log = core.info,
