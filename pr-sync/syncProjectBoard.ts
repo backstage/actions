@@ -35,6 +35,8 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
   organization(login: $owner) {
     repository(name: $repo) {
       pullRequest(number: $issueNumber) {
+        id
+        title
         projectItems(first: 10) {
           nodes {
             id
@@ -50,6 +52,7 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
 }`,
     { ...options },
   );
+  log(`Data: ${JSON.stringify(data)}`);
 
   const items =
     data.organization?.repository?.pullRequest?.projectItems?.nodes ?? [];
