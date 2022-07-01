@@ -154,7 +154,7 @@ async function addToBoard(
             id
           }
         }
-      }'
+      }
 
     `,
       {
