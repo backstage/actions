@@ -3,12 +3,12 @@ import * as github from '@actions/github';
 import { mkLog } from '../lib/mkLog';
 import { approveRenovatePRs } from './approveRenovatePRs';
 import { syncProjectBoard } from './syncProjectBoard';
+import { createAppClient } from '../lib/createAppClient';
 
 async function main() {
   core.info(`Running pr-sync!`);
-  const token = core.getInput('github-token', { required: true });
   const boardNumberStr = core.getInput('board-number', { required: true });
-  const client = github.getOctokit(token);
+  const client = createAppClient();
   const repoInfo = github.context.repo;
   const action = github.context.payload.action;
 
