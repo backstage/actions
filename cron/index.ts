@@ -10,8 +10,6 @@ async function main() {
 
   const client = createAppClient();
 
-  // const token = core.getInput('github-token', { required: true });
-  // const client = github.getOctokit(token);
   const repoInfo = github.context.repo;
 
   await Promise.all([
