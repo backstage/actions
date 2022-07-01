@@ -21,7 +21,7 @@ repository.
   - [ ] Maybe migrate `.github/workflows/sync_renovate-changesets.yml`?
 
 - New features targeting the maintenance project board:
-  - [ ] Remove items from the board instead of setting the status to "Done".
+  - [x] Remove items from the board instead of setting the status to "Done".
   - [ ] Automate the move to the "Changes Requested" column.
   - [ ] Custom logic for adding PRs to the board, skip PRs that do not have DCO,
         but add them once they do.
