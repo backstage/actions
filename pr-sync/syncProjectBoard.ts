@@ -150,7 +150,7 @@ async function addToBoard(
             }
           }
         ) {
-          projectItemV2 {
+          projectV2Item {
             id
           }
         }
