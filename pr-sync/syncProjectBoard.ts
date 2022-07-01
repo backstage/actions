@@ -139,7 +139,7 @@ async function addToBoard(
       updateProjectV2ItemFieldValue: UpdateProjectV2ItemFieldValuePayload;
     }>(
       `
-      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
         updateProjectV2ItemFieldValue(
           input: {
             projectId: $projectId,
@@ -150,12 +150,11 @@ async function addToBoard(
             }
           }
         ) {
-          item {
+          projectItemV2 {
             id
           }
         }
       }
-
     `,
       {
         itemId,
