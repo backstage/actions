@@ -8,21 +8,15 @@ import { randomAssign } from './randomAssign';
 
 async function main() {
   core.info(`Running pr-sync!`);
-  const boardNumberStr = core.getInput('board-number', { required: true });
+  const projectId = core.getInput('project-id', { required: true });
   const excludedUsers = core.getInput('excluded-users', { required: false });
   const client = createAppClient();
-
-  const boardNumber = parseInt(boardNumberStr, 10);
-  if (Number.isNaN(boardNumber)) {
-    core.setFailed(`Invalid board number: ${boardNumberStr}`);
-    return;
-  }
 
   const commonOptions = {
     ...github.context.repo,
     action: github.context.payload.action,
     issueNumber: github.context.issue.number,
-    boardNumber,
+    projectId,
     actor: github.context.actor,
     excludedUsers,
   };

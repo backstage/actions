@@ -6,7 +6,7 @@ interface Options {
   owner: string;
   repo: string;
   issueNumber: number;
-  boardNumber: number;
+  projectId: string;
   action?: string;
 }
 
@@ -28,7 +28,7 @@ async function addToBoard(
   options: Options,
   log = core.info,
 ) {
-  log(`Adding PR ${options.issueNumber} to board ${options.boardNumber}`);
+  log(`Adding PR ${options.issueNumber} to board ${options.projectId}`);
   const prLookup = await client.graphql<{
     repository?: Repository;
     organization?: Organization;
@@ -40,33 +40,13 @@ async function addToBoard(
           id
         }
       }
-      organization(login: $owner) {
-        projectsV2(first: 10) {
-          nodes {
-            id
-            number
-          }
-        }
-      }
     }`,
     { ...options },
   );
 
-  log(`DEBUG: prLookup = ${JSON.stringify(prLookup, null, 2)}`);
-  log(`DEBUG: boardNumber = ${JSON.stringify(options, null, 2)}`);
-
-  const project = prLookup.organization?.projectsV2?.nodes?.find(
-    p => p?.number === options.boardNumber,
-  );
-  if (!project) {
-    throw new Error(
-      `No project was found for board number ${options.boardNumber}`,
-    );
-  }
-
   const prId = prLookup.repository?.pullRequest?.id;
   if (!prId) {
-    throw new Error(`Failed to look up PR ID for ${options.issueNumber}`);
+    throw new Error(`Failed to look up PR ID for #${options.issueNumber}`);
   }
 
   await client.graphql(
@@ -83,7 +63,7 @@ async function addToBoard(
     }
   `,
     {
-      projectId: project.id,
+      projectId: options.projectId,
       contentId: prId,
     },
   );
@@ -94,9 +74,7 @@ async function removeFromBoard(
   options: Options,
   log = core.info,
 ) {
-  log(
-    `Removing issue ${options.issueNumber} from board ${options.boardNumber}`,
-  );
+  log(`Removing issue ${options.issueNumber} from board ${options.projectId}`);
 
   const data = await client.graphql<{ organization?: Organization }>(
     `
@@ -111,7 +89,6 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
             id
             project {
               id
-              number
             }
           }
         }
@@ -125,7 +102,7 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
   const items =
     data.organization?.repository?.pullRequest?.projectItems?.nodes ?? [];
 
-  const item = items.find(i => i?.project?.number === options.boardNumber);
+  const item = items.find(i => i?.project?.id === options.projectId);
   log(`Project board item is ${JSON.stringify(item)}`);
   if (!item) {
     return;

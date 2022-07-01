@@ -10,9 +10,9 @@ inputs:
   installation-id:
     description: The Installation ID of the GitHub App to use for authentication
     required: true
-  board-number:
-    description: The number of the project board to sync PRs towards
-    required: false
+  project-id:
+    description: The ID of the project board to sync PRs towards
+    required: true
   excluded-users:
     description: A comma separated list of usernames of users that should not be assigned PRs
     required: false

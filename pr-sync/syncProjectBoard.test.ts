@@ -12,7 +12,7 @@ const ctx = {
   owner: 'le-owner',
   repo: 'le-repo',
   issueNumber: 1,
-  boardNumber: 2,
+  projectId: 'p2',
 };
 const log = jest.fn();
 
@@ -33,20 +33,6 @@ describe('syncProjectBoard', () => {
           id: 'pr-id',
         },
       },
-      organization: {
-        projectsV2: {
-          nodes: [
-            {
-              id: 'p1',
-              number: 1,
-            },
-            {
-              id: 'p2',
-              number: 2,
-            },
-          ],
-        },
-      },
     });
 
     mockClient.graphql.mockResolvedValueOnce({
@@ -59,36 +45,20 @@ describe('syncProjectBoard', () => {
       projectId: 'p2',
       contentId: 'pr-id',
     });
-    expect(log).toHaveBeenCalledWith(`Adding PR 1 to board 2`);
+    expect(log).toHaveBeenCalledWith('Adding PR 1 to board p2');
   });
 
-  it('should fail to add to board if project is not found', async () => {
+  it('should fail to add to board if PR is not found', async () => {
     mockClient.graphql.mockResolvedValueOnce({
       repository: {
-        pullRequest: {
-          id: 'pr-id',
-        },
-      },
-      organization: {
-        projectsV2: {
-          nodes: [
-            {
-              id: 'p1',
-              number: 1,
-            },
-            {
-              id: 'p3',
-              number: 3,
-            },
-          ],
-        },
+        pullRequest: null,
       },
     });
 
     await expect(
       syncProjectBoard(client, { ...ctx, action: 'reopened' }, log),
-    ).rejects.toThrow('No project was found for board number 2');
-    expect(log).toHaveBeenCalledWith(`Adding PR 1 to board 2`);
+    ).rejects.toThrow('Failed to look up PR ID for #1');
+    expect(log).toHaveBeenCalledWith('Adding PR 1 to board p2');
   });
 
   it('should remove the issue from a project board if it has been closed', async () => {
@@ -101,8 +71,7 @@ describe('syncProjectBoard', () => {
                 {
                   id: '1',
                   project: {
-                    id: 'blob',
-                    number: 2,
+                    id: 'p2',
                   },
                 },
               ],
@@ -119,9 +88,9 @@ describe('syncProjectBoard', () => {
     });
 
     await syncProjectBoard(client, { ...ctx, action: 'closed' }, log);
-    expect(log).toHaveBeenCalledWith('Removing issue 1 from board 2');
+    expect(log).toHaveBeenCalledWith('Removing issue 1 from board p2');
     expect(log).toHaveBeenCalledWith(
-      'Project board item is {"id":"1","project":{"id":"blob","number":2}}',
+      'Project board item is {"id":"1","project":{"id":"p2"}}',
     );
   });
 });
