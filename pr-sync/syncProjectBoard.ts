@@ -25,7 +25,9 @@ export async function removeFromBoard(
   options: Options,
   log = core.info,
 ) {
-  log(`Removing issue ${options.issueNumber} from board`);
+  log(
+    `Removing issue ${options.issueNumber} from board ${options.boardNumber}`,
+  );
 
   const data = await client.graphql<{ organization?: Organization }>(
     `
@@ -52,12 +54,15 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
   const items =
     data.organization?.repository?.pullRequest?.projectItems?.nodes ?? [];
 
+  log(`Found items: ${JSON.stringify(items)}`);
+
   const item = items.find(i => i?.project?.number === options.boardNumber);
+  log(`Selected item: ${JSON.stringify(item)}`);
   if (!item) {
     return;
   }
 
-  await client.graphql<{ repository?: Repository }>(
+  const res = await client.graphql<{ repository?: Repository }>(
     `
 mutation {
   deleteProjectV2Item(input:{ projectId: $projectId, itemId: $itemId }) {
@@ -66,4 +71,5 @@ mutation {
 }`,
     { projectId: item.project.id, itemId: item.id },
   );
+  log(`Delete response: ${JSON.stringify(res)}`);
 }
