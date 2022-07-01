@@ -64,7 +64,7 @@ query ($owner: String!, $repo: String!, $issueNumber: Int!) {
 
   await client.graphql<{ repository?: Repository }>(
     `
-mutation($projectId: String!, $itemId: String!) {
+mutation($projectId: ID!, $itemId: ID!) {
   deleteProjectV2Item(input:{ projectId: $projectId, itemId: $itemId }) {
     deletedItemId
   }
