@@ -13,6 +13,8 @@ const ctx = {
   repo: 'le-repo',
   issueNumber: 1,
   projectId: 'p2',
+  actor: 'le-actor',
+  author: 'le-author',
 };
 const log = jest.fn();
 
