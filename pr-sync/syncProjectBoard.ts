@@ -78,7 +78,7 @@ async function addToBoard(
     projectId: options.projectId,
     fieldId: addedField?.id,
     itemId,
-    value: { date: new Date().toISOString() },
+    value: { text: new Date().toISOString().replace('T', ' ').slice(0, -5) },
   });
 
   if (options.owningTeam) {
