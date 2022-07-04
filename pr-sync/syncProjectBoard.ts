@@ -247,8 +247,8 @@ async function getBoardStatus(
                   ... on ProjectV2ItemFieldSingleSelectValue {
                     name
                     field {
-                      id
                       ... on ProjectV2SingleSelectField {
+                        id
                         name
                         options {
                           id
