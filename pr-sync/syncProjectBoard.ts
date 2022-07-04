@@ -42,7 +42,7 @@ export async function syncProjectBoard(
     options.eventName === 'issue_comment' ||
     options.eventName === 'pull_request_review_comment'
   ) {
-    if (options.actor === 'PR_AUTHOR') {
+    if (options.actor === options.author) {
       await maybeSetReReviewStatus(client, options, log);
     }
   }

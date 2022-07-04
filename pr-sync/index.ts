@@ -12,12 +12,13 @@ async function main() {
   const eventName = github.context.eventName;
   const issueNumber = github.context.issue.number;
   const actor = github.context.actor;
-  const author = github.context.payload.pull_request?.user?.login;
+  const author = (
+    github.context.payload.pull_request ?? github.context.payload.issue
+  )?.user?.login as string | undefined;
 
   core.info(
     `PR sync #${issueNumber} ${eventName}/${action} actor=${actor} author=${author}`,
   );
-  core.info(`context: ${JSON.stringify(github.context, null, 2)}`);
 
   const projectId = core.getInput('project-id', { required: true });
   const excludedUsers = core.getInput('excluded-users', { required: false });
