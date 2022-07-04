@@ -12,6 +12,7 @@ const ctx = {
   owner: 'le-owner',
   repo: 'le-repo',
   issueNumber: 1,
+  eventName: 'pull_request_target',
   projectId: 'p2',
   actor: 'le-actor',
   author: 'le-author',

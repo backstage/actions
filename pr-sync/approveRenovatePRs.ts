@@ -5,6 +5,7 @@ interface Options {
   owner: string;
   repo: string;
   issueNumber: number;
+  eventName: string;
   actor: string;
   action?: string;
 }
@@ -17,6 +18,9 @@ export async function approveRenovatePRs(
 ) {
   const { actor, owner, repo, issueNumber, action } = options;
 
+  if (options.eventName !== 'pull_request_target') {
+    return;
+  }
   if (action === 'closed') {
     return;
   }

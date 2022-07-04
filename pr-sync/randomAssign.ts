@@ -5,6 +5,7 @@ interface Options {
   owner: string;
   repo: string;
   issueNumber: number;
+  eventName: string;
   action?: string;
   excludedUsers?: string;
   author?: string;
@@ -20,6 +21,9 @@ export async function randomAssign(
 ) {
   const { author, owner, repo, issueNumber, action, owningTeam } = options;
 
+  if (options.eventName !== 'pull_request_target') {
+    return;
+  }
   if (action !== 'opened') {
     log(`Skipping assignment for ${action} action`);
     return;

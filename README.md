@@ -75,6 +75,7 @@ repository.
     -> [ ] build automation for moving PRs back to 'Re-Review' when needed, migrate awaiting review label workflow to this
   - Merge/close
     -> [x] remove from board
+  - [ ] Verify that it works with forks
 
 ## Docs
 

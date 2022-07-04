@@ -17,6 +17,7 @@ const ctx = {
   owner: 'le-owner',
   repo: 'le-repo',
   issueNumber: 1,
+  eventName: 'pull_request_target',
   actor: 'renovate[bot]',
 };
 const log = jest.fn();

@@ -16,6 +16,7 @@ const ctx = {
   owner: 'le-owner',
   repo: 'le-repo',
   issueNumber: 1,
+  eventName: 'pull_request_target',
   excludedUsers: '',
   action: 'opened',
   author: 'le-actor',

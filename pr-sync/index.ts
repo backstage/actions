@@ -8,7 +8,17 @@ import { randomAssign } from './randomAssign';
 import { getPrOwner } from './getPrOwner';
 
 async function main() {
-  core.info(`Running pr-sync!`);
+  const action = github.context.payload.action;
+  const eventName = github.context.eventName;
+  const issueNumber = github.context.issue.number;
+  const actor = github.context.actor;
+  const author = github.context.payload.pull_request?.user?.login;
+
+  core.info(
+    `PR sync #${issueNumber} ${eventName}/${action} actor=${actor} author=${author}`,
+  );
+  core.info(`context: ${JSON.stringify(github.context, null, 2)}`);
+
   const projectId = core.getInput('project-id', { required: true });
   const excludedUsers = core.getInput('excluded-users', { required: false });
   const owningTeams = core.getInput('owning-teams', { required: false });
@@ -28,11 +38,12 @@ async function main() {
 
   const commonOptions = {
     ...github.context.repo,
-    action: github.context.payload.action,
-    issueNumber: github.context.issue.number,
+    action,
+    eventName,
+    issueNumber,
     projectId,
-    actor: github.context.actor,
-    author: github.context.payload.pull_request?.user?.login,
+    actor,
+    author,
     excludedUsers,
     owningTeam,
   };

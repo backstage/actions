@@ -9,11 +9,13 @@ import {
   ProjectV2SingleSelectField,
   ProjectV2ItemFieldSingleSelectValue,
 } from '@octokit/graphql-schema';
+import { REVIEWERS } from './randomAssign';
 
 interface Options {
   owner: string;
   repo: string;
   issueNumber: number;
+  eventName: string;
   projectId: string;
   action?: string;
   author?: string;
@@ -26,14 +28,23 @@ export async function syncProjectBoard(
   options: Options,
   log = core.info,
 ) {
-  if (['opened', 'reopened'].includes(options.action!)) {
-    await addToBoard(client, options, log);
-  }
-  if (options.action === 'closed') {
-    await removeFromBoard(client, options, log);
-  }
-  if (options.action === 'synchronize' || options.action === 'created') {
-    await synchronizeBoard(client, options, log);
+  if (options.eventName === 'pull_request_target') {
+    if (['opened', 'reopened'].includes(options.action!)) {
+      await addToBoard(client, options, log);
+    }
+    if (options.action === 'closed') {
+      await removeFromBoard(client, options, log);
+    }
+    if (options.action === 'synchronize') {
+      await maybeSetReReviewStatus(client, options, log);
+    }
+  } else if (
+    options.eventName === 'issue_comment' ||
+    options.eventName === 'pull_request_review_comment'
+  ) {
+    if (options.actor === 'PR_AUTHOR') {
+      await maybeSetReReviewStatus(client, options, log);
+    }
   }
 }
 
@@ -323,21 +334,11 @@ async function getBoardStatus(
   };
 }
 
-async function synchronizeBoard(
+async function maybeSetReReviewStatus(
   client: ReturnType<typeof github.getOctokit>,
   options: Options,
   log = core.info,
 ) {
-  let needsReReview = false;
-  if (options.action === 'synchronize') {
-    needsReReview = true;
-  }
-
-  if (!needsReReview) {
-    log(`PR #${options.issueNumber} does not need re-review, skipping`);
-    return;
-  }
-
   const status = await getBoardStatus(client, options, log);
 
   if (status?.current === 'Changes Requested') {
