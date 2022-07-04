@@ -39,8 +39,31 @@ describe('syncProjectBoard', () => {
     });
 
     mockClient.graphql.mockResolvedValueOnce({
-      deleteProjectV2Item: {
-        deletedItemId: 'deleted-item-id',
+      addProjectV2ItemById: {
+        item: { id: 'added-item-id' },
+      },
+    });
+
+    mockClient.graphql.mockResolvedValueOnce({
+      node: {
+        fields: {
+          nodes: [
+            {
+              id: 'field-1',
+              name: 'Foo',
+            },
+            {
+              id: 'field-2',
+              name: 'Added',
+            },
+          ],
+        },
+      },
+    });
+
+    mockClient.graphql.mockResolvedValueOnce({
+      projectV2Item: {
+        id: 'item-3',
       },
     });
     await syncProjectBoard(client, { ...ctx, action: 'opened' }, log);

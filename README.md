@@ -65,17 +65,17 @@ repository.
     -> [x] Try to automate pulp PRs as external (if only containing docs or search label)
     -> [x] Exclude OOO members, make this action input and store the state in a secret
     -> [x] Do not assign author to their own PR
-    -> [ ] Add added timestamp
+    -> [x] Add added timestamp
     -> [ ] Add changed timestamp
   - Triage
     -> [ ] add new triage result states as needed
   - Needs review
     -> [x] use the built-in changes request automation
   - Changes requested
-    -> [ ] build automation for moving PRs back to 'Re-Review' when needed, migrate awaiting review label workflow to this
+    -> [x] build automation for moving PRs back to 'Re-Review' when needed, migrate awaiting review label workflow to this
   - Merge/close
     -> [x] remove from board
-  - [ ] Verify that it works with forks
+  - [x] Verify that it works with forks
 
 ## Docs
 

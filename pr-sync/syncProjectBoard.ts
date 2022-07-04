@@ -3,13 +3,16 @@ import * as github from '@actions/github';
 import {
   Repository,
   Organization,
-  AddProjectV2ItemByIdPayload,
   UpdateProjectV2ItemFieldValuePayload,
-  ProjectV2,
   ProjectV2SingleSelectField,
   ProjectV2ItemFieldSingleSelectValue,
 } from '@octokit/graphql-schema';
-import { REVIEWERS } from './randomAssign';
+import {
+  addPullRequestToProjectBoard,
+  getProjectV2Fields,
+  getPullRequestNodeId,
+  updateProjectV2FieldValue,
+} from '../lib/graphql';
 
 interface Options {
   owner: string;
@@ -54,89 +57,39 @@ async function addToBoard(
   log = core.info,
 ) {
   log(`Adding PR ${options.issueNumber} to board ${options.projectId}`);
-  const prLookup = await client.graphql<{
-    repository?: Repository;
-    organization?: Organization;
-  }>(
-    `
-    query($owner: String!, $repo: String!, $issueNumber: Int!){
-      repository(owner: $owner, name: $repo) {
-        pullRequest(number: $issueNumber) {
-          id
-        }
-      }
-    }`,
-    { ...options },
+
+  const { nodeId: pullRequestNodeId } = await getPullRequestNodeId(
+    client,
+    options,
   );
 
-  const prId = prLookup.repository?.pullRequest?.id;
-  if (!prId) {
-    throw new Error(`Failed to look up PR ID for #${options.issueNumber}`);
+  const { itemId } = await addPullRequestToProjectBoard(client, {
+    projectId: options.projectId,
+    pullRequestNodeId,
+  });
+
+  const fields = await getProjectV2Fields(client, options);
+  const addedField = fields?.find(field => field?.name === 'Added');
+  if (!addedField) {
+    throw new Error('Could not find "Added" field');
   }
 
-  const addedItem = await client.graphql<{
-    addProjectV2ItemById?: AddProjectV2ItemByIdPayload;
-  }>(
-    `
-    mutation($projectId: ID!, $contentId: ID!) {
-      addProjectV2ItemById(input: {
-        projectId: $projectId,
-        contentId: $contentId,
-      }) {
-        item {
-          id
-        }
-      }
-    }
-  `,
-    {
-      projectId: options.projectId,
-      contentId: prId,
-    },
-  );
+  await updateProjectV2FieldValue(client, {
+    projectId: options.projectId,
+    fieldId: addedField?.id,
+    itemId,
+    value: { date: new Date().toISOString() },
+  });
 
   if (options.owningTeam) {
-    const itemId = addedItem.addProjectV2ItemById?.item?.id;
-    if (!itemId) {
-      throw new Error(`Adding board item did not return an item ID`);
-    }
     log(
       `Marking item ${itemId} as external as PR is owned by ${options.owningTeam}`,
     );
 
-    const projectInfo = await client.graphql<{ node?: ProjectV2 }>(
-      `
-      query ($projectId: ID!) {
-        node(id: $projectId) {
-          ... on ProjectV2 {
-            fields(first: 100) {
-              nodes {
-                ... on ProjectV2SingleSelectField {
-                  id
-                  name
-                  options {
-                    id
-                    name
-                  }
-                }
-              }
-            }
-          }
-        }
-      }`,
-      { projectId: options.projectId },
-    );
-
-    const statusField = projectInfo.node?.fields?.nodes?.find(
-      field => field?.name === 'Status',
-    );
+    const statusField = fields?.find(field => field?.name === 'Status');
     if (!statusField) {
       throw new Error(
-        `Unable to find status field, got ${JSON.stringify(
-          projectInfo,
-          null,
-          2,
-        )}`,
+        `Unable to find status field in ${JSON.stringify(fields, null, 2)}`,
       );
     }
 
@@ -152,34 +105,13 @@ async function addToBoard(
         )}`,
       );
     }
-    await client.graphql<{
-      updateProjectV2ItemFieldValue: UpdateProjectV2ItemFieldValuePayload;
-    }>(
-      `
-      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-        updateProjectV2ItemFieldValue(
-          input: {
-            projectId: $projectId,
-            itemId: $itemId,
-            fieldId: $fieldId,
-            value: {
-              singleSelectOptionId: $optionId
-            }
-          }
-        ) {
-          projectV2Item {
-            id
-          }
-        }
-      }
-    `,
-      {
-        itemId,
-        projectId: options.projectId,
-        fieldId: statusField.id,
-        optionId: optionField.id,
-      },
-    );
+
+    await updateProjectV2FieldValue(client, {
+      projectId: options.projectId,
+      fieldId: statusField.id,
+      itemId,
+      value: { singleSelectOptionId: optionField.id },
+    });
   }
 }
 
