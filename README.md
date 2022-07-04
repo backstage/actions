@@ -62,13 +62,13 @@ repository.
 
   - Random Assign
     -> [x] Each PR that is opened should randomly be assigned to a mammal
-    -> [ ] Try to automate pulp PRs as external (if only containing docs or search label)
+    -> [x] Try to automate pulp PRs as external (if only containing docs or search label)
     -> [x] Exclude OOO members, make this action input and store the state in a secret
     -> [x] Do not assign author to their own PR
   - Triage
     -> [ ] add new triage result states as needed
   - Needs review
-    -> [ ] use the built-in changes request automation
+    -> [x] use the built-in changes request automation
   - Changes requested
     -> [ ] Migrate awaiting review label workflow to this
     -> [ ] build automation for moving PRs back to 'needs review' when needed
