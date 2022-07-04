@@ -66,7 +66,7 @@ repository.
     -> [x] Exclude OOO members, make this action input and store the state in a secret
     -> [x] Do not assign author to their own PR
     -> [x] Add added timestamp
-    -> [ ] Add changed timestamp
+    -> [x] Add changed timestamp
   - Triage
     -> [ ] add new triage result states as needed
   - Needs review

@@ -11,6 +11,7 @@ import {
   addPullRequestToProjectBoard,
   getProjectV2Fields,
   getPullRequestNodeId,
+  getPullRequestProjectV2ItemId,
   updateProjectV2FieldValue,
 } from '../lib/graphql';
 
@@ -40,6 +41,7 @@ export async function syncProjectBoard(
     }
     if (options.action === 'synchronize') {
       await maybeSetReReviewStatus(client, options, log);
+      await updateChangedTimestamp(client, options, log);
     }
   } else if (
     options.eventName === 'issue_comment' ||
@@ -122,35 +124,9 @@ async function removeFromBoard(
 ) {
   log(`Removing issue ${options.issueNumber} from board ${options.projectId}`);
 
-  const data = await client.graphql<{ organization?: Organization }>(
-    `
-query ($owner: String!, $repo: String!, $issueNumber: Int!) {
-  organization(login: $owner) {
-    repository(name: $repo) {
-      pullRequest(number: $issueNumber) {
-        id
-        title
-        projectItems(first: 10) {
-          nodes {
-            id
-            project {
-              id
-            }
-          }
-        }
-      }
-    }
-  }
-}`,
-    { ...options },
-  );
-
-  const items =
-    data.organization?.repository?.pullRequest?.projectItems?.nodes ?? [];
-
-  const item = items.find(i => i?.project?.id === options.projectId);
-  log(`Project board item is ${JSON.stringify(item)}`);
-  if (!item) {
+  const { itemId } = await getPullRequestProjectV2ItemId(client, options);
+  log(`Project board item is ${itemId ?? 'missing'}`);
+  if (!itemId) {
     return;
   }
 
@@ -161,7 +137,7 @@ mutation($projectId: ID!, $itemId: ID!) {
     deletedItemId
   }
 }`,
-    { projectId: item.project.id, itemId: item.id },
+    { projectId: options.projectId, itemId },
   );
 }
 
@@ -283,4 +259,31 @@ async function maybeSetReReviewStatus(
       }`,
     );
   }
+}
+
+async function updateChangedTimestamp(
+  client: ReturnType<typeof github.getOctokit>,
+  options: Options,
+  log = core.info,
+) {
+  const { itemId } = await getPullRequestProjectV2ItemId(client, options);
+  if (!itemId) {
+    log(
+      `PR #${options.issueNumber} is not in the project board, skipping update of changed timestamp`,
+    );
+    return;
+  }
+
+  const fields = await getProjectV2Fields(client, options);
+  const changedField = fields?.find(field => field?.name === 'Changed');
+  if (!changedField) {
+    throw new Error('Could not find "Changed" field');
+  }
+
+  await updateProjectV2FieldValue(client, {
+    projectId: options.projectId,
+    fieldId: changedField?.id,
+    itemId,
+    value: { text: new Date().toISOString().replace('T', ' ').slice(0, -5) },
+  });
 }

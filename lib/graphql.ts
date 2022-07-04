@@ -1,6 +1,7 @@
 import * as github from '@actions/github';
 import {
   AddProjectV2ItemByIdPayload,
+  Organization,
   ProjectV2,
   ProjectV2FieldConfiguration,
   ProjectV2FieldValue,
@@ -138,4 +139,43 @@ export async function updateProjectV2FieldValue(
       value: options.value,
     },
   );
+}
+
+export async function getPullRequestProjectV2ItemId(
+  client: ReturnType<typeof github.getOctokit>,
+  options: {
+    owner: string;
+    repo: string;
+    projectId: string;
+    issueNumber: number;
+  },
+): Promise<{ itemId?: string }> {
+  const data = await client.graphql<{ organization?: Organization }>(
+    `
+  query ($owner: String!, $repo: String!, $issueNumber: Int!) {
+    organization(login: $owner) {
+      repository(name: $repo) {
+        pullRequest(number: $issueNumber) {
+          id
+          title
+          projectItems(first: 10) {
+            nodes {
+              id
+              project {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }`,
+    { ...options },
+  );
+
+  const items =
+    data.organization?.repository?.pullRequest?.projectItems?.nodes ?? [];
+
+  const item = items.find(i => i?.project?.id === options.projectId);
+  return { itemId: item?.id };
 }

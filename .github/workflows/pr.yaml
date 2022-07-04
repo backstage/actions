@@ -21,7 +21,7 @@ jobs:
     if: ${{ github.event.pull_request || github.event.issue.pull_request }}
 
     steps:
-      - uses: backstage/actions/pr-sync@v0.3.17
+      - uses: backstage/actions/pr-sync@v0.4.0
         with:
           app-id: ${{ secrets.BACKSTAGE_GOALIE_APPLICATION_ID }}
           private-key: ${{ secrets.BACKSTAGE_GOALIE_PRIVATE_KEY }}
