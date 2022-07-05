@@ -1,0 +1,26 @@
+name: PR Comment
+on:
+  issue_comment:
+    types:
+      - created
+  pull_request_review_comment:
+    types:
+      - created
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    # Avoid running on issue comments
+    if: >-
+        ( github.event.pull_request || github.event.issue.pull_request )
+        &&
+        (
+          github.context.actor ==
+          (
+            github.context.payload.pull_request || github.context.payload.issue
+          ).user.login
+        )
+
+    steps:
+      - uses: hmarr/debug-action@v2

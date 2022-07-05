@@ -1,0 +1,13 @@
+name: PR Comment Triggered
+on:
+  workflow_run:
+    workflows: [PR Comment]
+    types:
+      - completed
+
+jobs:
+  triggered:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: hmarr/debug-action@v2
