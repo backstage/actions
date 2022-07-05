@@ -5,11 +5,11 @@ on:
       - created
 
 jobs:
-  upload:
+  trigger-on-fail:
     runs-on: ubuntu-latest
 
     # Avoid running on issue comments
-    if: github.event.actor == github.event.payload.pull_request.user.login
+    if: github.event.comment.user.id == github.event.pull_request.user.id
 
     # A failed workflow signals that we need to re-review
     steps:

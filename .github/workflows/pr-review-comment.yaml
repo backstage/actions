@@ -6,7 +6,7 @@ on:
       - completed
 
 jobs:
-  triggered:
+  re-review:
     runs-on: ubuntu-latest
 
     # Avoid running on issue comments
