@@ -5,13 +5,12 @@ on:
       - created
 
 jobs:
-  trigger-on-fail:
+  trigger:
     runs-on: ubuntu-latest
 
-    # Avoid running on issue comments
-    if: github.event.comment.user.id == github.event.pull_request.user.id
+    # The PR re-review workflow will check the success status and only mark the
+    # PR for re-review if this workflow did not fail.
+    if: github.event.comment.user.id != github.event.pull_request.user.id
 
-    # A failed workflow signals that we need to re-review
     steps:
-      - uses: hmarr/debug-action@v2
-      - run: exit 1
+      - run: echo "This PR needs another review"
