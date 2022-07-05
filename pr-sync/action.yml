@@ -1,6 +1,9 @@
 name: Backstage PR Sync
 description: Action to sync Backstage PR tracking
 inputs:
+  github-token:
+    description: The GitHub account token to use for posting reviews
+    required: true
   app-id:
     description: The Application ID of the GitHub App to use for authentication
     required: true
