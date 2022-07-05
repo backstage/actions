@@ -23,7 +23,9 @@ async function main() {
   const projectId = core.getInput('project-id', { required: true });
   const excludedUsers = core.getInput('excluded-users', { required: false });
   const owningTeams = core.getInput('owning-teams', { required: false });
+  const token = core.getInput('github-token', { required: true });
 
+  const userClient = github.getOctokit(token);
   const client = createAppClient();
 
   const owningTeam = await getPrOwner(
@@ -50,9 +52,13 @@ async function main() {
   };
 
   await Promise.all([
-    syncProjectBoard(client, commonOptions, mkLog('approve-renovate-prs')),
+    syncProjectBoard(client, commonOptions, mkLog('sync-project-board')),
     randomAssign(client, commonOptions, mkLog('random-assign')),
-    approveRenovatePRs(client, commonOptions, mkLog('approve-renovate-prs')),
+    approveRenovatePRs(
+      userClient,
+      commonOptions,
+      mkLog('approve-renovate-prs'),
+    ),
   ]);
 }
 
