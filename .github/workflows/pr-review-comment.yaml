@@ -13,7 +13,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
 
     steps:
-      - uses: backstage/actions/re-review@v0.5.1
+      - uses: backstage/actions/re-review@v0.5.2
         with:
           app-id: ${{ secrets.BACKSTAGE_GOALIE_APPLICATION_ID }}
           private-key: ${{ secrets.BACKSTAGE_GOALIE_PRIVATE_KEY }}
