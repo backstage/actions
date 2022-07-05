@@ -1,15 +1,19 @@
 name: PR Comment Triggered
 on:
   workflow_run:
-    workflows: [PR Comment]
+    workflows: [PR Review Comment Trigger]
     types:
-      - requested
+      - completed
 
 jobs:
   triggered:
     runs-on: ubuntu-latest
 
+    # Avoid running on issue comments
+    if: github.context.workflow_run.conclusion == "failed"
+
     steps:
+      - uses: hmarr/debug-action@v2
       - uses: backstage/actions/re-review@v0.5.1
         with:
           app-id: ${{ secrets.BACKSTAGE_GOALIE_APPLICATION_ID }}

@@ -1,4 +1,4 @@
-name: PR Comment
+name: PR Review Comment Trigger
 on:
   pull_request_review_comment:
     types:
@@ -13,6 +13,7 @@ jobs:
         ( github.event.pull_request || github.event.issue.pull_request )
         && github.context.actor == github.context.payload.pull_request.user.login
 
+    # A failed workflow signals that we need to re-review
     steps:
-      - name: Dummy
-        run: echo "Triggering PR review comment workflow"
+      - uses: hmarr/debug-action@v2
+      - run: exit 1
