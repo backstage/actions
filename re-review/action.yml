@@ -1,0 +1,19 @@
+name: Backstage Re-Review
+description: Action to mark a pull request for re-review
+inputs:
+  app-id:
+    description: The Application ID of the GitHub App to use for authentication
+    required: true
+  private-key:
+    description: The Private Key of the GitHub App to use for authentication
+    required: true
+  installation-id:
+    description: The Installation ID of the GitHub App to use for authentication
+    required: true
+  project-id:
+    description: The ID of the project board to sync PRs towards
+    required: true
+outputs: {}
+runs:
+  using: node16
+  main: ./entry.js

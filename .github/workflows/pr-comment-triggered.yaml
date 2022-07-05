@@ -3,11 +3,17 @@ on:
   workflow_run:
     workflows: [PR Comment]
     types:
-      - completed
+      - requested
 
 jobs:
   triggered:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: hmarr/debug-action@v2
+      - uses: backstage/actions/re-review@v0.5.1
+        with:
+          app-id: ${{ secrets.BACKSTAGE_GOALIE_APPLICATION_ID }}
+          private-key: ${{ secrets.BACKSTAGE_GOALIE_PRIVATE_KEY }}
+          installation-id: ${{ secrets.BACKSTAGE_GOALIE_INSTALLATION_ID }}
+          project-id: PVT_kwDOBFKqdc02LQ
+          issue-number: ${{ github.context.workflow_run.pull_requests[0].number }}
