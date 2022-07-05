@@ -10,7 +10,7 @@ jobs:
 
     # The PR re-review workflow will check the success status and only mark the
     # PR for re-review if this workflow did not fail.
-    if: github.event.comment.user.id != github.event.pull_request.user.id
+    if: github.event.comment.user.id == github.event.pull_request.user.id
 
     steps:
       - run: echo "This PR needs another review"
