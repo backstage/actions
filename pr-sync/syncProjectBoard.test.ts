@@ -95,7 +95,7 @@ describe('syncProjectBoard', () => {
             projectItems: {
               nodes: [
                 {
-                  id: '1',
+                  id: 'i1',
                   project: {
                     id: 'p2',
                   },
@@ -115,8 +115,6 @@ describe('syncProjectBoard', () => {
 
     await syncProjectBoard(client, { ...ctx, action: 'closed' }, log);
     expect(log).toHaveBeenCalledWith('Removing issue 1 from board p2');
-    expect(log).toHaveBeenCalledWith(
-      'Project board item is {"id":"1","project":{"id":"p2"}}',
-    );
+    expect(log).toHaveBeenCalledWith('Project board item is i1');
   });
 });
