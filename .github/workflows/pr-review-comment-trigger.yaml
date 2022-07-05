@@ -9,9 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # Avoid running on issue comments
-    if: >-
-        ( github.event.pull_request || github.event.issue.pull_request )
-        && github.context.actor == github.context.payload.pull_request.user.login
+    if: github.event.actor == github.event.payload.pull_request.user.login
 
     # A failed workflow signals that we need to re-review
     steps:

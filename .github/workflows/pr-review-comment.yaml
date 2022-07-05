@@ -1,4 +1,4 @@
-name: PR Comment Triggered
+name: PR Review Comment
 on:
   workflow_run:
     workflows: [PR Review Comment Trigger]
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # Avoid running on issue comments
-    if: github.context.workflow_run.conclusion == "failed"
+    if: github.event.workflow_run.conclusion == "failed"
 
     steps:
       - uses: hmarr/debug-action@v2
