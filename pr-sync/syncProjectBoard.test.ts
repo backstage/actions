@@ -56,11 +56,20 @@ describe('syncProjectBoard', () => {
               id: 'field-2',
               name: 'Added',
             },
+            {
+              id: 'field-3',
+              name: 'Changed',
+            },
           ],
         },
       },
     });
 
+    mockClient.graphql.mockResolvedValueOnce({
+      projectV2Item: {
+        id: 'item-3',
+      },
+    });
     mockClient.graphql.mockResolvedValueOnce({
       projectV2Item: {
         id: 'item-3',

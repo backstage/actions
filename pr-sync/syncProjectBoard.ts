@@ -73,13 +73,27 @@ async function addToBoard(
   if (!addedField) {
     throw new Error('Could not find "Added" field');
   }
+  const changedField = fields?.find(field => field?.name === 'Changed');
+  if (!changedField) {
+    throw new Error('Could not find "Changed" field');
+  }
 
-  await updateProjectV2FieldValue(client, {
-    projectId: options.projectId,
-    fieldId: addedField?.id,
-    itemId,
-    value: { text: new Date().toISOString().replace('T', ' ').slice(0, -5) },
-  });
+  const timestampText = new Date().toISOString().replace('T', ' ').slice(0, -5);
+
+  await Promise.all([
+    updateProjectV2FieldValue(client, {
+      projectId: options.projectId,
+      fieldId: addedField?.id,
+      itemId,
+      value: { text: timestampText },
+    }),
+    updateProjectV2FieldValue(client, {
+      projectId: options.projectId,
+      fieldId: changedField?.id,
+      itemId,
+      value: { text: timestampText },
+    }),
+  ]);
 
   if (options.owningTeam) {
     log(
