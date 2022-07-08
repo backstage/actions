@@ -36,7 +36,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/core", "npm:1.9.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
-            ["@octokit/auth-app", "npm:3.6.1"],\
+            ["@octokit/auth-app", "npm:4.0.2"],\
             ["@octokit/graphql-schema", "npm:10.74.1"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/jest", "npm:28.1.3"],\
@@ -1225,13 +1225,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/auth-app", [\
-        ["npm:3.6.1", {\
-          "packageLocation": "./.yarn/cache/@octokit-auth-app-npm-3.6.1-78dbde917e-0f68279961.zip/node_modules/@octokit/auth-app/",\
+        ["npm:4.0.2", {\
+          "packageLocation": "./.yarn/cache/@octokit-auth-app-npm-4.0.2-4363c2fc83-bba7f89ce7.zip/node_modules/@octokit/auth-app/",\
           "packageDependencies": [\
-            ["@octokit/auth-app", "npm:3.6.1"],\
+            ["@octokit/auth-app", "npm:4.0.2"],\
             ["@octokit/auth-oauth-app", "npm:4.3.1"],\
-            ["@octokit/auth-oauth-user", "npm:1.3.0"],\
-            ["@octokit/request", "npm:5.6.3"],\
+            ["@octokit/auth-oauth-user", "npm:2.0.0"],\
+            ["@octokit/request", "npm:6.0.1"],\
             ["@octokit/request-error", "npm:2.1.0"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/lru-cache", "npm:5.1.1"],\
@@ -1285,6 +1285,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["universal-user-agent", "npm:6.0.0"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:2.0.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-auth-oauth-user-npm-2.0.0-b73d7fad53-a9a939e9b1.zip/node_modules/@octokit/auth-oauth-user/",\
+          "packageDependencies": [\
+            ["@octokit/auth-oauth-user", "npm:2.0.0"],\
+            ["@octokit/auth-oauth-device", "npm:3.1.2"],\
+            ["@octokit/oauth-methods", "npm:1.2.6"],\
+            ["@octokit/request", "npm:6.0.1"],\
+            ["@octokit/types", "npm:6.38.1"],\
+            ["btoa-lite", "npm:1.0.0"],\
+            ["universal-user-agent", "npm:6.0.0"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["@octokit/auth-token", [\
@@ -1318,6 +1331,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@octokit-endpoint-npm-6.0.12-d467db27fd-b48b29940a.zip/node_modules/@octokit/endpoint/",\
           "packageDependencies": [\
             ["@octokit/endpoint", "npm:6.0.12"],\
+            ["@octokit/types", "npm:6.37.0"],\
+            ["is-plain-object", "npm:5.0.0"],\
+            ["universal-user-agent", "npm:6.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:7.0.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-endpoint-npm-7.0.0-db1160698c-e6d7a2876c.zip/node_modules/@octokit/endpoint/",\
+          "packageDependencies": [\
+            ["@octokit/endpoint", "npm:7.0.0"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["is-plain-object", "npm:5.0.0"],\
             ["universal-user-agent", "npm:6.0.0"]\
@@ -1440,6 +1463,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@octokit/request", "npm:5.6.3"],\
             ["@octokit/endpoint", "npm:6.0.12"],\
+            ["@octokit/request-error", "npm:2.1.0"],\
+            ["@octokit/types", "npm:6.37.0"],\
+            ["is-plain-object", "npm:5.0.0"],\
+            ["node-fetch", "virtual:25a5f5382d53dbf298bf7a1191760bc2e0a523a619eeb0e667b99a8649e8ad183f9e2e0b45f6fb831b92f4078b61622aa567cf79565f6aa5af9597e3c84864f6#npm:2.6.7"],\
+            ["universal-user-agent", "npm:6.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:6.0.1", {\
+          "packageLocation": "./.yarn/cache/@octokit-request-npm-6.0.1-2b194b3039-c15d6f0e5e.zip/node_modules/@octokit/request/",\
+          "packageDependencies": [\
+            ["@octokit/request", "npm:6.0.1"],\
+            ["@octokit/endpoint", "npm:7.0.0"],\
             ["@octokit/request-error", "npm:2.1.0"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["is-plain-object", "npm:5.0.0"],\
@@ -4519,7 +4555,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/core", "npm:1.9.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
-            ["@octokit/auth-app", "npm:3.6.1"],\
+            ["@octokit/auth-app", "npm:4.0.2"],\
             ["@octokit/graphql-schema", "npm:10.74.1"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/jest", "npm:28.1.3"],\
