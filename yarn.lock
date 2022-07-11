@@ -863,12 +863,12 @@ __metadata:
   linkType: hard
 
 "@octokit/graphql-schema@npm:^10.74.1":
-  version: 10.74.1
-  resolution: "@octokit/graphql-schema@npm:10.74.1"
+  version: 10.74.2
+  resolution: "@octokit/graphql-schema@npm:10.74.2"
   dependencies:
-    graphql: ^15.0.0
+    graphql: ^16.0.0
     graphql-tag: ^2.10.3
-  checksum: 4d1a7db19b198a1456151d707aaa33c27bbf5a16549dce3aa3a356d8258cb791c5bad4fd6c5c73cbd1fd77c31bef235f52cf962f20f300e6cbc22a98a07b2497
+  checksum: 1ca049010a702e6e7ffee835b85f345879865fcaa151f3a4e24dbda2bd0b650c0eb68d68d6e38e94ff6bacabd612610c643556bd5ce1fa5323a9c7570dc1c1f5
   languageName: node
   linkType: hard
 
@@ -2096,10 +2096,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^15.0.0":
-  version: 15.8.0
-  resolution: "graphql@npm:15.8.0"
-  checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
+"graphql@npm:^16.0.0":
+  version: 16.5.0
+  resolution: "graphql@npm:16.5.0"
+  checksum: a82a926d085818934d04fdf303a269af170e79de943678bd2726370a96194f9454ade9d6d76c2de69afbd7b9f0b4f8061619baecbbddbe82125860e675ac219e
   languageName: node
   linkType: hard
 
