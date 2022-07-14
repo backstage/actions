@@ -965,7 +965,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/types@npm:^6.0.3, @octokit/types@npm:^6.16.1, @octokit/types@npm:^6.36.0, @octokit/types@npm:^6.37.0":
+"@octokit/types@npm:^6.0.3, @octokit/types@npm:^6.16.1, @octokit/types@npm:^6.36.0":
   version: 6.37.0
   resolution: "@octokit/types@npm:6.37.0"
   dependencies:
@@ -974,7 +974,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/types@npm:^6.10.0, @octokit/types@npm:^6.12.2":
+"@octokit/types@npm:^6.10.0, @octokit/types@npm:^6.12.2, @octokit/types@npm:^6.37.0":
   version: 6.38.1
   resolution: "@octokit/types@npm:6.38.1"
   dependencies:

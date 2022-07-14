@@ -38,7 +38,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:10.74.1"],\
-            ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/types", "npm:6.38.1"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
@@ -4521,7 +4521,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:10.74.1"],\
-            ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/types", "npm:6.38.1"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
