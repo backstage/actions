@@ -4,7 +4,7 @@
     "test:dev": "nodemon --ext js,ts test/entry.js",
     "test": "yarn jest"
   },
-  "packageManager": "yarn@3.2.1",
+  "packageManager": "yarn@3.2.2",
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all",
