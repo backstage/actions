@@ -30,7 +30,7 @@ runs:
     - name: find location of global yarn cache
       id: yarn-cache
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: echo "::set-output name=dir::$([[ "$(yarn --version)" =~ "1.*" ]] && yarn cache dir || yarn config get cacheFolder)"
+      run: echo ::set-output name=dir::$([[ "$(yarn --version)" =~ "1.*" ]] && yarn cache dir || yarn config get cacheFolder)
       shell: bash
 
     - name: cache global yarn cache
@@ -44,5 +44,5 @@ runs:
 
     - name: yarn install
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: [[ "$(yarn --version)" =~ "1.*" ]] && yarn install --frozen-lockfile || yarn install --immutable
+      run: '[[ "$(yarn --version)" =~ "1.*" ]] && yarn install --frozen-lockfile || yarn install --immutable'
       shell: bash
