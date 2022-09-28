@@ -25,14 +25,14 @@ describe('syncIssueLabels', () => {
   });
 
   it.each([
-    ['This is a catalog PR for TechDocs', ['catalog', 'docs-like-code']],
-    ['I fix tech docs', ['docs-like-code']],
-    ['tech-docs is great', ['docs-like-code']],
+    ['This is a catalog PR for TechDocs', ['catalog', 'techdocs']],
+    ['I fix tech docs', ['techdocs']],
+    ['tech-docs is great', ['techdocs']],
     ['search is awesome', ['search']],
     ['catalog is catalog', ['catalog']],
     ['scaffolder boop', ['scaffolder']],
     ['Fixed an issue', []],
-    ['symtech docsilatin', ['docs-like-code']],
+    ['symtech docsilatin', ['techdocs']],
     ['Fix software templates execution', []],
     ['catacatalogalog', ['catalog']],
     ['a cat a log', []],

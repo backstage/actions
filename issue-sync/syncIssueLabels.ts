@@ -21,7 +21,7 @@ export async function syncIssueLabels(
   }
 
   const keywords = {
-    'techdocs|tech-docs|tech docs': 'docs-like-code',
+    'techdocs|tech-docs|tech docs': 'techdocs',
     search: 'search',
     catalog: 'catalog',
     scaffolder: 'scaffolder',
