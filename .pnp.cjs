@@ -33,7 +33,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["@actions/core", "npm:1.9.1"],\
+            ["@actions/core", "npm:1.10.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
@@ -51,10 +51,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@actions/core", [\
-        ["npm:1.9.1", {\
-          "packageLocation": "./.yarn/cache/@actions-core-npm-1.9.1-108e26d1ac-8f9823bed2.zip/node_modules/@actions/core/",\
+        ["npm:1.10.0", {\
+          "packageLocation": "./.yarn/cache/@actions-core-npm-1.10.0-6885534582-0a75621e00.zip/node_modules/@actions/core/",\
           "packageDependencies": [\
-            ["@actions/core", "npm:1.9.1"],\
+            ["@actions/core", "npm:1.10.0"],\
             ["@actions/http-client", "npm:2.0.1"],\
             ["uuid", "npm:8.3.2"]\
           ],\
@@ -4517,7 +4517,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["root-workspace-0b6124", "workspace:."],\
-            ["@actions/core", "npm:1.9.1"],\
+            ["@actions/core", "npm:1.10.0"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
