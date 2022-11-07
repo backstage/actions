@@ -13,6 +13,13 @@ interface Options {
 }
 
 export const REVIEWERS = ['jhaals', 'Rugvip', 'benjdlambert', 'freben'];
+export const CO_REVIEWERS = [
+  'djamaile',
+  'marcuseide',
+  'tudi2d',
+  'camilaibs',
+  'agentbellnorm',
+];
 
 export async function randomAssign(
   client: ReturnType<typeof github.getOctokit>,
@@ -37,22 +44,28 @@ export async function randomAssign(
     options.excludedUsers?.split(',').map(u => u.trim()) ?? [];
   if (author) excludedUsers.push(author);
 
-  const reviewer = await getRandomReviewer(excludedUsers);
-  log(`Assigning #${issueNumber} by @${author} to @${reviewer}`);
+  const reviewer = await getRandomReviewer(REVIEWERS, excludedUsers);
+  const coReviewer = await getRandomReviewer(CO_REVIEWERS, excludedUsers);
+  log(
+    `Assigning #${issueNumber} by @${author} to @${reviewer} and co-reviewer @${coReviewer}`,
+  );
 
   await client.rest.issues.addAssignees({
     owner,
     repo,
     issue_number: issueNumber,
-    assignees: [reviewer],
+    assignees: [reviewer, coReviewer],
   });
 }
 
-async function getRandomReviewer(excludedUsers?: string[]): Promise<string> {
+async function getRandomReviewer(
+  reviewers: string[],
+  excludedUsers?: string[],
+): Promise<string> {
   let randomReviewer: string;
   let overflow = 0;
   do {
-    randomReviewer = REVIEWERS[Math.floor(Math.random() * REVIEWERS.length)];
+    randomReviewer = reviewers[Math.floor(Math.random() * reviewers.length)];
     if (overflow++ > 100) {
       throw new Error(
         `Stuck in loop picking reviewer with excluded users: ${excludedUsers}`,
