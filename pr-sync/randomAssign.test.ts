@@ -1,6 +1,6 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import { getOctokit } from '@actions/github';
-import { randomAssign, REVIEWERS } from './randomAssign';
+import { CO_REVIEWERS, randomAssign, REVIEWERS } from './randomAssign';
 
 type Octokit = ReturnType<typeof getOctokit>;
 
@@ -29,14 +29,19 @@ describe('randomAssign', () => {
   });
 
   it('should randomly assign a reviewer', async () => {
-    await randomAssign(client, ctx, log);
+    await randomAssign(
+      client,
+      {
+        ...ctx,
+        excludedUsers: [REVIEWERS.slice(1), CO_REVIEWERS.slice(1)].join(','),
+      },
+      log,
+    );
     expect(mockClient.rest.issues.addAssignees).toHaveBeenCalledWith({
       owner: 'le-owner',
       repo: 'le-repo',
       issue_number: 1,
-      assignees: [
-        expect.stringMatching(new RegExp(`^${REVIEWERS.join('|')}$`)),
-      ],
+      assignees: [REVIEWERS[0], CO_REVIEWERS[0]],
     });
     expect(log).toHaveBeenCalledWith(
       expect.stringContaining('Assigning #1 by @le-actor to @'),
@@ -46,14 +51,17 @@ describe('randomAssign', () => {
   it('should not assign to an excluded user', async () => {
     await randomAssign(
       client,
-      { ...ctx, excludedUsers: REVIEWERS.slice(1).join(',') },
+      {
+        ...ctx,
+        excludedUsers: [REVIEWERS.slice(1), CO_REVIEWERS.slice(1)].join(','),
+      },
       log,
     );
     expect(mockClient.rest.issues.addAssignees).toHaveBeenCalledWith({
       owner: 'le-owner',
       repo: 'le-repo',
       issue_number: 1,
-      assignees: [REVIEWERS[0]],
+      assignees: [REVIEWERS[0], CO_REVIEWERS[0]],
     });
     expect(log).toHaveBeenCalledWith(
       expect.stringContaining('Assigning #1 by @le-actor to @'),
@@ -66,7 +74,7 @@ describe('randomAssign', () => {
       {
         ...ctx,
         author: 'Rugvip',
-        excludedUsers: REVIEWERS.slice(2).join(','),
+        excludedUsers: [REVIEWERS.slice(2), CO_REVIEWERS.slice(1)].join(','),
       },
       log,
     );
@@ -74,7 +82,7 @@ describe('randomAssign', () => {
       owner: 'le-owner',
       repo: 'le-repo',
       issue_number: 1,
-      assignees: [REVIEWERS[0]],
+      assignees: [REVIEWERS[0], CO_REVIEWERS[0]],
     });
     expect(log).toHaveBeenCalledWith(
       expect.stringContaining('Assigning #1 by @Rugvip to @jhaals'),
