@@ -8,10 +8,11 @@ inputs:
   marker:
     description: Marker to check if there is already a changeset posted on the PR
     default: "<!-- changeset-feedback -->"
-    required: true
-  feedback:
-    description: Feedback that needs to be posted on the PR
-    required: true
+    required: false
+  diffRef:
+    description: The target branch to use to list the changes
+    default: origin/master
+    required: false
 outputs: {}
 runs:
   using: node16
