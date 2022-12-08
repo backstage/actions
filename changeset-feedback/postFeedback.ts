@@ -7,12 +7,12 @@ export async function postFeedback(
       owner: string;
       repo: string;
       issueNumberStr: string;
+      marker: string;
+      feedback: string;
     },
-    marker: string,
-    feedback: string,
     log = core.info,
 ){
-  const {owner, repo, issueNumberStr} = options;
+  const {owner, repo, issueNumberStr, marker, feedback} = options;
   const issue_number = Number(issueNumberStr);
   const body = feedback.trim() ? feedback + marker : undefined
 

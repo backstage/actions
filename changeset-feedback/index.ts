@@ -29,7 +29,9 @@ async function main() {
   await postFeedback(client, {
     ...repoInfo,
     issueNumberStr,
-  }, marker, feedback);
+    marker,
+    feedback,
+  });
 }
 
 main().catch(error => {
