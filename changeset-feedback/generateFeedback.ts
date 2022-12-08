@@ -78,7 +78,7 @@ export async function listPackages() {
     throw new Error('No workspaces found in root package.json');
   }
 
-  const pkgs: Array<{path: string, name: string}> = [];
+  const pkgs: Array<{ path: string; name: string }> = [];
 
   // Naive workspace lookup implementation, we can't shell out to yarn here as the implementation embedded in the repo
   for (const pkgPath of rootPkg?.workspaces?.packages) {
@@ -127,8 +127,8 @@ export async function loadChangesets(filePaths: string[]) {
 
       lines = lines.slice(lines.findIndex(line => line === '---') + 1);
       lines = lines.slice(
-          0,
-          lines.findIndex(line => line === '---'),
+        0,
+        lines.findIndex(line => line === '---'),
       );
 
       const bumps: Map<string, string> & { toJSON?: () => any } = new Map();
@@ -157,8 +157,8 @@ export async function loadChangesets(filePaths: string[]) {
 }
 
 export async function listChangedPackages(
-    changedFiles: string[],
-    packages: { name: any; path: any }[],
+  changedFiles: string[],
+  packages: { name: any; path: any }[],
 ) {
   const changedPackageMap = new Map();
   for (const filePath of changedFiles) {
@@ -190,12 +190,12 @@ export async function listChangedPackages(
 }
 
 function formatSection(
-    prefix: string | string[] = [],
-    generator: {
-      (): Generator<string, void, unknown>;
-      (): ArrayLike<unknown> | Iterable<unknown>;
-    },
-    suffix: string | string[] = [''],
+  prefix: string | string[] = [],
+  generator: {
+    (): Generator<string, void, unknown>;
+    (): ArrayLike<unknown> | Iterable<unknown>;
+  },
+  suffix: string | string[] = [''],
 ) {
   const lines = Array.from(generator());
   if (lines.length === 0) {
@@ -207,102 +207,102 @@ function formatSection(
 
 export function formatSummary(changedPackages: any[], changesets: any[]) {
   const changedNames = new Set(
-      changedPackages.map((pkg: { name: any }) => pkg.name),
+    changedPackages.map((pkg: { name: any }) => pkg.name),
   );
 
   let output = '';
 
   output += formatSection(
-      `## Missing Changesets
+    `## Missing Changesets
 
 The following package(s) are changed by this PR but do not have a changeset:
 `,
-      function* section() {
-        for (const pkg of changedPackages) {
-          if (
-              changesets.some((c: { bumps: { get: (arg0: any) => any } }) =>
-                  c.bumps.get(pkg.name),
-              )
-          ) {
-            continue;
-          }
-          if (pkg.isPrivate) {
-            continue;
-          }
-          yield `- **${pkg.name}**`;
+    function* section() {
+      for (const pkg of changedPackages) {
+        if (
+          changesets.some((c: { bumps: { get: (arg0: any) => any } }) =>
+            c.bumps.get(pkg.name),
+          )
+        ) {
+          continue;
         }
-      },
-      `
+        if (pkg.isPrivate) {
+          continue;
+        }
+        yield `- **${pkg.name}**`;
+      }
+    },
+    `
 See [CONTRIBUTING.md](https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md#creating-changesets) for more information about how to add changesets.
 `,
   );
 
   output += formatSection(
-      `## Unexpected Changesets
+    `## Unexpected Changesets
 
 The following changeset(s) reference packages that have not been changed in this PR:
 `,
-      function* section() {
-        for (const c of changesets) {
-          const missing = Array.from(c.bumps.keys()).filter(
-              b => !changedNames.has(b),
-          );
-          if (missing.length > 0) {
-            yield `- **${c.filePath}**: ${missing.join(', ')}`;
-          }
+    function* section() {
+      for (const c of changesets) {
+        const missing = Array.from(c.bumps.keys()).filter(
+          b => !changedNames.has(b),
+        );
+        if (missing.length > 0) {
+          yield `- **${c.filePath}**: ${missing.join(', ')}`;
         }
-      },
-      `
+      }
+    },
+    `
 Note that only changes that affect the published package require changesets, for example changes to tests and storybook stories do not require changesets.
 `,
   );
 
   output += formatSection(
-      `## Unnecessary Changesets
+    `## Unnecessary Changesets
 
 The following package(s) are private and do not need a changeset:
 `,
-      function* section() {
-        for (const pkg of changedPackages) {
-          if (
-              changesets.some((c: { bumps: { get: (arg0: any) => any } }) =>
-                  c.bumps.get(pkg.name),
-              ) &&
-              pkg.isPrivate
-          ) {
-            yield `- **${pkg.name}**`;
-          }
+    function* section() {
+      for (const pkg of changedPackages) {
+        if (
+          changesets.some((c: { bumps: { get: (arg0: any) => any } }) =>
+            c.bumps.get(pkg.name),
+          ) &&
+          pkg.isPrivate
+        ) {
+          yield `- **${pkg.name}**`;
         }
-      },
+      }
+    },
   );
 
   output += formatSection(
-      `## Changed Packages
+    `## Changed Packages
 
 | Package Name | Package Path | Changeset Bump | Current Version |
 |:-------------|:-------------|:--------------:|:----------------|`,
-      function* section() {
-        const bumpMap: { [key: string]: number } = {
-          undefined: -1,
-          patch: 0,
-          minor: 1,
-          major: 2,
-        };
+    function* section() {
+      const bumpMap: { [key: string]: number } = {
+        undefined: -1,
+        patch: 0,
+        minor: 1,
+        major: 2,
+      };
 
-        for (const pkg of changedPackages) {
-          const maxBump =
-              changesets
-              .map((c: { bumps: { get: (arg0: any) => any } }) =>
-                  c.bumps.get(pkg.name),
-              )
-              .reduce(
-                  (max: string | number, bump: string | number) =>
-                      bumpMap[bump] > bumpMap[max] ? bump : max,
-                  undefined,
-              ) ?? 'none';
-          yield `| ${pkg.name} | ${pkg.path} | **${maxBump}** | \`v${pkg.version}\` |`;
-        }
-      },
+      for (const pkg of changedPackages) {
+        const maxBump =
+          changesets
+            .map((c: { bumps: { get: (arg0: any) => any } }) =>
+              c.bumps.get(pkg.name),
+            )
+            .reduce(
+              (max: string | number, bump: string | number) =>
+                bumpMap[bump] > bumpMap[max] ? bump : max,
+              undefined,
+            ) ?? 'none';
+        yield `| ${pkg.name} | ${pkg.path} | **${maxBump}** | \`v${pkg.version}\` |`;
+      }
+    },
   );
 
   return output;

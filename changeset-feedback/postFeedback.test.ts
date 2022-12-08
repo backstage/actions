@@ -1,6 +1,6 @@
-import {describe, it, expect, jest, beforeEach} from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { getOctokit } from '@actions/github';
-import { postFeedback } from "./postFeedback";
+import { postFeedback } from './postFeedback';
 
 type Octokit = ReturnType<typeof getOctokit>;
 
@@ -30,7 +30,7 @@ const feedbackUpdated = `
 `;
 
 const mockClient = {
-  paginate: jest.fn(async (fn, args) => await (fn(args)).data),
+  paginate: jest.fn(async (fn, args) => await fn(args).data),
   rest: {
     pulls: {
       list: jest.fn<Octokit['rest']['pulls']['list']>(),
@@ -53,16 +53,17 @@ const repoInfo = {
   repo: 'le-repo',
 };
 const log = jest.fn();
-const marker = "changeset-feedback";
-const body =  (feedback: string) => feedback.trim() ? feedback + marker : undefined
+const marker = 'changeset-feedback';
+const body = (feedback: string) =>
+  feedback.trim() ? feedback + marker : undefined;
 const commentsWithFeedBack = [
   {
-    user: {login: 'test'},
-    body: 'I need a review'
+    user: { login: 'test' },
+    body: 'I need a review',
   },
   {
-    user: {login: 'github-actions[bot]'},
-    body: body(feedback)
+    user: { login: 'github-actions[bot]' },
+    body: body(feedback),
   },
 ];
 describe('changeset feedback', () => {
@@ -71,12 +72,18 @@ describe('changeset feedback', () => {
   });
 
   it('should post feedback', async () => {
-    mockClient.paginate.mockResolvedValue([{
-      user: {login: 'test'},
-      body: 'I need a review'
-    }]);
+    mockClient.paginate.mockResolvedValue([
+      {
+        user: { login: 'test' },
+        body: 'I need a review',
+      },
+    ]);
 
-    await postFeedback(client, {...repoInfo, issueNumberStr: '1', marker, feedback}, log);
+    await postFeedback(
+      client,
+      { ...repoInfo, issueNumberStr: '1', marker, feedback },
+      log,
+    );
     expect(mockClient.rest.issues.createComment).toHaveBeenCalledWith({
       ...repoInfo,
       body: body(feedback),
@@ -87,29 +94,43 @@ describe('changeset feedback', () => {
 
   it('should skip updating comment', async () => {
     mockClient.paginate.mockResolvedValue(commentsWithFeedBack);
-    await postFeedback(client, {...repoInfo, issueNumberStr: '1', marker, feedback}, log);
+    await postFeedback(
+      client,
+      { ...repoInfo, issueNumberStr: '1', marker, feedback },
+      log,
+    );
     expect(mockClient.rest.issues.updateComment).not.toHaveBeenCalled();
-    expect(log).toHaveBeenCalledWith('skipped update of identical comment in #1')
+    expect(log).toHaveBeenCalledWith(
+      'skipped update of identical comment in #1',
+    );
   });
 
   it('should update the comment', async () => {
     mockClient.paginate.mockResolvedValue(commentsWithFeedBack);
-    await postFeedback(client, {...repoInfo, issueNumberStr: '1', marker, feedback: feedbackUpdated}, log);
+    await postFeedback(
+      client,
+      { ...repoInfo, issueNumberStr: '1', marker, feedback: feedbackUpdated },
+      log,
+    );
     expect(log).toHaveBeenCalledWith('updating existing comment in #1');
     expect(mockClient.rest.issues.updateComment).toHaveBeenCalledWith({
       ...repoInfo,
       body: body(feedbackUpdated),
-      "comment_id": undefined,
+      comment_id: undefined,
     });
   });
 
   it('should delete the comment', async () => {
     mockClient.paginate.mockResolvedValue(commentsWithFeedBack);
-    await postFeedback(client, {...repoInfo, issueNumberStr: '1', marker: '', feedback: ''},log);
+    await postFeedback(
+      client,
+      { ...repoInfo, issueNumberStr: '1', marker: '', feedback: '' },
+      log,
+    );
     expect(mockClient.rest.issues.deleteComment).toHaveBeenCalledWith({
       ...repoInfo,
-      "comment_id": undefined,
-    })
+      comment_id: undefined,
+    });
     expect(log).toHaveBeenCalledWith('removing comment from #1');
   });
 });

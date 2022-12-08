@@ -2,29 +2,31 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 export async function postFeedback(
-    client: ReturnType<typeof github.getOctokit>,
-    options: {
-      owner: string;
-      repo: string;
-      issueNumberStr: string;
-      marker: string;
-      feedback: string;
-    },
-    log = core.info,
-){
-  const {owner, repo, issueNumberStr, marker, feedback} = options;
+  client: ReturnType<typeof github.getOctokit>,
+  options: {
+    owner: string;
+    repo: string;
+    issueNumberStr: string;
+    marker: string;
+    feedback: string;
+  },
+  log = core.info,
+) {
+  const { owner, repo, issueNumberStr, marker, feedback } = options;
   const issue_number = Number(issueNumberStr);
-  const body = feedback.trim() ? feedback + marker : undefined
+  const body = feedback.trim() ? feedback + marker : undefined;
 
-  const existingComments = await client.paginate(client.rest.issues.listComments, {
-    owner,
-    repo,
-    issue_number,
-  });
+  const existingComments = await client.paginate(
+    client.rest.issues.listComments,
+    {
+      owner,
+      repo,
+      issue_number,
+    },
+  );
 
-  const existingComment = existingComments.find((c) =>
-      c.user?.login === "github-actions[bot]" &&
-      c.body?.includes(marker)
+  const existingComment = existingComments.find(
+    c => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker),
   );
 
   if (existingComment) {

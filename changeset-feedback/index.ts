@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { createAppClient } from '../lib/createAppClient';
-import { postFeedback } from "./postFeedback";
+import { postFeedback } from './postFeedback';
 import {
   formatSummary,
   listChangedFiles,
