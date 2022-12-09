@@ -13,6 +13,12 @@ inputs:
     description: The target branch to use to list the changes
     default: origin/master
     required: false
+  app-id:
+    description: The Application ID of the GitHub App to use for authentication
+    required: true
+  issue-number:
+    description: issue number of the PR
+    required: true
 outputs: {}
 runs:
   using: node16
