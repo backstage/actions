@@ -13,6 +13,9 @@ inputs:
     description: The target branch to use to list the changes
     default: origin/master
     required: false
+  issue-number:
+    description: Issue number of the PR
+    required: true
 outputs: {}
 runs:
   using: node16
