@@ -1,0 +1,19 @@
+name: Backstage Changeset Feedback
+description: Action to post the changeset feedback on a PR
+inputs:
+  github-token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: true
+  marker:
+    description: Marker to check if there is already a changeset posted on the PR
+    default: '<!-- changeset-feedback -->'
+    required: false
+  diffRef:
+    description: The target branch to use to list the changes
+    default: origin/master
+    required: false
+outputs: {}
+runs:
+  using: node16
+  main: ./entry.js
