@@ -13,11 +13,17 @@ inputs:
     description: The target branch to use to list the changes
     default: origin/master
     required: false
+  issue-number:
+    description: issue number of the PR
+    required: true
   app-id:
     description: The Application ID of the GitHub App to use for authentication
     required: true
-  issue-number:
-    description: issue number of the PR
+  private-key:
+    description: The Private Key of the GitHub App to use for authentication
+    required: true
+  installation-id:
+    description: The Installation ID of the GitHub App to use for authentication
     required: true
 outputs: {}
 runs:
