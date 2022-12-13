@@ -4,6 +4,21 @@ This repository contains GitHub actions related to Backstage. The goal of the
 current actions are to help manage the maintenance of the main Backstage
 repository.
 
+## Usage
+
+Each action in this repo can be used by referring to the foldername, for example:
+
+```yaml
+- name: yarn install
+  uses: backstage/actions/yarn-install@v0.5.9
+  with:
+    cache-prefix: ${{ runner.os }}-v${{ matrix.node-version }}
+```
+
+## Releases
+
+Releases are generated manually via [GitHub](https://github.com/backstage/actions/releases/new). Create the version tag for the next release, click "Generate release notes", and then publish the release.
+
 ## TODO
 
 - [x] Get this repo set up with two initial actions, one for PR sync, and one
