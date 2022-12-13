@@ -9,11 +9,11 @@ export async function postFeedback(
     issueNumberStr: string;
     marker: string;
     feedback: string;
-    userLogin: string;
+    botUsername: string;
   },
   log = core.info,
 ) {
-  const { owner, repo, issueNumberStr, marker, feedback, userLogin } = options;
+  const { owner, repo, issueNumberStr, marker, feedback, botUsername } = options;
   const issue_number = Number(issueNumberStr);
   const body = feedback.trim() ? feedback + marker : undefined;
 
@@ -26,11 +26,8 @@ export async function postFeedback(
     },
   );
 
-  const { login } = await client.rest.users.user();
-  log(`user: ${login}`);
-
   const existingComment = existingComments.find(
-    c => c.user?.login === userLogin && c.body?.includes(marker),
+    c => c.user?.login === botUsername && c.body?.includes(marker),
   );
 
   if (existingComment) {
