@@ -17,6 +17,7 @@ async function main() {
   const marker = core.getInput('marker', { required: true });
   const diffRef = core.getInput('diffRef', { required: true });
   const issueNumberStr = core.getInput('issue-number', { required: true });
+  const userLogin = core.getInput('userLogin', {required: true});
   const changedFiles = await listChangedFiles(diffRef);
   const packages = await listPackages();
   const changesets = await loadChangesets(changedFiles);
@@ -31,6 +32,7 @@ async function main() {
     issueNumberStr,
     marker,
     feedback,
+    userLogin,
   });
 }
 

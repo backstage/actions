@@ -12,6 +12,9 @@ inputs:
   issue-number:
     description: issue number of the PR
     required: true
+  userLogin:
+    description: login of the user that is posting the PR comment
+    required: true
   app-id:
     description: The Application ID of the GitHub App to use for authentication
     required: true
