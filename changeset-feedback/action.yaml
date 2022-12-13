@@ -12,8 +12,8 @@ inputs:
   issue-number:
     description: issue number of the PR
     required: true
-  userLogin:
-    description: login of the user that is posting the PR comment
+  botUsername:
+    description: username of the bot used to post comments on behalf of the action. Will be used when locating existing changeset feedback comments to update.
     required: true
   app-id:
     description: The Application ID of the GitHub App to use for authentication
