@@ -26,6 +26,9 @@ export async function postFeedback(
     },
   );
 
+  const { login } = await client.rest.users.user();
+  log(`user: ${login}`);
+
   const existingComment = existingComments.find(
     c => c.user?.login === userLogin && c.body?.includes(marker),
   );
