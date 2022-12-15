@@ -20,6 +20,7 @@ export const CO_REVIEWERS = [
   'camilaibs',
   'agentbellnorm',
   'samiramkr',
+  'usainbloot
 ];
 
 export async function randomAssign(
