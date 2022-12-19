@@ -37,7 +37,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
-            ["@octokit/graphql-schema", "npm:10.74.1"],\
+            ["@octokit/graphql-schema", "npm:12.41.0"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
@@ -1339,12 +1339,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/graphql-schema", [\
-        ["npm:10.74.1", {\
-          "packageLocation": "./.yarn/cache/@octokit-graphql-schema-npm-10.74.1-a085178d08-4d1a7db19b.zip/node_modules/@octokit/graphql-schema/",\
+        ["npm:12.41.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-graphql-schema-npm-12.41.0-f9e705e4cb-34b29e0377.zip/node_modules/@octokit/graphql-schema/",\
           "packageDependencies": [\
-            ["@octokit/graphql-schema", "npm:10.74.1"],\
-            ["graphql", "npm:15.8.0"],\
-            ["graphql-tag", "virtual:a085178d0810b2274c9824e9c18b3396b0b7e840e15d21c62687125dea55f951d355ed77c1b11e8b56dff5c7117106a40912d00abda5bbc9bce0ab8cfa3286b9#npm:2.12.6"]\
+            ["@octokit/graphql-schema", "npm:12.41.0"],\
+            ["graphql", "npm:16.6.0"],\
+            ["graphql-tag", "virtual:f9e705e4cba4dbca92a0320eee4505badefa11fa98d930d1b6a6c091f0e9957fc5693d80042a1cc65f913f77a694e7b37dcd2f352b804ab1b979c262c96f9721#npm:2.12.6"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2805,10 +2805,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["graphql", [\
-        ["npm:15.8.0", {\
-          "packageLocation": "./.yarn/cache/graphql-npm-15.8.0-0156c66b65-423325271d.zip/node_modules/graphql/",\
+        ["npm:16.6.0", {\
+          "packageLocation": "./.yarn/cache/graphql-npm-16.6.0-301c470966-bf1d9e3c19.zip/node_modules/graphql/",\
           "packageDependencies": [\
-            ["graphql", "npm:15.8.0"]\
+            ["graphql", "npm:16.6.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2821,12 +2821,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:a085178d0810b2274c9824e9c18b3396b0b7e840e15d21c62687125dea55f951d355ed77c1b11e8b56dff5c7117106a40912d00abda5bbc9bce0ab8cfa3286b9#npm:2.12.6", {\
-          "packageLocation": "./.yarn/__virtual__/graphql-tag-virtual-6f0c4f8223/0/cache/graphql-tag-npm-2.12.6-99a5a7f6de-b15162a3d6.zip/node_modules/graphql-tag/",\
+        ["virtual:f9e705e4cba4dbca92a0320eee4505badefa11fa98d930d1b6a6c091f0e9957fc5693d80042a1cc65f913f77a694e7b37dcd2f352b804ab1b979c262c96f9721#npm:2.12.6", {\
+          "packageLocation": "./.yarn/__virtual__/graphql-tag-virtual-d4ef28118b/0/cache/graphql-tag-npm-2.12.6-99a5a7f6de-b15162a3d6.zip/node_modules/graphql-tag/",\
           "packageDependencies": [\
-            ["graphql-tag", "virtual:a085178d0810b2274c9824e9c18b3396b0b7e840e15d21c62687125dea55f951d355ed77c1b11e8b56dff5c7117106a40912d00abda5bbc9bce0ab8cfa3286b9#npm:2.12.6"],\
+            ["graphql-tag", "virtual:f9e705e4cba4dbca92a0320eee4505badefa11fa98d930d1b6a6c091f0e9957fc5693d80042a1cc65f913f77a694e7b37dcd2f352b804ab1b979c262c96f9721#npm:2.12.6"],\
             ["@types/graphql", null],\
-            ["graphql", "npm:15.8.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["tslib", "npm:2.4.0"]\
           ],\
           "packagePeers": [\
@@ -4521,7 +4521,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
-            ["@octokit/graphql-schema", "npm:10.74.1"],\
+            ["@octokit/graphql-schema", "npm:12.41.0"],\
             ["@octokit/types", "npm:6.37.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
