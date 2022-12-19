@@ -9,10 +9,11 @@ export async function postFeedback(
     issueNumberStr: string;
     marker: string;
     feedback: string;
+    botUsername: string;
   },
   log = core.info,
 ) {
-  const { owner, repo, issueNumberStr, marker, feedback } = options;
+  const { owner, repo, issueNumberStr, marker, feedback, botUsername } = options;
   const issue_number = Number(issueNumberStr);
   const body = feedback.trim() ? feedback + marker : undefined;
 
@@ -26,7 +27,7 @@ export async function postFeedback(
   );
 
   const existingComment = existingComments.find(
-    c => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker),
+    c => c.user?.login === botUsername && c.body?.includes(marker),
   );
 
   if (existingComment) {

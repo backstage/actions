@@ -52,6 +52,7 @@ const repoInfo = {
   owner: 'le-owner',
   repo: 'le-repo',
 };
+const botUsername = 'github-actions[bot]';
 const log = jest.fn();
 const marker = 'changeset-feedback';
 const body = (feedback: string) =>
@@ -81,7 +82,7 @@ describe('changeset feedback', () => {
 
     await postFeedback(
       client,
-      { ...repoInfo, issueNumberStr: '1', marker, feedback },
+      { ...repoInfo, issueNumberStr: '1', marker, feedback, botUsername },
       log,
     );
     expect(mockClient.rest.issues.createComment).toHaveBeenCalledWith({
@@ -96,7 +97,7 @@ describe('changeset feedback', () => {
     mockClient.paginate.mockResolvedValue(commentsWithFeedBack);
     await postFeedback(
       client,
-      { ...repoInfo, issueNumberStr: '1', marker, feedback },
+      { ...repoInfo, issueNumberStr: '1', marker, feedback, botUsername },
       log,
     );
     expect(mockClient.rest.issues.updateComment).not.toHaveBeenCalled();
@@ -109,7 +110,7 @@ describe('changeset feedback', () => {
     mockClient.paginate.mockResolvedValue(commentsWithFeedBack);
     await postFeedback(
       client,
-      { ...repoInfo, issueNumberStr: '1', marker, feedback: feedbackUpdated },
+      { ...repoInfo, issueNumberStr: '1', marker, feedback: feedbackUpdated, botUsername },
       log,
     );
     expect(log).toHaveBeenCalledWith('updating existing comment in #1');
@@ -124,7 +125,7 @@ describe('changeset feedback', () => {
     mockClient.paginate.mockResolvedValue(commentsWithFeedBack);
     await postFeedback(
       client,
-      { ...repoInfo, issueNumberStr: '1', marker: '', feedback: '' },
+      { ...repoInfo, issueNumberStr: '1', marker: '', feedback: '', botUsername },
       log,
     );
     expect(mockClient.rest.issues.deleteComment).toHaveBeenCalledWith({
