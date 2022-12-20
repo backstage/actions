@@ -38,7 +38,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:10.74.2"],\
-            ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/types", "npm:6.41.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
@@ -1373,6 +1373,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/openapi-types", [\
+        ["npm:12.11.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-openapi-types-npm-12.11.0-cc40f04bc8-8a7d4bd628.zip/node_modules/@octokit/openapi-types/",\
+          "packageDependencies": [\
+            ["@octokit/openapi-types", "npm:12.11.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
         ["npm:12.4.0", {\
           "packageLocation": "./.yarn/cache/@octokit-openapi-types-npm-12.4.0-cb5cc57f10-80c45bb8a6.zip/node_modules/@octokit/openapi-types/",\
           "packageDependencies": [\
@@ -1476,6 +1483,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@octokit/types", "npm:6.38.1"],\
             ["@octokit/openapi-types", "npm:12.5.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:6.41.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-types-npm-6.41.0-5788f32962-fd6f75e0b1.zip/node_modules/@octokit/types/",\
+          "packageDependencies": [\
+            ["@octokit/types", "npm:6.41.0"],\
+            ["@octokit/openapi-types", "npm:12.11.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4522,7 +4537,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:10.74.2"],\
-            ["@octokit/types", "npm:6.37.0"],\
+            ["@octokit/types", "npm:6.41.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
