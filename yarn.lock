@@ -992,11 +992,11 @@ __metadata:
   linkType: hard
 
 "@octokit/types@npm:^8.0.0":
-  version: 8.1.1
-  resolution: "@octokit/types@npm:8.1.1"
+  version: 8.2.1
+  resolution: "@octokit/types@npm:8.2.1"
   dependencies:
     "@octokit/openapi-types": ^14.0.0
-  checksum: 4a51ce3d7f0448110dc035fc2cbfa4a0e6b9e5b0c945ad80904a7300830335979a1c75affe3f801baf25350abe003b36195e634f4c2b4ce1b564d812e9f0d649
+  checksum: 92f2fe5ea8c4c6ddbb2363c74cd865c64e5753eaa4895bc925b5064390890b1441c5406015d8a92285f386cc7e6fe714c47fe4beda370fcda9177153299c9e37
   languageName: node
   linkType: hard
 
