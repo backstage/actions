@@ -5,14 +5,14 @@ inputs:
     description: Marker to check if there is already a changeset posted on the PR
     default: '<!-- changeset-feedback -->'
     required: false
-  diffRef:
+  diff-ref:
     description: The target branch to use to list the changes
     default: origin/master
     required: false
   issue-number:
     description: issue number of the PR
     required: true
-  botUsername:
+  bot-username:
     description: username of the bot used to post comments on behalf of the action. Will be used when locating existing changeset feedback comments to update.
     default: github-actions[bot]
     required: false
