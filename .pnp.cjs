@@ -37,7 +37,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
-            ["@octokit/graphql-schema", "npm:10.74.2"],\
+            ["@octokit/graphql-schema", "npm:13.0.1"],\
             ["@octokit/types", "npm:8.1.1"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
@@ -1339,12 +1339,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/graphql-schema", [\
-        ["npm:10.74.2", {\
-          "packageLocation": "./.yarn/cache/@octokit-graphql-schema-npm-10.74.2-1be2999997-1ca049010a.zip/node_modules/@octokit/graphql-schema/",\
+        ["npm:13.0.1", {\
+          "packageLocation": "./.yarn/cache/@octokit-graphql-schema-npm-13.0.1-ef5e7d2961-d8e371ba9f.zip/node_modules/@octokit/graphql-schema/",\
           "packageDependencies": [\
-            ["@octokit/graphql-schema", "npm:10.74.2"],\
+            ["@octokit/graphql-schema", "npm:13.0.1"],\
             ["graphql", "npm:16.6.0"],\
-            ["graphql-tag", "virtual:1be2999997f4b04d8b337ac1907f7f02add451ac8a570ca03f82d4262f88637993840fc309a6f6d48725836e9f2aed6340d1ce132068735f72c8a43069009111#npm:2.12.6"]\
+            ["graphql-tag", "virtual:ef5e7d29611b4b63af6ccf51d2b964b3da947ea74d23113c4d5f9625bd85658c7578c7f3773805d6959b56e010b63e91a21c631ddbfe0efaab68f6c981ead17f#npm:2.12.6"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2836,10 +2836,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:1be2999997f4b04d8b337ac1907f7f02add451ac8a570ca03f82d4262f88637993840fc309a6f6d48725836e9f2aed6340d1ce132068735f72c8a43069009111#npm:2.12.6", {\
-          "packageLocation": "./.yarn/__virtual__/graphql-tag-virtual-31bb9ece60/0/cache/graphql-tag-npm-2.12.6-99a5a7f6de-b15162a3d6.zip/node_modules/graphql-tag/",\
+        ["virtual:ef5e7d29611b4b63af6ccf51d2b964b3da947ea74d23113c4d5f9625bd85658c7578c7f3773805d6959b56e010b63e91a21c631ddbfe0efaab68f6c981ead17f#npm:2.12.6", {\
+          "packageLocation": "./.yarn/__virtual__/graphql-tag-virtual-08314d5ac2/0/cache/graphql-tag-npm-2.12.6-99a5a7f6de-b15162a3d6.zip/node_modules/graphql-tag/",\
           "packageDependencies": [\
-            ["graphql-tag", "virtual:1be2999997f4b04d8b337ac1907f7f02add451ac8a570ca03f82d4262f88637993840fc309a6f6d48725836e9f2aed6340d1ce132068735f72c8a43069009111#npm:2.12.6"],\
+            ["graphql-tag", "virtual:ef5e7d29611b4b63af6ccf51d2b964b3da947ea74d23113c4d5f9625bd85658c7578c7f3773805d6959b56e010b63e91a21c631ddbfe0efaab68f6c981ead17f#npm:2.12.6"],\
             ["@types/graphql", null],\
             ["graphql", "npm:16.6.0"],\
             ["tslib", "npm:2.4.0"]\
@@ -4536,7 +4536,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
-            ["@octokit/graphql-schema", "npm:10.74.2"],\
+            ["@octokit/graphql-schema", "npm:13.0.1"],\
             ["@octokit/types", "npm:8.1.1"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
