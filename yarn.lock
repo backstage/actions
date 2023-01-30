@@ -864,12 +864,12 @@ __metadata:
   linkType: hard
 
 "@octokit/graphql-schema@npm:^13.0.0":
-  version: 13.0.1
-  resolution: "@octokit/graphql-schema@npm:13.0.1"
+  version: 13.1.0
+  resolution: "@octokit/graphql-schema@npm:13.1.0"
   dependencies:
     graphql: ^16.0.0
     graphql-tag: ^2.10.3
-  checksum: d8e371ba9f717970ff9e0db16822af4cac359adead2d326dff42f8d5c8d4b3b8a0ba87eaa1e8458b0c0e9d6cbdc16cebc238e19993bb8193d9b71cd06d41c3df
+  checksum: edb9b954025b8374e14f86d0c01532e9d4a0387bdda9afe08dffce450ef0b861b26743b4d767fe1a1024f82548e0af061b91fe9d3aa36ffdc498c328bed2f94e
   languageName: node
   linkType: hard
 
