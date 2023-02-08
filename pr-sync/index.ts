@@ -24,6 +24,8 @@ async function main() {
   const excludedUsers = core.getInput('excluded-users', { required: false });
   const owningTeams = core.getInput('owning-teams', { required: false });
   const token = core.getInput('github-token', { required: true });
+  const shouldAutoAssign =
+    core.getInput('auto-assign', { required: false }) ?? true;
 
   const userClient = github.getOctokit(token);
   const client = createAppClient();
@@ -51,15 +53,20 @@ async function main() {
     owningTeam,
   };
 
-  await Promise.all([
+  const actions = [
     syncProjectBoard(client, commonOptions, mkLog('sync-project-board')),
-    randomAssign(client, commonOptions, mkLog('random-assign')),
     approveRenovatePRs(
       userClient,
       commonOptions,
       mkLog('approve-renovate-prs'),
     ),
-  ]);
+  ];
+
+  if (shouldAutoAssign) {
+    actions.push(randomAssign(client, commonOptions, mkLog('random-assign')));
+  }
+
+  await Promise.all(actions);
 }
 
 main().catch(error => {
