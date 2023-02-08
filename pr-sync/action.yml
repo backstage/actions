@@ -22,6 +22,9 @@ inputs:
   owning-teams:
     description: A comma separated list of team IDs that can be assigned PRs
     required: false
+  auto-assign:
+    description: Should do automatic assignment of PRs to team members (defaults to true)
+    required: false
 outputs: {}
 runs:
   using: node16
