@@ -122,7 +122,11 @@ export async function listPackages() {
 export async function loadChangesets(filePaths: string[]) {
   const changesets = [];
   for (const filePath of filePaths) {
-    if (!filePath.startsWith('.changeset/') || !filePath.endsWith('.md')) {
+    if (
+      !filePath.startsWith('.changeset/') ||
+      !filePath.endsWith('.md') ||
+      filePath.endsWith('README.md')
+    ) {
       continue;
     }
     try {
