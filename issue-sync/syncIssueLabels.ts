@@ -25,6 +25,7 @@ export async function syncIssueLabels(
     search: 'search',
     catalog: 'catalog',
     scaffolder: 'scaffolder',
+    permission: 'permission',
   };
 
   const labels = Object.entries(keywords)
