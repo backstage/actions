@@ -25,5 +25,6 @@ jobs:
           private-key: ${{ secrets.BACKSTAGE_GOALIE_PRIVATE_KEY }}
           installation-id: ${{ secrets.BACKSTAGE_GOALIE_INSTALLATION_ID }}
           project-id: PVT_kwDOBFKqdc02LQ
+          auto-assign: false
           excluded-users: freben
           owning-teams: '@backstage/techdocs'
