@@ -36,9 +36,9 @@ describe('syncIssueLabels', () => {
     ['Fix software templates execution', []],
     ['catacatalogalog', ['catalog']],
     ['a cat a log', []],
-    ['my lovely new permission', ['permission']],
-    ['love the permissions framework', ['permission']],
-    ['permission-framework rocks', ['permission']],
+    ['my lovely new permission', ['area:permissions']],
+    ['love the permissions framework', ['area:permissions']],
+    ['permission-framework rocks', ['area:permissions']],
   ])('should add labels %i', async (title, labels) => {
     await syncIssueLabels(client, { ...ctx, issueTitle: title }, log);
     if (labels.length) {
