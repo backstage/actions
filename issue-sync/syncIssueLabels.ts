@@ -21,10 +21,11 @@ export async function syncIssueLabels(
   }
 
   const keywords = {
-    'techdocs|tech-docs|tech docs': 'techdocs',
-    search: 'search',
-    catalog: 'catalog',
+    'techdocs|tech-docs|tech docs': 'area:techdocs',
+    search: 'area:discoverability',
+    catalog: 'area:catalog',
     scaffolder: 'scaffolder',
+    permission: 'area:permission',
   };
 
   const labels = Object.entries(keywords)

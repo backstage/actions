@@ -25,17 +25,20 @@ describe('syncIssueLabels', () => {
   });
 
   it.each([
-    ['This is a catalog PR for TechDocs', ['catalog', 'techdocs']],
-    ['I fix tech docs', ['techdocs']],
-    ['tech-docs is great', ['techdocs']],
-    ['search is awesome', ['search']],
-    ['catalog is catalog', ['catalog']],
+    ['This is a catalog PR for TechDocs', ['area:catalog', 'area:techdocs']],
+    ['I fix tech docs', ['area:techdocs']],
+    ['tech-docs is great', ['area:techdocs']],
+    ['search is awesome', ['area:discoverability']],
+    ['catalog is catalog', ['area:catalog']],
     ['scaffolder boop', ['scaffolder']],
     ['Fixed an issue', []],
-    ['symtech docsilatin', ['techdocs']],
+    ['symtech docsilatin', ['area:techdocs']],
     ['Fix software templates execution', []],
-    ['catacatalogalog', ['catalog']],
+    ['catacatalogalog', ['area:catalog']],
     ['a cat a log', []],
+    ['my lovely new permission', ['area:permission']],
+    ['love the permissions framework', ['area:permission']],
+    ['permission-framework rocks', ['area:permission']],
   ])('should add labels %i', async (title, labels) => {
     await syncIssueLabels(client, { ...ctx, issueTitle: title }, log);
     if (labels.length) {
