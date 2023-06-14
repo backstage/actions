@@ -38,7 +38,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:13.0.1"],\
-            ["@octokit/types", "npm:8.1.1"],\
+            ["@octokit/types", "npm:10.0.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
@@ -1387,10 +1387,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:14.0.0", {\
-          "packageLocation": "./.yarn/cache/@octokit-openapi-types-npm-14.0.0-5d05da4dc7-0a1f8f3be9.zip/node_modules/@octokit/openapi-types/",\
+        ["npm:18.0.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-openapi-types-npm-18.0.0-1586e405d6-d487d6c6c1.zip/node_modules/@octokit/openapi-types/",\
           "packageDependencies": [\
-            ["@octokit/openapi-types", "npm:14.0.0"]\
+            ["@octokit/openapi-types", "npm:18.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -1470,6 +1470,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/types", [\
+        ["npm:10.0.0", {\
+          "packageLocation": "./.yarn/cache/@octokit-types-npm-10.0.0-8ea850424d-8aafba2ff0.zip/node_modules/@octokit/types/",\
+          "packageDependencies": [\
+            ["@octokit/types", "npm:10.0.0"],\
+            ["@octokit/openapi-types", "npm:18.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
         ["npm:6.37.0", {\
           "packageLocation": "./.yarn/cache/@octokit-types-npm-6.37.0-236ca6b745-7de86fbe0d.zip/node_modules/@octokit/types/",\
           "packageDependencies": [\
@@ -1483,14 +1491,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@octokit/types", "npm:6.38.1"],\
             ["@octokit/openapi-types", "npm:12.5.0"]\
-          ],\
-          "linkType": "HARD"\
-        }],\
-        ["npm:8.1.1", {\
-          "packageLocation": "./.yarn/cache/@octokit-types-npm-8.1.1-3fa1d862e8-4a51ce3d7f.zip/node_modules/@octokit/types/",\
-          "packageDependencies": [\
-            ["@octokit/types", "npm:8.1.1"],\
-            ["@octokit/openapi-types", "npm:14.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4537,7 +4537,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/globals", "npm:28.1.1"],\
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:13.0.1"],\
-            ["@octokit/types", "npm:8.1.1"],\
+            ["@octokit/types", "npm:10.0.0"],\
             ["@types/jest", "npm:28.1.3"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\

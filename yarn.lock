@@ -918,10 +918,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/openapi-types@npm:^14.0.0":
-  version: 14.0.0
-  resolution: "@octokit/openapi-types@npm:14.0.0"
-  checksum: 0a1f8f3be998cd82c5a640e9166d43fd183b33d5d36f5e1a9b81608e94d0da87c01ec46c9988f69cd26585d4e2ffc4d3ec99ee4f75e5fe997fc86dad0aa8293c
+"@octokit/openapi-types@npm:^18.0.0":
+  version: 18.0.0
+  resolution: "@octokit/openapi-types@npm:18.0.0"
+  checksum: d487d6c6c1965e583eee417d567e4fe3357a98953fc49bce1a88487e7908e9b5dbb3e98f60dfa340e23b1792725fbc006295aea071c5667a813b9c098185b56f
   languageName: node
   linkType: hard
 
@@ -973,6 +973,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/types@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@octokit/types@npm:10.0.0"
+  dependencies:
+    "@octokit/openapi-types": ^18.0.0
+  checksum: 8aafba2ff0cd2435fb70c291bf75ed071c0fa8a865cf6169648732068a35dec7b85a345851f18920ec5f3e94ee0e954988485caac0da09ec3f6781cc44fe153a
+  languageName: node
+  linkType: hard
+
 "@octokit/types@npm:^6.0.3, @octokit/types@npm:^6.16.1, @octokit/types@npm:^6.36.0":
   version: 6.37.0
   resolution: "@octokit/types@npm:6.37.0"
@@ -988,15 +997,6 @@ __metadata:
   dependencies:
     "@octokit/openapi-types": ^12.5.0
   checksum: dfe26870ab7c0a931cb3f17d286d164ae51dfb844e6bbf2e1ba68b4dd77568e8decc87a33690c387b77b32530fee7f6390c24bb87acdccfd03f557949b3690da
-  languageName: node
-  linkType: hard
-
-"@octokit/types@npm:^8.0.0":
-  version: 8.1.1
-  resolution: "@octokit/types@npm:8.1.1"
-  dependencies:
-    "@octokit/openapi-types": ^14.0.0
-  checksum: 4a51ce3d7f0448110dc035fc2cbfa4a0e6b9e5b0c945ad80904a7300830335979a1c75affe3f801baf25350abe003b36195e634f4c2b4ce1b564d812e9f0d649
   languageName: node
   linkType: hard
 
@@ -3562,7 +3562,7 @@ __metadata:
     "@jest/globals": ^28.1.1
     "@octokit/auth-app": ^3.6.1
     "@octokit/graphql-schema": ^13.0.0
-    "@octokit/types": ^8.0.0
+    "@octokit/types": ^10.0.0
     "@types/jest": ^28.1.3
     "@types/node": ^18.0.0
     codeowners-utils: ^1.0.2
