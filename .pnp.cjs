@@ -1343,7 +1343,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@octokit-graphql-schema-npm-13.0.1-ef5e7d2961-d8e371ba9f.zip/node_modules/@octokit/graphql-schema/",\
           "packageDependencies": [\
             ["@octokit/graphql-schema", "npm:13.0.1"],\
-            ["graphql", "npm:16.6.0"],\
+            ["graphql", "npm:16.8.1"],\
             ["graphql-tag", "virtual:ef5e7d29611b4b63af6ccf51d2b964b3da947ea74d23113c4d5f9625bd85658c7578c7f3773805d6959b56e010b63e91a21c631ddbfe0efaab68f6c981ead17f#npm:2.12.6"]\
           ],\
           "linkType": "HARD"\
@@ -2805,10 +2805,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["graphql", [\
-        ["npm:16.6.0", {\
-          "packageLocation": "./.yarn/cache/graphql-npm-16.6.0-301c470966-bf1d9e3c19.zip/node_modules/graphql/",\
+        ["npm:16.8.1", {\
+          "packageLocation": "./.yarn/cache/graphql-npm-16.8.1-c2cd08b4c0-8d304b7b6f.zip/node_modules/graphql/",\
           "packageDependencies": [\
-            ["graphql", "npm:16.6.0"]\
+            ["graphql", "npm:16.8.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2826,7 +2826,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["graphql-tag", "virtual:ef5e7d29611b4b63af6ccf51d2b964b3da947ea74d23113c4d5f9625bd85658c7578c7f3773805d6959b56e010b63e91a21c631ddbfe0efaab68f6c981ead17f#npm:2.12.6"],\
             ["@types/graphql", null],\
-            ["graphql", "npm:16.6.0"],\
+            ["graphql", "npm:16.8.1"],\
             ["tslib", "npm:2.4.0"]\
           ],\
           "packagePeers": [\
