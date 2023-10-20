@@ -24,7 +24,7 @@ export async function syncIssueLabels(
     'techdocs|tech-docs|tech docs': 'area:techdocs',
     search: 'area:discoverability',
     catalog: 'area:catalog',
-    scaffolder: 'scaffolder',
+    scaffolder: 'area:scaffolder',
     permission: 'area:permission',
   };
 
