@@ -30,7 +30,7 @@ describe('syncIssueLabels', () => {
     ['tech-docs is great', ['area:techdocs']],
     ['search is awesome', ['area:discoverability']],
     ['catalog is catalog', ['area:catalog']],
-    ['scaffolder boop', ['scaffolder']],
+    ['scaffolder boop', ['area:scaffolder']],
     ['Fixed an issue', []],
     ['symtech docsilatin', ['area:techdocs']],
     ['Fix software templates execution', []],
