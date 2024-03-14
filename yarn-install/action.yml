@@ -17,7 +17,7 @@ runs:
     # Cache every node_modules folder inside the monorepo
     - name: cache all node_modules
       id: cache-modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: '**/node_modules'
         # We use both yarn.lock and package.json as cache keys to ensure that
@@ -34,7 +34,7 @@ runs:
       shell: bash
 
     - name: cache global yarn cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       if: steps.cache-modules.outputs.cache-hit != 'true'
       with:
         path: ${{ steps.yarn-cache.outputs.dir }}
