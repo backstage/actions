@@ -30,6 +30,11 @@ export async function syncProjectBoard(
   options: Options,
   log = core.info,
 ) {
+  if (!options.projectId) {
+    log('No project ID provided, skipping project board sync');
+    return;
+  }
+
   if (options.eventName === 'pull_request_target') {
     if (['opened', 'reopened'].includes(options.action!)) {
       await addToBoard(client, options, log);

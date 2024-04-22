@@ -15,7 +15,7 @@ inputs:
     required: true
   project-id:
     description: The ID of the project board to sync PRs towards
-    required: true
+    required: false
   excluded-users:
     description: A comma separated list of usernames of users that should not be assigned PRs
     required: false

@@ -20,7 +20,7 @@ async function main() {
     `PR sync #${issueNumber} ${eventName}/${action} actor=${actor} author=${author}`,
   );
 
-  const projectId = core.getInput('project-id', { required: true });
+  const projectId = core.getInput('project-id', { required: false });
   const excludedUsers = core.getInput('excluded-users', { required: false });
   const owningTeams = core.getInput('owning-teams', { required: false });
   const token = core.getInput('github-token', { required: true });
