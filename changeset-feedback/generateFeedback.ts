@@ -22,6 +22,7 @@ import {
   resolve as resolvePath,
   relative as relativePath,
 } from 'path';
+import { getPackages, type Package } from '@manypkg/get-packages';
 
 const execFile = promisify(execFileCb);
 
@@ -73,57 +74,46 @@ export async function listChangedFiles(ref: string) {
   }
 
   const { stdout } = await execFile('git', ['diff', '--name-only', ref]);
-  return stdout.trim().split(/\r?\n/);
+  return stdout
+    .trim()
+    .split(/\r?\n/)
+    .map((line: string) => resolvePath(process.cwd(), line));
 }
 
-export async function listPackages() {
-  const rootPkg = require(resolvePath(process.cwd(), './package.json'));
-  if (!rootPkg?.workspaces?.packages) {
-    throw new Error('No workspaces found in root package.json');
+const findPackagesInDir = async (dir: string) => {
+  const { packages } = await getPackages(dir).catch(() => ({ packages: [] }));
+  return packages
+    .filter(p => p.relativeDir !== '.')
+    .map(p => ({
+      ...p,
+      relativeDir: relativePath(process.cwd(), resolvePath(dir, p.relativeDir)),
+    }));
+};
+
+export async function listPackages({
+  isCommunityPluginsRepo,
+}: {
+  isCommunityPluginsRepo?: boolean;
+}) {
+  if (!isCommunityPluginsRepo) {
+    return findPackagesInDir(process.cwd());
   }
 
-  const pkgs: Array<{ path: string; name: string }> = [];
+  const workspacesRoot = resolvePath(process.cwd(), 'workspaces');
+  const workspaceDirs = await fs.promises.readdir(workspacesRoot);
 
-  // Naive workspace lookup implementation, we can't shell out to yarn here as the implementation embedded in the repo
-  for (const pkgPath of rootPkg?.workspaces?.packages) {
-    const readDirRecursive = (dir: string, parts: string) => {
-      const [nextPart] = parts;
-
-      // We've reached the end of the path pattern, check if package.json exists
-      if (!nextPart) {
-        try {
-          const pkg = require(resolvePath(dir, 'package.json'));
-          pkgs.push({
-            path: relativePath(process.cwd(), dir),
-            name: pkg.name,
-          });
-        } catch {
-          process.stderr.write(`Failed to read package.json in ${dir}\n`);
-        }
-        return;
-      }
-
-      for (const filePath of fs.readdirSync(dir)) {
-        if (fs.statSync(resolvePath(dir, filePath)).isDirectory()) {
-          if (filePath === nextPart || nextPart === '*') {
-            readDirRecursive(resolvePath(dir, filePath), parts.slice(1));
-          }
-        }
-      }
-    };
-
-    // Split the workspace paths by / and check each directory level recursively
-    readDirRecursive(process.cwd(), pkgPath.split('/'));
-  }
-
-  return pkgs;
+  return await Promise.all(
+    workspaceDirs.map(workspace =>
+      findPackagesInDir(resolvePath(workspacesRoot, workspace)),
+    ),
+  ).then(packages => packages.flat());
 }
 
 export async function loadChangesets(filePaths: string[]) {
   const changesets = [];
   for (const filePath of filePaths) {
     if (
-      !filePath.startsWith('.changeset/') ||
+      !filePath.includes('.changeset/') ||
       !filePath.endsWith('.md') ||
       filePath.endsWith('README.md')
     ) {
@@ -166,28 +156,24 @@ export async function loadChangesets(filePaths: string[]) {
 
 export async function listChangedPackages(
   changedFiles: string[],
-  packages: { name: any; path: any }[],
+  packages: Package[],
 ) {
   const changedPackageMap = new Map();
   for (const filePath of changedFiles) {
     for (const pkg of packages) {
-      if (filePath.startsWith(`${pkg.path}/`)) {
-        const pkgPath = relativePath(pkg.path, filePath);
+      if (filePath.startsWith(`${pkg.dir}/`)) {
+        const pkgPath = relativePath(pkg.dir, filePath);
         if (!isPublishedPath(pkgPath)) {
           break;
         }
-        const entry = changedPackageMap.get(pkg.name);
+        const entry = changedPackageMap.get(pkg.packageJson.name);
         if (entry) {
           entry.files.push(pkgPath);
         } else {
-          const pkgJson = require(resolvePath(pkg.path, 'package.json'));
-
-          changedPackageMap.set(pkg.name, {
+          changedPackageMap.set(pkg.packageJson.name, {
             ...pkg,
-            version: pkgJson.version,
-            isStable: !pkgJson.version.startsWith('0.'),
-            isPrivate: Boolean(pkgJson.private),
-            files: [pkgPath],
+            isStable: !pkg.packageJson.version.startsWith('0.'),
+            isPrivate: Boolean(pkg.packageJson.private),
           });
         }
         break;
@@ -213,9 +199,12 @@ function formatSection(
   return [...[prefix].flat(), ...lines, ...[suffix].flat(), '', ''].join('\n');
 }
 
-export function formatSummary(changedPackages: any[], changesets: any[]) {
+export function formatSummary(
+  changedPackages: (Package & { isStable: boolean; isPrivate: boolean })[],
+  changesets: { filePath: string; bumps: Map<string, string> }[],
+) {
   const changedNames = new Set(
-    changedPackages.map((pkg: { name: any }) => pkg.name),
+    changedPackages.map(pkg => pkg.packageJson.name),
   );
 
   let output = '';
@@ -229,7 +218,7 @@ The following package(s) are changed by this PR but do not have a changeset:
       for (const pkg of changedPackages) {
         if (
           changesets.some((c: { bumps: { get: (arg0: any) => any } }) =>
-            c.bumps.get(pkg.name),
+            c.bumps.get(pkg.packageJson.name),
           )
         ) {
           continue;
@@ -237,7 +226,7 @@ The following package(s) are changed by this PR but do not have a changeset:
         if (pkg.isPrivate) {
           continue;
         }
-        yield `- **${pkg.name}**`;
+        yield `- **${pkg.packageJson.name}**`;
       }
     },
     `
@@ -274,11 +263,11 @@ The following package(s) are private and do not need a changeset:
       for (const pkg of changedPackages) {
         if (
           changesets.some((c: { bumps: { get: (arg0: any) => any } }) =>
-            c.bumps.get(pkg.name),
+            c.bumps.get(pkg.packageJson.name),
           ) &&
           pkg.isPrivate
         ) {
-          yield `- **${pkg.name}**`;
+          yield `- **${pkg.packageJson.name}**`;
         }
       }
     },
@@ -301,14 +290,14 @@ The following package(s) are private and do not need a changeset:
         const maxBump =
           changesets
             .map((c: { bumps: { get: (arg0: any) => any } }) =>
-              c.bumps.get(pkg.name),
+              c.bumps.get(pkg.packageJson.name),
             )
             .reduce(
               (max: string | number, bump: string | number) =>
                 bumpMap[bump] > bumpMap[max] ? bump : max,
               undefined,
             ) ?? 'none';
-        yield `| ${pkg.name} | ${pkg.path} | **${maxBump}** | \`v${pkg.version}\` |`;
+        yield `| ${pkg.packageJson.name} | ${pkg.relativeDir} | **${maxBump}** | \`v${pkg.packageJson.version}\` |`;
       }
     },
   );
