@@ -12,6 +12,9 @@ inputs:
   issue-number:
     description: issue number of the PR
     required: true
+  is-community-plugins-repo:
+    description: If it's the community plugins repo this is a collection of workspaces
+    required: false
   bot-username:
     description: username of the bot used to post comments on behalf of the action. Will be used when locating existing changeset feedback comments to update.
     default: github-actions[bot]
