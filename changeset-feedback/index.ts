@@ -17,13 +17,16 @@ async function main() {
   const marker = core.getInput('marker', { required: true });
   const diffRef = core.getInput('diff-ref', { required: true });
   const issueNumberStr = core.getInput('issue-number', { required: true });
-  const botUsername = core.getInput('bot-username', {required: true});
+  const botUsername = core.getInput('bot-username', { required: true });
+  const multipleWorkspaces = core.getBooleanInput('multiple-workspaces', {
+    required: false,
+  });
   const changedFiles = await listChangedFiles(diffRef);
-  const packages = await listPackages();
+  const packages = await listPackages({ multipleWorkspaces });
   const changesets = await loadChangesets(changedFiles);
   const changedPackages = await listChangedPackages(changedFiles, packages);
-  const repoInfo = github.context.repo;
   const feedback = formatSummary(changedPackages, changesets);
+  const repoInfo = github.context.repo;
 
   core.info(feedback);
 
