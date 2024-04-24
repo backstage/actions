@@ -18,11 +18,11 @@ async function main() {
   const diffRef = core.getInput('diff-ref', { required: true });
   const issueNumberStr = core.getInput('issue-number', { required: true });
   const botUsername = core.getInput('bot-username', { required: true });
-  const isCommunityPluginsRepo = core.getInput('is-community-plugins-repo', {
+  const multipleWorkspaces = core.getBooleanInput('multiple-workspaces', {
     required: false,
   });
   const changedFiles = await listChangedFiles(diffRef);
-  const packages = await listPackages({ isCommunityPluginsRepo });
+  const packages = await listPackages({ multipleWorkspaces });
   const changesets = await loadChangesets(changedFiles);
   const changedPackages = await listChangedPackages(changedFiles, packages);
   const feedback = formatSummary(changedPackages, changesets);

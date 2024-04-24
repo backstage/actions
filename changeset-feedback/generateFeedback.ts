@@ -91,11 +91,11 @@ const findPackagesInDir = async (dir: string) => {
 };
 
 export async function listPackages({
-  isCommunityPluginsRepo,
+  multipleWorkspaces,
 }: {
-  isCommunityPluginsRepo?: boolean;
+  multipleWorkspaces?: boolean;
 }) {
-  if (!isCommunityPluginsRepo) {
+  if (!multipleWorkspaces) {
     return findPackagesInDir(process.cwd());
   }
 
