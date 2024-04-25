@@ -167,9 +167,7 @@ export async function listChangedPackages(
           break;
         }
         const entry = changedPackageMap.get(pkg.packageJson.name);
-        if (entry) {
-          entry.files.push(pkgPath);
-        } else {
+        if (!entry) {
           changedPackageMap.set(pkg.packageJson.name, {
             ...pkg,
             isStable: !pkg.packageJson.version.startsWith('0.'),
