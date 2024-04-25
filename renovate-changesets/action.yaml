@@ -1,0 +1,11 @@
+name: Backstage Renovate Changeset Creator
+description: Create changesets on the renovate bot PR's if needed
+inputs:
+  multiple-workspaces:
+    description: If it's this repository is a collection of workspaces
+    required: false
+
+outputs: {}
+runs:
+  using: node16
+  main: ./entry.js
