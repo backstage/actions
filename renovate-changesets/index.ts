@@ -83,7 +83,8 @@ async function main() {
     Array.from(changedFilesByWorkspace.entries())
       .map(([workspace, files]) => [
         workspace,
-        files.filter(f => f.endsWith('package.json')),
+        // Ignore root package.json from the workspace, and check for package.json in the subfolders
+        files.filter(f => f !== 'package.json' && f.endsWith('package.json')),
       ])
       .filter((workspaceChanges): workspaceChanges is [string, string[]] => {
         const [_, files] = workspaceChanges;
