@@ -4,6 +4,7 @@ inputs:
   multiple-workspaces:
     description: If it's this repository is a collection of workspaces
     required: false
+    default: 'false'
 
 outputs: {}
 runs:

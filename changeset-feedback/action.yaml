@@ -14,6 +14,7 @@ inputs:
     required: true
   multiple-workspaces:
     description: If it's this repository is a collection of workspaces
+    default: 'false'
     required: false
   bot-username:
     description: username of the bot used to post comments on behalf of the action. Will be used when locating existing changeset feedback comments to update.
