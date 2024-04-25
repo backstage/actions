@@ -34,6 +34,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["@actions/core", "npm:1.9.1"],\
+            ["@actions/exec", "npm:1.1.1"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.3"],\
             ["@manypkg/get-packages", "npm:2.2.1"],\
@@ -62,6 +63,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@actions/exec", [\
+        ["npm:1.1.1", {\
+          "packageLocation": "./.yarn/cache/@actions-exec-npm-1.1.1-90973d2f96-d976e66dd5.zip/node_modules/@actions/exec/",\
+          "packageDependencies": [\
+            ["@actions/exec", "npm:1.1.1"],\
+            ["@actions/io", "npm:1.1.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@actions/github", [\
         ["npm:5.0.3", {\
           "packageLocation": "./.yarn/cache/@actions-github-npm-5.0.3-057d4f5b0e-1d8e8c5c35.zip/node_modules/@actions/github/",\
@@ -81,6 +92,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@actions/http-client", "npm:2.0.1"],\
             ["tunnel", "npm:0.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@actions/io", [\
+        ["npm:1.1.3", {\
+          "packageLocation": "./.yarn/cache/@actions-io-npm-1.1.3-82d1cf012b-42841ac2b8.zip/node_modules/@actions/io/",\
+          "packageDependencies": [\
+            ["@actions/io", "npm:1.1.3"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4776,6 +4796,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["root-workspace-0b6124", "workspace:."],\
             ["@actions/core", "npm:1.9.1"],\
+            ["@actions/exec", "npm:1.1.1"],\
             ["@actions/github", "npm:5.0.3"],\
             ["@jest/globals", "npm:28.1.3"],\
             ["@manypkg/get-packages", "npm:2.2.1"],\
