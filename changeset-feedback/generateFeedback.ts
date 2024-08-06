@@ -45,8 +45,9 @@ function isPublishedPath(path: string) {
   // API report changes by themselves don't count
   if (
     path === 'cli-report.md' ||
-    path === 'api-report.md' ||
-    path.endsWith('-api-report.md')
+    (path.includes('api-report') && path.endsWith('.md')) ||
+    path.endsWith('.api.md') ||
+    path.endsWith('.cli.md')
   ) {
     return false;
   }
