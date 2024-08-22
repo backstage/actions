@@ -29,10 +29,14 @@ async function main() {
     includeRoots: true,
   });
 
+  // If a package is private it's not being published
+  // which means it doesn't need a changeset
+  const publicPackages = allPackages.filter(p => !p.packageJson.private);
+
   // Need to remove the topmost package if we're in a multi-workspace setup
   const packageList = isMultipleWorkspaces
-    ? allPackages.filter(p => p.dir !== process.cwd())
-    : allPackages;
+    ? publicPackages.filter(p => p.dir !== process.cwd())
+    : publicPackages;
 
   const changedFiles = await getChangedFiles();
 
