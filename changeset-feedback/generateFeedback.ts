@@ -51,6 +51,9 @@ function isPublishedPath(path: string) {
   ) {
     return false;
   }
+  if (path === 'knip-report.md') {
+    return false;
+  }
   // Lint changes don't count
   if (path === '.eslintrc.js') {
     return false;
