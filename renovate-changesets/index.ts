@@ -9,10 +9,7 @@ import {
   listPackages,
 } from './manageChangesets';
 import { relative as relativePath, resolve as resolvePath } from 'path';
-import {
-  dependencyMangerConfig,
-  getDependencyManager,
-} from './dependencyConfig';
+import { getDependencyManager } from './dependencyConfig';
 
 async function main() {
   core.info(`Running ${getDependencyManager()} Changesets`);
@@ -23,11 +20,7 @@ async function main() {
 
   const branchName = await getBranchName();
 
-  if (
-    !branchName.startsWith(
-      dependencyMangerConfig[getDependencyManager()].branchPrefix,
-    )
-  ) {
+  if (!branchName.startsWith(getDependencyManager())) {
     core.info(`Not a ${getDependencyManager()} branch, skipping`);
     return;
   }
