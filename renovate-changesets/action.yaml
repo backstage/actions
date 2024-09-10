@@ -8,5 +8,5 @@ inputs:
 
 outputs: {}
 runs:
-  using: node16
+  using: node20
   main: ./entry.js
