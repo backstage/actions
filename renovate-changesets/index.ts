@@ -124,11 +124,18 @@ async function main() {
     ),
   );
 
+  // Filter out bumps where `changes` is empty
+  const filteredBumps = bumps.filter(({ changes }) => changes.size > 0);
+  
+  if(filteredBumps.length < 0){
+    core.info('Seems that only devDependencies were added');
+    return;
+  }
   const changesetFilename = await getChangesetFilename();
   const changesetFiles: string[] = [];
 
   // Create a changeset for each of the workspaces in the right place
-  for (const bump of bumps) {
+  for (const bump of filteredBumps) {
     const changesetFilePath = resolvePath(bump.workspace, changesetFilename);
     changesetFiles.push(changesetFilePath);
 
