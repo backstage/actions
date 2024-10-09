@@ -61,13 +61,26 @@ export async function getBumps(files: string[]) {
   const bumps = new Map();
   for (const file of files) {
     const { stdout: changes } = await getExecOutput('git', ['show', file]);
+    
+    // Load the package.json for the current workspace to identify devDependencies
+    const packageJsonPath = resolvePath(dirname(file), 'package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+
+    const devDependencies = packageJson.devDependencies || {};
+
     for (const change of changes.split('\n')) {
       if (!change.startsWith('+ ')) {
         continue;
       }
       const match = change.match(/"(.*?)"/g);
       if (match) {
-        bumps.set(match[0].replace(/"/g, ''), match[1].replace(/"/g, ''));
+        const deps = match[0].replace(/"/g, '');
+        const depsVersion = match[1].replace(/"/g, '');
+
+         // Only add to bumps if it's not a devDependency
+        if (! devDependencies[deps]) {
+          bumps.set(deps, depsVersion);
+        }
       }
     }
   }
