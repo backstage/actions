@@ -17,6 +17,8 @@ async function main() {
     required: false,
   });
 
+  const includeDevDependencies = core.getBooleanInput('includeDevDependencies', { required: false });
+
   const branchName = await getBranchName();
 
   if (!branchName.startsWith('renovate/')) {
@@ -113,7 +115,7 @@ async function main() {
   const bumps = await Promise.all(
     Array.from(changedPackageJsons.entries()).map(
       async ([workspace, packages]) => {
-        const changes = await getBumps(packages.map(p => p.localPath));
+        const changes = await getBumps(packages.map(p => p.localPath), includeDevDependencies);
 
         return {
           workspace,
@@ -126,8 +128,8 @@ async function main() {
 
   // Filter out bumps where `changes` is empty
   const filteredBumps = bumps.filter(({ changes }) => changes.size > 0);
-  
-  if(filteredBumps.length < 0){
+
+  if (filteredBumps.length < 0) {
     core.info('Seems that only devDependencies were added');
     return;
   }

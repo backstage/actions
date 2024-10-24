@@ -57,15 +57,16 @@ export const getChangedFiles = async () => {
   return diffOutput.stdout.split('\n');
 };
 
-export async function getBumps(files: string[]) {
+export async function getBumps(files: string[], includeDevDependencies: boolean) {
   const bumps = new Map();
   for (const file of files) {
     const { stdout: changes } = await getExecOutput('git', ['show', file]);
-    
+
     // Load the package.json for the current workspace to identify devDependencies
     const packageJsonPath = resolvePath(dirname(file), 'package.json');
     const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
 
+    const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
 
     for (const change of changes.split('\n')) {
@@ -77,8 +78,7 @@ export async function getBumps(files: string[]) {
         const deps = match[0].replace(/"/g, '');
         const depsVersion = match[1].replace(/"/g, '');
 
-         // Only add to bumps if it's not a devDependency
-        if (! devDependencies[deps]) {
+        if (dependencies[deps] || (includeDevDependencies && devDependencies[deps])) {
           bumps.set(deps, depsVersion);
         }
       }
