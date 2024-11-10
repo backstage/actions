@@ -211,6 +211,14 @@ export function formatSummary(
 
   let output = '';
 
+  if (
+    changedPackages.length > 0 &&
+    changesets.some(e => [...e.bumps.values()].some(e => e !== 'patch'))
+  ) {
+    output += `> [!IMPORTANT]
+> This PR includes changes that affect public-facing API. Please ensure you are adding/updating documentation for new features or behavior.`;
+  }
+
   output += formatSection(
     `## Missing Changesets
 
