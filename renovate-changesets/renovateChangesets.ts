@@ -57,7 +57,10 @@ export const getChangedFiles = async () => {
   return diffOutput.stdout.split('\n');
 };
 
-export async function getBumps(files: string[], includeDevDependencies: boolean) {
+export async function getBumps(
+  files: string[],
+  excludeDevDependencies: boolean,
+) {
   const bumps = new Map();
   for (const file of files) {
     const { stdout: changes } = await getExecOutput('git', ['show', file]);
@@ -78,7 +81,13 @@ export async function getBumps(files: string[], includeDevDependencies: boolean)
         const deps = match[0].replace(/"/g, '');
         const depsVersion = match[1].replace(/"/g, '');
 
-        if (dependencies[deps] || (includeDevDependencies && devDependencies[deps])) {
+        // If the dependency exists in regular dependencies
+        if (dependencies[deps]) {
+          bumps.set(deps, depsVersion);
+        }
+
+        // If it's a devDependency and we're not excluding them
+        if (!excludeDevDependencies && devDependencies[deps]) {
           bumps.set(deps, depsVersion);
         }
       }
