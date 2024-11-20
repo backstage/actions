@@ -5,6 +5,10 @@ inputs:
     description: If it's this repository is a collection of workspaces
     required: false
     default: 'false'
+  excludeDevDependencies:
+    description: If devDependency changes should be excluded
+    required: false
+    default: 'false'
 
 outputs: {}
 runs:
