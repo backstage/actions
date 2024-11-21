@@ -36,7 +36,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:13.0.1"],\
             ["@octokit/types", "npm:8.1.1"],\
-            ["@types/jest", "npm:28.1.3"],\
+            ["@types/jest", "npm:28.1.8"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
             ["jest", "virtual:dc3fc578bfa5e06182a4d2be39ede0bc5b74940b1ffe0d70c26892ab140a4699787750fba175dc306292e80b4aa2c8c5f68c2a821e69b2c37e360c0dff36ff66#npm:29.7.0"],\
@@ -2100,11 +2100,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/jest", [\
-        ["npm:28.1.3", {\
-          "packageLocation": "./.yarn/cache/@types-jest-npm-28.1.3-4e0f1f0cb8-28141f2d5b.zip/node_modules/@types/jest/",\
+        ["npm:28.1.8", {\
+          "packageLocation": "./.yarn/cache/@types-jest-npm-28.1.8-c361b866d1-d4cd36158a.zip/node_modules/@types/jest/",\
           "packageDependencies": [\
-            ["@types/jest", "npm:28.1.3"],\
-            ["jest-matcher-utils", "npm:28.1.3"],\
+            ["@types/jest", "npm:28.1.8"],\
+            ["expect", "npm:28.1.3"],\
             ["pretty-format", "npm:28.1.3"]\
           ],\
           "linkType": "HARD"\
@@ -5511,7 +5511,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/auth-app", "npm:3.6.1"],\
             ["@octokit/graphql-schema", "npm:13.0.1"],\
             ["@octokit/types", "npm:8.1.1"],\
-            ["@types/jest", "npm:28.1.3"],\
+            ["@types/jest", "npm:28.1.8"],\
             ["@types/node", "npm:18.0.0"],\
             ["codeowners-utils", "npm:1.0.2"],\
             ["jest", "virtual:dc3fc578bfa5e06182a4d2be39ede0bc5b74940b1ffe0d70c26892ab140a4699787750fba175dc306292e80b4aa2c8c5f68c2a821e69b2c37e360c0dff36ff66#npm:29.7.0"],\
@@ -5925,7 +5925,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/babel-jest", null],\
             ["@types/babel__core", null],\
             ["@types/esbuild", null],\
-            ["@types/jest", "npm:28.1.3"],\
+            ["@types/jest", "npm:28.1.8"],\
             ["@types/jest__transform", null],\
             ["@types/jest__types", null],\
             ["@types/typescript", null],\
