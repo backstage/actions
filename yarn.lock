@@ -1287,12 +1287,12 @@ __metadata:
   linkType: hard
 
 "@octokit/graphql-schema@npm:^13.0.0":
-  version: 13.0.1
-  resolution: "@octokit/graphql-schema@npm:13.0.1"
+  version: 13.10.0
+  resolution: "@octokit/graphql-schema@npm:13.10.0"
   dependencies:
     graphql: ^16.0.0
     graphql-tag: ^2.10.3
-  checksum: d8e371ba9f717970ff9e0db16822af4cac359adead2d326dff42f8d5c8d4b3b8a0ba87eaa1e8458b0c0e9d6cbdc16cebc238e19993bb8193d9b71cd06d41c3df
+  checksum: fdec9c9a4df1f90b733ea0e24964744faceaf65e5d350b1727892e8e0e5821df1d29aec5cfa039925a044c6f56d4ed2028505108db7fbc0c68011053853c2411
   languageName: node
   linkType: hard
 
@@ -1327,10 +1327,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/openapi-types@npm:^12.5.0":
-  version: 12.5.0
-  resolution: "@octokit/openapi-types@npm:12.5.0"
-  checksum: 66d950ed3da5f583ab19f5eba74be8f086faa8cf9a2e9dc71bf1be67a40bbc4e47e8215ca5b6c2c56c5cb0e82f10992f6011851dd1dd3c90623106a01b93a672
+"@octokit/openapi-types@npm:^12.11.0":
+  version: 12.11.0
+  resolution: "@octokit/openapi-types@npm:12.11.0"
+  checksum: 8a7d4bd6288cc4085cabe0ca9af2b87c875c303af932cb138aa1b2290eb69d32407759ac23707bb02776466e671244a902e9857896903443a69aff4b6b2b0e3b
   languageName: node
   linkType: hard
 
@@ -1390,20 +1390,20 @@ __metadata:
   linkType: hard
 
 "@octokit/types@npm:^6.0.3, @octokit/types@npm:^6.10.0, @octokit/types@npm:^6.12.2, @octokit/types@npm:^6.16.1, @octokit/types@npm:^6.36.0":
-  version: 6.38.1
-  resolution: "@octokit/types@npm:6.38.1"
+  version: 6.41.0
+  resolution: "@octokit/types@npm:6.41.0"
   dependencies:
-    "@octokit/openapi-types": ^12.5.0
-  checksum: dfe26870ab7c0a931cb3f17d286d164ae51dfb844e6bbf2e1ba68b4dd77568e8decc87a33690c387b77b32530fee7f6390c24bb87acdccfd03f557949b3690da
+    "@octokit/openapi-types": ^12.11.0
+  checksum: fd6f75e0b19b90d1a3d244d2b0c323ed8f2f05e474a281f60a321986683548ef2e0ec2b3a946aa9405d6092e055344455f69f58957c60f58368c8bdda5b7d2ab
   languageName: node
   linkType: hard
 
 "@octokit/types@npm:^8.0.0":
-  version: 8.1.1
-  resolution: "@octokit/types@npm:8.1.1"
+  version: 8.2.1
+  resolution: "@octokit/types@npm:8.2.1"
   dependencies:
     "@octokit/openapi-types": ^14.0.0
-  checksum: 4a51ce3d7f0448110dc035fc2cbfa4a0e6b9e5b0c945ad80904a7300830335979a1c75affe3f801baf25350abe003b36195e634f4c2b4ce1b564d812e9f0d649
+  checksum: 92f2fe5ea8c4c6ddbb2363c74cd865c64e5753eaa4895bc925b5064390890b1441c5406015d8a92285f386cc7e6fe714c47fe4beda370fcda9177153299c9e37
   languageName: node
   linkType: hard
 
