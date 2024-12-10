@@ -216,7 +216,7 @@ export function formatSummary(
     changesets.some(e => [...e.bumps.values()].some(e => e !== 'patch'))
   ) {
     output += `> [!IMPORTANT]
-> This PR includes changes that affect public-facing API. Please ensure you are adding/updating documentation for new features or behavior.`;
+> This PR includes changes that affect public-facing API. Please ensure you are adding/updating documentation for new features or behavior.\n\n`;
   }
 
   output += formatSection(
