@@ -57,17 +57,39 @@ export const getChangedFiles = async () => {
   return diffOutput.stdout.split('\n');
 };
 
-export async function getBumps(files: string[]) {
+export async function getBumps(
+  files: string[],
+  excludeDevDependencies: boolean,
+) {
   const bumps = new Map();
   for (const file of files) {
     const { stdout: changes } = await getExecOutput('git', ['show', file]);
+
+    // Load the package.json for the current workspace to identify devDependencies
+    const packageJsonPath = resolvePath(dirname(file), 'package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+
     for (const change of changes.split('\n')) {
       if (!change.startsWith('+ ')) {
         continue;
       }
       const match = change.match(/"(.*?)"/g);
       if (match) {
-        bumps.set(match[0].replace(/"/g, ''), match[1].replace(/"/g, ''));
+        const deps = match[0].replace(/"/g, '');
+        const depsVersion = match[1].replace(/"/g, '');
+
+        // If the dependency exists in regular dependencies
+        if (dependencies[deps]) {
+          bumps.set(deps, depsVersion);
+        }
+
+        // If it's a devDependency and we're not excluding them
+        if (!excludeDevDependencies && devDependencies[deps]) {
+          bumps.set(deps, depsVersion);
+        }
       }
     }
   }

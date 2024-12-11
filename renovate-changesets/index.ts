@@ -17,6 +17,11 @@ async function main() {
     required: false,
   });
 
+  const excludeDevDependencies = core.getBooleanInput(
+    'excludeDevDependencies',
+    { required: false },
+  );
+
   const branchName = await getBranchName();
 
   if (!branchName.startsWith('renovate/')) {
@@ -113,7 +118,10 @@ async function main() {
   const bumps = await Promise.all(
     Array.from(changedPackageJsons.entries()).map(
       async ([workspace, packages]) => {
-        const changes = await getBumps(packages.map(p => p.localPath));
+        const changes = await getBumps(
+          packages.map(p => p.localPath),
+          excludeDevDependencies,
+        );
 
         return {
           workspace,
@@ -124,11 +132,19 @@ async function main() {
     ),
   );
 
+  // Filter out bumps where `changes` is empty
+  const filteredBumps = bumps.filter(({ changes }) => changes.size > 0);
+
+  // filteredBumps can be empty if all changes in package.json are related to devDependencies and excludeDevDependencies is false
+  if (filteredBumps.length === 0) {
+    core.info('Seems that only devDependencies were added');
+    return;
+  }
   const changesetFilename = await getChangesetFilename();
   const changesetFiles: string[] = [];
 
   // Create a changeset for each of the workspaces in the right place
-  for (const bump of bumps) {
+  for (const bump of filteredBumps) {
     const changesetFilePath = resolvePath(bump.workspace, changesetFilename);
     changesetFiles.push(changesetFilePath);
 
