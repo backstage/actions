@@ -4,13 +4,13 @@ inputs:
   cache-prefix:
     description: The prefix to use for all cache keys to keep different environments separate
     required: true
+  corepack-version:
+    description: Version of corepack to use. Defaults to latest
+    default: 'latest'
 outputs:
   cache-hit:
     description: Whether the node_modules cache got an exact cache hit
     value: ${{ steps.cache-modules.outputs.cache-hit }}
-  corepack-version:
-    description: Version of corepack to use. Defaults to latest
-    default: 'latest'
   yarn-cache-dir:
     description: The location of the global yarn cache
     value: ${{ steps.yarn-cache.outputs.dir }}
