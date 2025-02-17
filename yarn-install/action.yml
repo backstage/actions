@@ -7,6 +7,9 @@ inputs:
   corepack-version:
     description: Version of corepack to use. Defaults to latest
     default: 'latest'
+  yarn-install-force:
+    description: Whether to force the installation of yarn via corepack
+    default: false
 outputs:
   cache-hit:
     description: Whether the node_modules cache got an exact cache hit
@@ -31,7 +34,12 @@ runs:
     - name: prepare corepack
       shell: bash
       run: |
-        npm install -g corepack@${{ inputs.corepack-version }}
+        if [[ "${{ inputs.yarn-install-force }}" == "true" ]]; then
+          npm install --force -g corepack@${{ inputs.corepack-version }}
+        else
+          npm install -g corepack@${{ inputs.corepack-version }}
+        fi
+        
         corepack enable
     
     # If we get a cache hit for node_modules, there's no need to bring in the global
