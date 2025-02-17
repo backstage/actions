@@ -8,9 +8,13 @@ outputs:
   cache-hit:
     description: Whether the node_modules cache got an exact cache hit
     value: ${{ steps.cache-modules.outputs.cache-hit }}
+  corepack-version:
+    description: Version of corepack to use. Defaults to latest
+    default: 'latest'
   yarn-cache-dir:
     description: The location of the global yarn cache
     value: ${{ steps.yarn-cache.outputs.dir }}
+  
 runs:
   using: 'composite'
   steps:
@@ -23,7 +27,13 @@ runs:
         # We use both yarn.lock and package.json as cache keys to ensure that
         # changes to local monorepo packages bust the cache.
         key: ${{ inputs.cache-prefix }}-node_modules-${{ hashFiles('yarn.lock', '**/package.json') }}
-
+    
+    - name: prepare corepack
+      shell: bash
+      run: |
+        npm install -g corepack@${{ inputs.corepack-version }}
+        corepack enable
+    
     # If we get a cache hit for node_modules, there's no need to bring in the global
     # yarn cache or run yarn install, as all dependencies will be installed already.
 
