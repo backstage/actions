@@ -30,7 +30,11 @@ runs:
     - name: find location of global yarn cache
       id: yarn-cache
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: echo "dir=$([[ "$(yarn --version)" =~ "1.*" ]] && yarn cache dir || yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      # newer version of node do not auto install and ask for a prompt, fist
+      # line ensures that yarn is installed unattended.
+      run: |
+        npx --yes yarn --version
+        echo "dir=$([[ "$(yarn --version)" =~ "1.*" ]] && yarn cache dir || yarn config get cacheFolder)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: cache global yarn cache
