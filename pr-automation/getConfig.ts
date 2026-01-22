@@ -3,18 +3,17 @@ import { Config } from './types';
 import { SIZE_LABELS } from './logic/calculateSizeLabel';
 
 const STATUS_LABEL_MAP: Record<string, string> = {
-  'status:needs-changes': 'Needs Changes',
-  'status:needs-review': 'Needs Review',
-  'status:needs-owner-review': 'Needs Owner Review',
-  'status:needs-decision': 'Needs Decision',
-  'status:awaiting-merge': 'Awaiting Merge',
+  'waiting-for:review': 'Waiting for Review',
+  'waiting-for:author': 'Waiting for Author',
+  'waiting-for:decision': 'Waiting for Decision',
+  'waiting-for:merge': 'Waiting for Merge',
 };
 
-const DEFAULT_STATUS_LABEL = 'status:needs-review';
-const NEEDS_DECISION_LABEL = 'status:needs-decision';
-const NEEDS_CHANGES_LABEL = 'status:needs-changes';
-const AWAITING_MERGE_LABEL = 'status:awaiting-merge';
-const NEEDS_REVIEW_LABEL = 'status:needs-review';
+const DEFAULT_STATUS_LABEL = 'waiting-for:review';
+const NEEDS_DECISION_LABEL = 'waiting-for:decision';
+const NEEDS_CHANGES_LABEL = 'waiting-for:author';
+const AWAITING_MERGE_LABEL = 'waiting-for:merge';
+const NEEDS_REVIEW_LABEL = 'waiting-for:review';
 
 const REVIEWER_APPROVED_LABEL = 'reviewer-approved';
 const REVIEWER_TEAM_ORG = 'backstage';

@@ -6,16 +6,16 @@ describe('determineTargetStatusLabel', () => {
     action: 'opened',
     labels: new Set<string>(),
     statusLabels: new Set([
-      'status:needs-review',
-      'status:needs-changes',
-      'status:awaiting-merge',
-      'status:needs-decision',
+      'waiting-for:review',
+      'waiting-for:author',
+      'waiting-for:merge',
+      'waiting-for:decision',
     ]),
-    defaultStatusLabel: 'status:needs-review',
-    needsDecisionLabel: 'status:needs-decision',
-    needsChangesLabel: 'status:needs-changes',
-    awaitingMergeLabel: 'status:awaiting-merge',
-    needsReviewLabel: 'status:needs-review',
+    defaultStatusLabel: 'waiting-for:review',
+    needsDecisionLabel: 'waiting-for:decision',
+    needsChangesLabel: 'waiting-for:author',
+    awaitingMergeLabel: 'waiting-for:merge',
+    needsReviewLabel: 'waiting-for:review',
     reviews: [],
   };
 
@@ -25,30 +25,30 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'pull_request',
         action: 'labeled',
-        labelAdded: 'status:awaiting-merge',
+        labelAdded: 'waiting-for:merge',
       }),
-    ).toBe('status:awaiting-merge');
+    ).toBe('waiting-for:merge');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
         eventName: 'pull_request',
         action: 'unlabeled',
-        labelRemoved: 'status:awaiting-merge',
+        labelRemoved: 'waiting-for:merge',
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        labels: new Set(['status:needs-decision']),
+        labels: new Set(['waiting-for:decision']),
         eventName: 'pull_request',
         action: 'labeled',
-        labelAdded: 'status:needs-decision',
+        labelAdded: 'waiting-for:decision',
       }),
-    ).toBe('status:needs-decision');
+    ).toBe('waiting-for:decision');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        labels: new Set(['status:needs-decision']),
+        labels: new Set(['waiting-for:decision']),
         eventName: 'pull_request',
         action: 'synchronize',
       }),
@@ -59,22 +59,22 @@ describe('determineTargetStatusLabel', () => {
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        labels: new Set(['status:needs-changes']),
+        labels: new Set(['waiting-for:author']),
         eventName: 'pull_request',
         action: 'synchronize',
         actor: 'author',
         authorLogin: 'author',
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        labels: new Set(['status:needs-changes']),
+        labels: new Set(['waiting-for:author']),
         eventName: 'issue_comment',
         commentAuthor: { login: 'author', type: 'User' },
         authorLogin: 'author',
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
   });
 
   it('handles review events', () => {
@@ -85,7 +85,7 @@ describe('determineTargetStatusLabel', () => {
         action: 'submitted',
         reviewState: 'APPROVED',
       }),
-    ).toBe('status:awaiting-merge');
+    ).toBe('waiting-for:merge');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -93,7 +93,7 @@ describe('determineTargetStatusLabel', () => {
         action: 'submitted',
         reviewState: 'CHANGES_REQUESTED',
       }),
-    ).toBe('status:needs-changes');
+    ).toBe('waiting-for:author');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -102,7 +102,7 @@ describe('determineTargetStatusLabel', () => {
         reviewState: 'APPROVED',
         reviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
-    ).toBe('status:needs-changes');
+    ).toBe('waiting-for:author');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -110,7 +110,7 @@ describe('determineTargetStatusLabel', () => {
         action: 'dismissed',
         reviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
-    ).toBe('status:needs-changes');
+    ).toBe('waiting-for:author');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -118,7 +118,7 @@ describe('determineTargetStatusLabel', () => {
         action: 'dismissed',
         reviews: [{ state: 'APPROVED' }],
       }),
-    ).toBe('status:awaiting-merge');
+    ).toBe('waiting-for:merge');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -126,7 +126,7 @@ describe('determineTargetStatusLabel', () => {
         action: 'dismissed',
         reviews: [],
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
   });
 
   it('handles pull request events', () => {
@@ -136,7 +136,7 @@ describe('determineTargetStatusLabel', () => {
         eventName: 'pull_request',
         action: 'opened',
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -144,7 +144,7 @@ describe('determineTargetStatusLabel', () => {
         action: 'opened',
         reviews: [{ state: 'APPROVED' }],
       }),
-    ).toBe('status:awaiting-merge');
+    ).toBe('waiting-for:merge');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
@@ -152,21 +152,21 @@ describe('determineTargetStatusLabel', () => {
         action: 'opened',
         reviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
-    ).toBe('status:needs-changes');
+    ).toBe('waiting-for:author');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
         eventName: 'pull_request',
         action: 'synchronize',
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
     expect(
       determineTargetStatusLabel({
         ...baseInput,
         eventName: 'pull_request',
         action: 'reopened',
       }),
-    ).toBe('status:needs-review');
+    ).toBe('waiting-for:review');
   });
 
   it('handles issue comment events', () => {
@@ -184,7 +184,7 @@ describe('determineTargetStatusLabel', () => {
         commentAuthor: { login: 'user', type: 'User' },
         reviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
-    ).toBe('status:needs-changes');
+    ).toBe('waiting-for:author');
     expect(
       determineTargetStatusLabel({
         ...baseInput,

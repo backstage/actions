@@ -7,9 +7,9 @@ describe('planLabelChanges', () => {
     sizeLabelSet: new Set(['size:tiny', 'size:small', 'size:medium', 'size:large', 'size:huge']),
     reviewerApprovedLabel: 'reviewer-approved',
     reviewerApproved: false,
-    statusLabels: new Set(['status:needs-review', 'status:awaiting-merge']),
+    statusLabels: new Set(['waiting-for:review', 'waiting-for:merge']),
     targetStatusLabel: null,
-    defaultStatusLabel: 'status:needs-review',
+    defaultStatusLabel: 'waiting-for:review',
   };
 
   it('manages size labels correctly', () => {
@@ -71,52 +71,52 @@ describe('planLabelChanges', () => {
     });
     const syncExisting = planLabelChanges({
       ...baseOptions,
-      existingLabels: new Set(['status:awaiting-merge']),
+      existingLabels: new Set(['waiting-for:merge']),
       targetStatusLabel: null,
     });
     const replaceStatus = planLabelChanges({
       ...baseOptions,
-      existingLabels: new Set(['status:needs-review']),
-      targetStatusLabel: 'status:awaiting-merge',
+      existingLabels: new Set(['waiting-for:review']),
+      targetStatusLabel: 'waiting-for:merge',
     });
     const keepStatus = planLabelChanges({
       ...baseOptions,
-      existingLabels: new Set(['status:awaiting-merge']),
-      targetStatusLabel: 'status:awaiting-merge',
+      existingLabels: new Set(['waiting-for:merge']),
+      targetStatusLabel: 'waiting-for:merge',
     });
     const multipleStatus = planLabelChanges({
       ...baseOptions,
-      existingLabels: new Set(['status:needs-review', 'status:awaiting-merge']),
-      targetStatusLabel: 'status:needs-review',
+      existingLabels: new Set(['waiting-for:review', 'waiting-for:merge']),
+      targetStatusLabel: 'waiting-for:review',
     });
 
-    expect(addDefault.labelsToAdd.has('status:needs-review')).toBe(true);
-    expect(addDefault.statusLabelToSync).toBe('status:needs-review');
+    expect(addDefault.labelsToAdd.has('waiting-for:review')).toBe(true);
+    expect(addDefault.statusLabelToSync).toBe('waiting-for:review');
     expect(syncExisting.labelsToAdd.size).toBe(1);
-    expect(syncExisting.statusLabelToSync).toBe('status:awaiting-merge');
-    expect(replaceStatus.labelsToAdd.has('status:awaiting-merge')).toBe(true);
-    expect(replaceStatus.labelsToRemove.has('status:needs-review')).toBe(true);
-    expect(replaceStatus.statusLabelToSync).toBe('status:awaiting-merge');
-    expect(keepStatus.labelsToAdd.has('status:awaiting-merge')).toBe(false);
-    expect(keepStatus.labelsToRemove.has('status:awaiting-merge')).toBe(false);
-    expect(keepStatus.statusLabelToSync).toBe('status:awaiting-merge');
-    expect(multipleStatus.labelsToRemove.has('status:awaiting-merge')).toBe(true);
-    expect(multipleStatus.statusLabelToSync).toBe('status:needs-review');
+    expect(syncExisting.statusLabelToSync).toBe('waiting-for:merge');
+    expect(replaceStatus.labelsToAdd.has('waiting-for:merge')).toBe(true);
+    expect(replaceStatus.labelsToRemove.has('waiting-for:review')).toBe(true);
+    expect(replaceStatus.statusLabelToSync).toBe('waiting-for:merge');
+    expect(keepStatus.labelsToAdd.has('waiting-for:merge')).toBe(false);
+    expect(keepStatus.labelsToRemove.has('waiting-for:merge')).toBe(false);
+    expect(keepStatus.statusLabelToSync).toBe('waiting-for:merge');
+    expect(multipleStatus.labelsToRemove.has('waiting-for:merge')).toBe(true);
+    expect(multipleStatus.statusLabelToSync).toBe('waiting-for:review');
   });
 
   it('handles complex scenario with all label types', () => {
     const plan = planLabelChanges({
       ...baseOptions,
-      existingLabels: new Set(['size:tiny', 'reviewer-approved', 'status:needs-review']),
+      existingLabels: new Set(['size:tiny', 'reviewer-approved', 'waiting-for:review']),
       sizeLabel: 'size:medium',
       reviewerApproved: true,
-      targetStatusLabel: 'status:awaiting-merge',
+      targetStatusLabel: 'waiting-for:merge',
     });
 
     expect(plan.labelsToAdd.has('size:medium')).toBe(true);
     expect(plan.labelsToRemove.has('size:tiny')).toBe(true);
-    expect(plan.labelsToAdd.has('status:awaiting-merge')).toBe(true);
-    expect(plan.labelsToRemove.has('status:needs-review')).toBe(true);
-    expect(plan.statusLabelToSync).toBe('status:awaiting-merge');
+    expect(plan.labelsToAdd.has('waiting-for:merge')).toBe(true);
+    expect(plan.labelsToRemove.has('waiting-for:review')).toBe(true);
+    expect(plan.statusLabelToSync).toBe('waiting-for:merge');
   });
 });
