@@ -136,6 +136,11 @@ export async function collectInput(
   };
 
   const client = createAppClient();
+  const botLogin = await getBotLogin(client);
+  if (botLogin && (event.actor === botLogin || event.commentAuthor?.login === botLogin)) {
+    return null;
+  }
+
   const data = await getPrAutomationData(client, {
     owner: ensuredEvent.owner,
     repo: ensuredEvent.repo,
@@ -205,6 +210,17 @@ function getPrNumber() {
     return github.context.payload.issue.number;
   }
   return undefined;
+}
+
+async function getBotLogin(
+  client: ReturnType<typeof github.getOctokit>,
+): Promise<string | null> {
+  try {
+    const app = await client.rest.apps.getAuthenticated();
+    return app.data.slug ? `${app.data.slug}[bot]` : null;
+  } catch {
+    return null;
+  }
 }
 
 async function listTeamMembers(
