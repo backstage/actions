@@ -33,6 +33,8 @@ export interface ProjectItem {
 export interface PrData {
   authorLogin?: string;
   labels: string[];
+  assignees: string[];
+  mostRecentAssignmentAt?: string;
   reviews: Review[];
   files: FileChange[];
   filesTotalCount: number;
@@ -68,6 +70,7 @@ export interface OutputPlan {
     statusLabelToSync: string | null;
   };
   priority: number;
+  shouldUnassign?: boolean;
 }
 
 export interface DataOptions {

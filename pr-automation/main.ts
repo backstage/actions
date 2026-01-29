@@ -9,6 +9,7 @@ import { calculateSizeLabel } from './logic/calculateSizeLabel';
 import { calculatePriority } from './logic/calculatePriority';
 import { shouldHaveReviewerApprovedLabel } from './logic/shouldHaveReviewerApprovedLabel';
 import { planLabelChanges } from './logic/planLabelChanges';
+import { shouldUnassignStaleReview } from './logic/shouldUnassignStaleReview';
 
 export async function main() {
   const config = getConfig();
@@ -89,7 +90,13 @@ export async function main() {
     reviewerApproved,
   );
 
-  await applyOutput(input, { labelPlan, priority });
+  const shouldUnassign = shouldUnassignStaleReview({
+    hasWaitingForReviewLabel: existingLabels.has(config.needsReviewLabel),
+    assignees: data.assignees,
+    mostRecentAssignmentAt: data.mostRecentAssignmentAt,
+  });
+
+  await applyOutput(input, { labelPlan, priority, shouldUnassign });
 }
 
 main().catch(error => {

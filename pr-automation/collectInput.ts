@@ -40,9 +40,30 @@ const QUERY = `
         author {
           login
         }
+        assignees(first: 100) {
+          nodes {
+            login
+          }
+        }
         labels(first: 100) {
           nodes {
             name
+          }
+        }
+        timelineItems(last: 10, itemTypes: [ASSIGNED_EVENT]) {
+          nodes {
+            __typename
+            ... on AssignedEvent {
+              createdAt
+              assignee {
+                ... on User {
+                  login
+                }
+                ... on Bot {
+                  login
+                }
+              }
+            }
           }
         }
         reviews(first: 100) {
@@ -264,12 +285,45 @@ async function getPrAutomationData(
       ?.map(value => mapProjectItemField(value))
       .filter((value): value is ProjectItemFieldValue => Boolean(value)) ?? [];
 
+  const assignees =
+    pr.assignees?.nodes
+      ?.map(assignee => assignee?.login)
+      .filter((login): login is string => Boolean(login)) ?? [];
+
+  const mostRecentAssignmentAt = (() => {
+    if (!pr.timelineItems?.nodes) {
+      return undefined;
+    }
+    // Iterate backwards to find the most recent assignment
+    // (nodes are in chronological order, so last items are most recent)
+    for (let i = pr.timelineItems.nodes.length - 1; i >= 0; i--) {
+      const node = pr.timelineItems.nodes[i];
+      if (
+        node &&
+        '__typename' in node &&
+        node.__typename === 'AssignedEvent' &&
+        'createdAt' in node &&
+        'assignee' in node &&
+        node.assignee &&
+        typeof node.assignee === 'object' &&
+        'login' in node.assignee &&
+        typeof node.assignee.login === 'string' &&
+        assignees.includes(node.assignee.login)
+      ) {
+        return node.createdAt;
+      }
+    }
+    return undefined;
+  })();
+
   return {
     authorLogin: pr.author?.login ?? undefined,
     labels:
       pr.labels?.nodes
         ?.map(label => label?.name)
         .filter((label): label is string => Boolean(label)) ?? [],
+    assignees,
+    mostRecentAssignmentAt,
     reviews:
       pr.reviews?.nodes?.map(review => ({
         state: review?.state ?? '',

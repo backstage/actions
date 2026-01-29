@@ -17,6 +17,15 @@ export async function applyOutput(
     labelsToRemove: [...labelPlan.labelsToRemove],
   });
 
+  if (output.shouldUnassign) {
+    await unassignStaleReview(client, {
+      owner: event.owner,
+      repo: event.repo,
+      issueNumber: event.issueNumber,
+      assignees: data.assignees,
+    });
+  }
+
   await syncProjectFields(client, {
     projectId: data.projectId,
     projectItemId: data.projectItem?.id,
@@ -251,4 +260,28 @@ async function applyLabelChanges(
       labels: labelsToAdd,
     });
   }
+}
+
+async function unassignStaleReview(
+  client: ReturnType<typeof github.getOctokit>,
+  options: {
+    owner: string;
+    repo: string;
+    issueNumber: number;
+    assignees: string[];
+  },
+) {
+  const { owner, repo, issueNumber, assignees } = options;
+  if (assignees.length === 0) {
+    return;
+  }
+  core.info(
+    `Unassigning stale review: removing ${assignees.length} assignee(s) from PR #${issueNumber}`,
+  );
+  await client.rest.issues.removeAssignees({
+    owner,
+    repo,
+    issue_number: issueNumber,
+    assignees,
+  });
 }
