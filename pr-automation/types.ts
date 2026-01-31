@@ -6,6 +6,11 @@ export interface Review {
   authorLogin?: string;
 }
 
+export interface LatestReview {
+  state: string;
+  authorLogin?: string;
+}
+
 export interface FileChange {
   path: string;
   additions: number;
@@ -36,6 +41,7 @@ export interface PrData {
   assignees: string[];
   mostRecentAssignmentAt?: string;
   reviews: Review[];
+  latestReviews: LatestReview[];
   files: FileChange[];
   filesTotalCount: number;
   projectId?: string;

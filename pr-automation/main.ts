@@ -24,7 +24,9 @@ export async function main() {
   const reviewerLogins = input.reviewerLogins;
   const reviewerTeamMissing = input.reviewerTeamMissing;
   core.info(
-    `PR automation for #${event.issueNumber} ${event.eventName}/${event.action ?? 'n/a'}`,
+    `PR automation for #${event.issueNumber} ${event.eventName}/${
+      event.action ?? 'n/a'
+    }`,
   );
 
   const additionsEstimate = estimateTotalAdditions(
@@ -33,7 +35,9 @@ export async function main() {
     config.ignorePatterns,
   );
   core.info(
-    `${additionsEstimate.estimated ? 'Estimated' : 'Counted'} ${additionsEstimate.additions} additions across ${additionsEstimate.totalFiles} files`,
+    `${additionsEstimate.estimated ? 'Estimated' : 'Counted'} ${
+      additionsEstimate.additions
+    } additions across ${additionsEstimate.totalFiles} files`,
   );
 
   const sizeLabel = calculateSizeLabel(additionsEstimate.additions);
@@ -67,7 +71,7 @@ export async function main() {
     labelRemoved: event.labelRemoved,
     reviewState: event.reviewState,
     commentAuthor: event.commentAuthor,
-    reviews: data.reviews,
+    latestReviews: data.latestReviews,
   });
 
   const sizeLabelSet: Set<string> = new Set(

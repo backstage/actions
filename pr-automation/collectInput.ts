@@ -75,6 +75,14 @@ const QUERY = `
             }
           }
         }
+        latestReviews(first: 100) {
+          nodes {
+            state
+            author {
+              login
+            }
+          }
+        }
         files(first: 100) {
           totalCount
           nodes {
@@ -158,7 +166,10 @@ export async function collectInput(
 
   const client = createAppClient();
   const botLogin = await getBotLogin(client);
-  if (botLogin && (event.actor === botLogin || event.commentAuthor?.login === botLogin)) {
+  if (
+    botLogin &&
+    (event.actor === botLogin || event.commentAuthor?.login === botLogin)
+  ) {
     return null;
   }
 
@@ -330,6 +341,13 @@ async function getPrAutomationData(
         submittedAt: review?.submittedAt ?? undefined,
         authorLogin: review?.author?.login ?? undefined,
       })) ?? [],
+    latestReviews:
+      (pr as { latestReviews?: typeof pr.reviews }).latestReviews?.nodes?.map(
+        review => ({
+          state: review?.state ?? '',
+          authorLogin: review?.author?.login ?? undefined,
+        }),
+      ) ?? [],
     files:
       pr.files?.nodes?.map(file => ({
         path: file?.path ?? '',
@@ -357,19 +375,27 @@ function mapProjectField(field: unknown): ProjectField | undefined {
     return {
       id: typed.id,
       name: typed.name,
-      options: typed.options?.map(option => ({ id: option.id, name: option.name })),
+      options: typed.options?.map(option => ({
+        id: option.id,
+        name: option.name,
+      })),
     };
   }
   const typed = field as { id: string; name: string };
   return { id: typed.id, name: typed.name };
 }
 
-function mapProjectItemField(value: {
-  __typename?: string;
-  name?: string | null;
-  number?: number | null;
-  field?: unknown;
-} | null | undefined): ProjectItemFieldValue | undefined {
+function mapProjectItemField(
+  value:
+    | {
+        __typename?: string;
+        name?: string | null;
+        number?: number | null;
+        field?: unknown;
+      }
+    | null
+    | undefined,
+): ProjectItemFieldValue | undefined {
   if (!value) {
     return undefined;
   }
@@ -386,11 +412,17 @@ function mapProjectItemField(value: {
       fieldId: field.id,
       type: 'singleSelect',
       value: value.name ?? undefined,
-      options: field.options?.map(option => ({ id: option.id, name: option.name })),
+      options: field.options?.map(option => ({
+        id: option.id,
+        name: option.name,
+      })),
     };
   }
   if (value.__typename === 'ProjectV2ItemFieldNumberValue') {
-    const field = value.field as { id: string; name: string } | null | undefined;
+    const field = value.field as
+      | { id: string; name: string }
+      | null
+      | undefined;
     if (!field) {
       return undefined;
     }

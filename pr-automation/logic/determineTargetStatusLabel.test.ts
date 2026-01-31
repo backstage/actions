@@ -16,7 +16,7 @@ describe('determineTargetStatusLabel', () => {
     needsChangesLabel: 'waiting-for:author',
     awaitingMergeLabel: 'waiting-for:merge',
     needsReviewLabel: 'waiting-for:review',
-    reviews: [],
+    latestReviews: [],
   };
 
   it('handles manual label changes', () => {
@@ -100,7 +100,7 @@ describe('determineTargetStatusLabel', () => {
         eventName: 'pull_request_review',
         action: 'submitted',
         reviewState: 'APPROVED',
-        reviews: [{ state: 'CHANGES_REQUESTED' }],
+        latestReviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
     ).toBe('waiting-for:author');
     expect(
@@ -108,7 +108,7 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'pull_request_review',
         action: 'dismissed',
-        reviews: [{ state: 'CHANGES_REQUESTED' }],
+        latestReviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
     ).toBe('waiting-for:author');
     expect(
@@ -116,7 +116,7 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'pull_request_review',
         action: 'dismissed',
-        reviews: [{ state: 'APPROVED' }],
+        latestReviews: [{ state: 'APPROVED' }],
       }),
     ).toBe('waiting-for:merge');
     expect(
@@ -124,7 +124,7 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'pull_request_review',
         action: 'dismissed',
-        reviews: [],
+        latestReviews: [],
       }),
     ).toBe('waiting-for:review');
   });
@@ -142,7 +142,7 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'pull_request',
         action: 'opened',
-        reviews: [{ state: 'APPROVED' }],
+        latestReviews: [{ state: 'APPROVED' }],
       }),
     ).toBe('waiting-for:merge');
     expect(
@@ -150,7 +150,7 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'pull_request',
         action: 'opened',
-        reviews: [{ state: 'CHANGES_REQUESTED' }],
+        latestReviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
     ).toBe('waiting-for:author');
     expect(
@@ -182,7 +182,7 @@ describe('determineTargetStatusLabel', () => {
         ...baseInput,
         eventName: 'issue_comment',
         commentAuthor: { login: 'user', type: 'User' },
-        reviews: [{ state: 'CHANGES_REQUESTED' }],
+        latestReviews: [{ state: 'CHANGES_REQUESTED' }],
       }),
     ).toBe('waiting-for:author');
     expect(

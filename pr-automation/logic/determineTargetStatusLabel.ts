@@ -1,4 +1,4 @@
-import { Review } from '../types';
+import { LatestReview } from '../types';
 
 export interface StatusDecisionInput {
   eventName: string;
@@ -16,7 +16,7 @@ export interface StatusDecisionInput {
   labelRemoved?: string;
   reviewState?: string;
   commentAuthor?: { login?: string; type?: string };
-  reviews: Review[];
+  latestReviews: LatestReview[];
 }
 
 export function determineTargetStatusLabel(
@@ -56,10 +56,10 @@ export function determineTargetStatusLabel(
 
   if (input.eventName === 'pull_request_review') {
     if (input.action === 'dismissed') {
-      const hasChangesRequested = input.reviews.some(
+      const hasChangesRequested = input.latestReviews.some(
         review => review.state === 'CHANGES_REQUESTED',
       );
-      const hasApprovals = input.reviews.some(
+      const hasApprovals = input.latestReviews.some(
         review => review.state === 'APPROVED',
       );
       if (hasChangesRequested) {
@@ -76,7 +76,7 @@ export function determineTargetStatusLabel(
       return input.needsChangesLabel;
     }
     if (state === 'APPROVED') {
-      const hasChangesRequested = input.reviews.some(
+      const hasChangesRequested = input.latestReviews.some(
         review => review.state === 'CHANGES_REQUESTED',
       );
       if (hasChangesRequested) {
@@ -92,10 +92,10 @@ export function determineTargetStatusLabel(
       input.action === 'synchronize' ||
       input.action === 'reopened'
     ) {
-      const hasChangesRequested = input.reviews.some(
+      const hasChangesRequested = input.latestReviews.some(
         review => review.state === 'CHANGES_REQUESTED',
       );
-      const hasApprovals = input.reviews.some(
+      const hasApprovals = input.latestReviews.some(
         review => review.state === 'APPROVED',
       );
       if (hasChangesRequested) {
@@ -110,7 +110,7 @@ export function determineTargetStatusLabel(
 
   if (input.eventName === 'issue_comment') {
     if (input.commentAuthor?.type !== 'Bot') {
-      const hasChangesRequested = input.reviews.some(
+      const hasChangesRequested = input.latestReviews.some(
         review => review.state === 'CHANGES_REQUESTED',
       );
       if (hasChangesRequested) {
