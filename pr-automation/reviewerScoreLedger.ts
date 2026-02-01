@@ -22,6 +22,7 @@ interface LedgerEntry {
   itemId: string;
   assigneeLogin: string;
   prRef: string;
+  score?: number;
 }
 
 /**
@@ -199,6 +200,14 @@ async function getLedgerEntries(
                         }
                       }
                     }
+                    ... on ProjectV2ItemFieldNumberValue {
+                      number
+                      field {
+                        ... on ProjectV2Field {
+                          name
+                        }
+                      }
+                    }
                   }
                 }
                 content {
@@ -217,13 +226,16 @@ async function getLedgerEntries(
       }
     `;
 
+    interface FieldValue {
+      text?: string;
+      number?: number;
+      field?: { name: string };
+    }
+
     interface ProjectItemNode {
       id: string;
       fieldValues: {
-        nodes: Array<{
-          text?: string;
-          field?: { name: string };
-        } | null>;
+        nodes: Array<FieldValue | null>;
       };
       content?: {
         assignees?: { nodes: Array<{ login: string } | null> };
@@ -253,8 +265,10 @@ async function getLedgerEntries(
       if (!item) continue;
 
       const prFieldValue = item.fieldValues.nodes.find(
-        (fv): fv is { text?: string; field?: { name: string } } =>
-          fv?.field?.name === PR_FIELD_NAME,
+        (fv): fv is FieldValue => fv?.field?.name === PR_FIELD_NAME,
+      );
+      const scoreFieldValue = item.fieldValues.nodes.find(
+        (fv): fv is FieldValue => fv?.field?.name === SCORE_FIELD_NAME,
       );
       const assigneeLogin = item.content?.assignees?.nodes?.[0]?.login;
 
@@ -263,6 +277,7 @@ async function getLedgerEntries(
           itemId: item.id,
           assigneeLogin,
           prRef: prFieldValue.text,
+          score: scoreFieldValue?.number,
         });
       }
     }
@@ -274,6 +289,32 @@ async function getLedgerEntries(
   }
 
   return entries;
+}
+
+/**
+ * Gets the total score for a user from the reviewer ledger.
+ * Returns 0 if the user has no entries or if the ledger is not accessible.
+ */
+export async function getReviewerScore(
+  client: ReturnType<typeof github.getOctokit>,
+  orgLogin: string,
+  userLogin: string,
+): Promise<number> {
+  try {
+    const project = await getProjectData(client, orgLogin);
+    if (!project) {
+      return 0;
+    }
+
+    const entries = await getLedgerEntries(client, project.id);
+    const userEntries = entries.filter(e => e.assigneeLogin === userLogin);
+    const totalScore = userEntries.reduce((sum, e) => sum + (e.score ?? 0), 0);
+
+    return totalScore;
+  } catch (error) {
+    core.warning(`Failed to get reviewer score for ${userLogin}: ${error}`);
+    return 0;
+  }
 }
 
 async function createLedgerEntry(

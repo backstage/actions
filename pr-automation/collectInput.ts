@@ -38,6 +38,9 @@ const QUERY = `
       pullRequest(number: $issueNumber) {
         number
         title
+        author {
+          login
+        }
         assignees(first: 100) {
           nodes {
             login
@@ -308,6 +311,7 @@ async function getPrAutomationData(
   return {
     number: pr.number,
     title: pr.title,
+    authorLogin: pr.author?.login ?? undefined,
     labels:
       pr.labels?.nodes
         ?.map(label => label?.name)

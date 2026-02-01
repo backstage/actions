@@ -9,7 +9,10 @@ import { calculatePriority } from './logic/calculatePriority';
 import { shouldHaveReviewerApprovedLabel } from './logic/shouldHaveReviewerApprovedLabel';
 import { planLabelChanges } from './logic/planLabelChanges';
 import { shouldUnassignStaleReview } from './logic/shouldUnassignStaleReview';
-import { updateReviewerScoreLedger } from './reviewerScoreLedger';
+import {
+  updateReviewerScoreLedger,
+  getReviewerScore,
+} from './reviewerScoreLedger';
 
 export async function main() {
   const config = getConfig();
@@ -138,14 +141,24 @@ export async function main() {
   }
 
   // Priority calculation
-  const priority = calculatePriority(
+  const basePriority = calculatePriority(
     additionsEstimate.additions,
     config.priorityParams,
     reviewerApproved,
   );
+
+  // Get author's ledger score to boost priority
+  const authorScore = data.authorLogin
+    ? await getReviewerScore(input.client, event.owner, data.authorLogin)
+    : 0;
+  const priority = basePriority + authorScore;
+
+  const priorityParts: string[] = [];
+  if (reviewerApproved) priorityParts.push('reviewer approval');
+  if (authorScore > 0) priorityParts.push(`author score +${authorScore}`);
   core.info(
     `Priority: ${priority}${
-      reviewerApproved ? ' (boosted for reviewer approval)' : ''
+      priorityParts.length > 0 ? ` (${priorityParts.join(', ')})` : ''
     }`,
   );
 

@@ -38,6 +38,7 @@ export interface ProjectItem {
 export interface PrData {
   number: number;
   title: string;
+  authorLogin?: string;
   labels: string[];
   assignees: string[];
   mostRecentAssignmentAt?: string;
