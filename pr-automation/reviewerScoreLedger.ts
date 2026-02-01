@@ -5,6 +5,7 @@ import { AutomationInput } from './types';
 const LEDGER_PROJECT_NUMBER = 16;
 const SCORE_FIELD_NAME = 'Score';
 const PR_FIELD_NAME = 'Pull Request';
+const CREATED_AT_FIELD_NAME = 'Created At';
 
 const REVIEW_SCORES: Record<string, number> = {
   APPROVED: 2,
@@ -16,6 +17,7 @@ interface ProjectData {
   id: string;
   scoreFieldId: string;
   prFieldId: string;
+  createdAtFieldId: string;
 }
 
 interface LedgerEntry {
@@ -95,6 +97,7 @@ export async function updateReviewerScoreLedger(
       projectId: project.id,
       scoreFieldId: project.scoreFieldId,
       prFieldId: project.prFieldId,
+      createdAtFieldId: project.createdAtFieldId,
       title: data.title,
       reviewer,
       score,
@@ -155,10 +158,13 @@ async function getProjectData(
     f => f?.name === SCORE_FIELD_NAME,
   );
   const prField = project.fields.nodes.find(f => f?.name === PR_FIELD_NAME);
+  const createdAtField = project.fields.nodes.find(
+    f => f?.name === CREATED_AT_FIELD_NAME,
+  );
 
-  if (!scoreField || !prField) {
+  if (!scoreField || !prField || !createdAtField) {
     core.warning(
-      `Missing required fields in ledger project: Score=${!!scoreField}, Pull Request=${!!prField}`,
+      `Missing required fields in ledger project: Score=${!!scoreField}, Pull Request=${!!prField}, Created At=${!!createdAtField}`,
     );
     return null;
   }
@@ -167,6 +173,7 @@ async function getProjectData(
     id: project.id,
     scoreFieldId: scoreField.id,
     prFieldId: prField.id,
+    createdAtFieldId: createdAtField.id,
   };
 }
 
@@ -323,14 +330,23 @@ async function createLedgerEntry(
     projectId: string;
     scoreFieldId: string;
     prFieldId: string;
+    createdAtFieldId: string;
     title: string;
     reviewer: string;
     score: number;
     prRef: string;
   },
 ): Promise<void> {
-  const { projectId, scoreFieldId, prFieldId, title, reviewer, score, prRef } =
-    options;
+  const {
+    projectId,
+    scoreFieldId,
+    prFieldId,
+    createdAtFieldId,
+    title,
+    reviewer,
+    score,
+    prRef,
+  } = options;
 
   // First, get the user's node ID
   const userQuery = `
@@ -374,49 +390,54 @@ async function createLedgerEntry(
 
   const itemId = createResult.addProjectV2DraftIssue.projectItem.id;
 
-  // Update Score field
-  const updateScoreMutation = `
-    mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: Float!) {
-      updateProjectV2ItemFieldValue(input: {
+  // Update all fields in a single batched mutation
+  const updateFieldsMutation = `
+    mutation(
+      $projectId: ID!
+      $itemId: ID!
+      $scoreFieldId: ID!
+      $score: Float!
+      $prFieldId: ID!
+      $prRef: String!
+      $createdAtFieldId: ID!
+      $createdAt: Date!
+    ) {
+      setScore: updateProjectV2ItemFieldValue(input: {
         projectId: $projectId
         itemId: $itemId
-        fieldId: $fieldId
-        value: { number: $value }
+        fieldId: $scoreFieldId
+        value: { number: $score }
       }) {
-        projectV2Item {
-          id
-        }
+        projectV2Item { id }
+      }
+      setPr: updateProjectV2ItemFieldValue(input: {
+        projectId: $projectId
+        itemId: $itemId
+        fieldId: $prFieldId
+        value: { text: $prRef }
+      }) {
+        projectV2Item { id }
+      }
+      setCreatedAt: updateProjectV2ItemFieldValue(input: {
+        projectId: $projectId
+        itemId: $itemId
+        fieldId: $createdAtFieldId
+        value: { date: $createdAt }
+      }) {
+        projectV2Item { id }
       }
     }
   `;
 
-  await client.graphql(updateScoreMutation, {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  await client.graphql(updateFieldsMutation, {
     projectId,
     itemId,
-    fieldId: scoreFieldId,
-    value: score,
-  });
-
-  // Update Pull Request field
-  const updatePrMutation = `
-    mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
-      updateProjectV2ItemFieldValue(input: {
-        projectId: $projectId
-        itemId: $itemId
-        fieldId: $fieldId
-        value: { text: $value }
-      }) {
-        projectV2Item {
-          id
-        }
-      }
-    }
-  `;
-
-  await client.graphql(updatePrMutation, {
-    projectId,
-    itemId,
-    fieldId: prFieldId,
-    value: prRef,
+    scoreFieldId,
+    score,
+    prFieldId,
+    prRef,
+    createdAtFieldId,
+    createdAt: today,
   });
 }
