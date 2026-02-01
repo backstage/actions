@@ -38,7 +38,6 @@ export interface ProjectItem {
 export interface PrData {
   number: number;
   title: string;
-  authorLogin?: string;
   labels: string[];
   assignees: string[];
   mostRecentAssignmentAt?: string;
@@ -60,9 +59,6 @@ export interface AutomationInput {
     repo: string;
     actor: string;
     labelAdded?: string;
-    labelRemoved?: string;
-    reviewState?: string;
-    commentAuthor?: { login?: string; type?: string };
   };
   config: Config;
   client: ReturnType<typeof github.getOctokit>;

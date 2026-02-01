@@ -1,8 +1,6 @@
 import { LatestReview } from '../types';
 
 export interface StatusDecisionInput {
-  eventName: string;
-  action?: string;
   labels: Set<string>;
   statusLabels: Set<string>;
   defaultStatusLabel: string;
@@ -10,114 +8,43 @@ export interface StatusDecisionInput {
   needsChangesLabel: string;
   awaitingMergeLabel: string;
   needsReviewLabel: string;
-  authorLogin?: string;
-  actor?: string;
-  labelAdded?: string;
-  labelRemoved?: string;
-  reviewState?: string;
-  commentAuthor?: { login?: string; type?: string };
   latestReviews: LatestReview[];
+  // Only used to detect manual status label changes
+  labelAdded?: string;
 }
 
+/**
+ * Determines the target status label for a PR based on its current state.
+ * This is trigger-agnostic - it computes the correct status based on PR state,
+ * not on what event triggered the automation.
+ */
 export function determineTargetStatusLabel(
   input: StatusDecisionInput,
 ): string | null {
-  if (input.eventName === 'pull_request' && input.action === 'labeled') {
-    if (input.labelAdded && input.statusLabels.has(input.labelAdded)) {
-      return input.labelAdded;
-    }
+  // If a status label was just manually added, respect that choice
+  if (input.labelAdded && input.statusLabels.has(input.labelAdded)) {
+    return input.labelAdded;
   }
 
-  if (input.eventName === 'pull_request' && input.action === 'unlabeled') {
-    if (input.labelRemoved && input.statusLabels.has(input.labelRemoved)) {
-      return input.defaultStatusLabel;
-    }
-  }
-
-  if (
-    input.labels.has(input.needsDecisionLabel) &&
-    !(input.eventName === 'pull_request' && input.action === 'labeled')
-  ) {
+  // If needs-decision label is present, don't change status automatically
+  // This is a manual override that indicates maintainer attention is needed
+  if (input.labels.has(input.needsDecisionLabel)) {
     return null;
   }
 
-  if (input.labels.has(input.needsChangesLabel)) {
-    const isAuthorAction =
-      (input.eventName === 'issue_comment' &&
-        input.commentAuthor?.login === input.authorLogin) ||
-      (input.eventName === 'pull_request' &&
-        input.action === 'synchronize' &&
-        input.actor === input.authorLogin);
+  // Compute status based on review state
+  const hasChangesRequested = input.latestReviews.some(
+    review => review.state === 'CHANGES_REQUESTED',
+  );
+  const hasApprovals = input.latestReviews.some(
+    review => review.state === 'APPROVED',
+  );
 
-    if (isAuthorAction) {
-      return input.needsReviewLabel;
-    }
+  if (hasChangesRequested) {
+    return input.needsChangesLabel;
   }
-
-  if (input.eventName === 'pull_request_review') {
-    if (input.action === 'dismissed') {
-      const hasChangesRequested = input.latestReviews.some(
-        review => review.state === 'CHANGES_REQUESTED',
-      );
-      const hasApprovals = input.latestReviews.some(
-        review => review.state === 'APPROVED',
-      );
-      if (hasChangesRequested) {
-        return input.needsChangesLabel;
-      }
-      if (hasApprovals) {
-        return input.awaitingMergeLabel;
-      }
-      return input.needsReviewLabel;
-    }
-
-    const state = input.reviewState ?? '';
-    if (state === 'CHANGES_REQUESTED') {
-      return input.needsChangesLabel;
-    }
-    if (state === 'APPROVED') {
-      const hasChangesRequested = input.latestReviews.some(
-        review => review.state === 'CHANGES_REQUESTED',
-      );
-      if (hasChangesRequested) {
-        return input.needsChangesLabel;
-      }
-      return input.awaitingMergeLabel;
-    }
+  if (hasApprovals) {
+    return input.awaitingMergeLabel;
   }
-
-  if (input.eventName === 'pull_request') {
-    if (
-      input.action === 'opened' ||
-      input.action === 'synchronize' ||
-      input.action === 'reopened'
-    ) {
-      const hasChangesRequested = input.latestReviews.some(
-        review => review.state === 'CHANGES_REQUESTED',
-      );
-      const hasApprovals = input.latestReviews.some(
-        review => review.state === 'APPROVED',
-      );
-      if (hasChangesRequested) {
-        return input.needsChangesLabel;
-      }
-      if (hasApprovals) {
-        return input.awaitingMergeLabel;
-      }
-      return input.needsReviewLabel;
-    }
-  }
-
-  if (input.eventName === 'issue_comment') {
-    if (input.commentAuthor?.type !== 'Bot') {
-      const hasChangesRequested = input.latestReviews.some(
-        review => review.state === 'CHANGES_REQUESTED',
-      );
-      if (hasChangesRequested) {
-        return input.needsChangesLabel;
-      }
-    }
-  }
-
-  return null;
+  return input.needsReviewLabel;
 }

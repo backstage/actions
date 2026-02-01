@@ -58,13 +58,6 @@ export async function main() {
 
   // [DEBUG] Log inputs to determineTargetStatusLabel
   core.info(
-    `[DEBUG] determineTargetStatusLabel inputs: eventName=${
-      event.eventName
-    }, action=${event.action ?? 'none'}, reviewState=${
-      event.reviewState ?? 'none'
-    }`,
-  );
-  core.info(
     `[DEBUG] determineTargetStatusLabel: latestReviews count=${
       data.latestReviews.length
     }, states=[${data.latestReviews.map(r => r.state).join(', ')}]`,
@@ -74,12 +67,10 @@ export async function main() {
       existingLabels,
     )
       .filter(l => statusLabels.has(l))
-      .join(', ')}]`,
+      .join(', ')}], labelAdded=${event.labelAdded ?? 'none'}`,
   );
 
   const targetStatusLabel = determineTargetStatusLabel({
-    eventName: event.eventName,
-    action: event.action,
     labels: existingLabels,
     statusLabels,
     defaultStatusLabel: config.defaultStatusLabel,
@@ -87,13 +78,8 @@ export async function main() {
     needsChangesLabel: config.needsChangesLabel,
     awaitingMergeLabel: config.awaitingMergeLabel,
     needsReviewLabel: config.needsReviewLabel,
-    authorLogin: data.authorLogin,
-    actor: event.actor,
-    labelAdded: event.labelAdded,
-    labelRemoved: event.labelRemoved,
-    reviewState: event.reviewState,
-    commentAuthor: event.commentAuthor,
     latestReviews: data.latestReviews,
+    labelAdded: event.labelAdded,
   });
 
   core.info(

@@ -19,9 +19,7 @@ interface EventContext {
   repo: string;
   actor: string;
   labelAdded?: string;
-  labelRemoved?: string;
-  reviewState?: string;
-  commentAuthor?: { login?: string; type?: string };
+  commentAuthorLogin?: string;
 }
 
 interface RawEventContext extends Omit<EventContext, 'issueNumber'> {
@@ -40,9 +38,6 @@ const QUERY = `
       pullRequest(number: $issueNumber) {
         number
         title
-        author {
-          login
-        }
         assignees(first: 100) {
           nodes {
             login
@@ -184,12 +179,12 @@ export async function collectInput(
 
   if (
     botLogin &&
-    (event.actor === botLogin || event.commentAuthor?.login === botLogin)
+    (event.actor === botLogin || event.commentAuthorLogin === botLogin)
   ) {
     core.info(
       `[DEBUG] collectInput: Skipping - triggered by bot (actor=${
         event.actor
-      }, commentAuthor=${event.commentAuthor?.login ?? 'none'})`,
+      }, commentAuthorLogin=${event.commentAuthorLogin ?? 'none'})`,
     );
     return null;
   }
@@ -236,21 +231,6 @@ export async function collectInput(
 }
 
 function getEventContext(): RawEventContext {
-  const reviewState = github.context.payload.review?.state;
-
-  // [DEBUG] Log event context extraction
-  core.info(
-    `[DEBUG] getEventContext: Extracted reviewState=${reviewState ?? 'none'}`,
-  );
-  if (github.context.payload.review) {
-    core.info(
-      `[DEBUG] getEventContext: Review payload exists: ${JSON.stringify({
-        state: github.context.payload.review?.state,
-        author: github.context.payload.review?.user?.login,
-      })}`,
-    );
-  }
-
   return {
     issueNumber: getPrNumber(),
     eventName: github.context.eventName,
@@ -262,17 +242,7 @@ function getEventContext(): RawEventContext {
       github.context.payload.action === 'labeled'
         ? github.context.payload.label?.name
         : undefined,
-    labelRemoved:
-      github.context.payload.action === 'unlabeled'
-        ? github.context.payload.label?.name
-        : undefined,
-    reviewState,
-    commentAuthor: github.context.payload.comment?.user
-      ? {
-          login: github.context.payload.comment.user.login,
-          type: github.context.payload.comment.user.type,
-        }
-      : undefined,
+    commentAuthorLogin: github.context.payload.comment?.user?.login,
   };
 }
 
@@ -463,7 +433,6 @@ async function getPrAutomationData(
   return {
     number: pr.number,
     title: pr.title,
-    authorLogin: pr.author?.login ?? undefined,
     labels:
       pr.labels?.nodes
         ?.map(label => label?.name)
