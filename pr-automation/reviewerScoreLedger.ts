@@ -6,6 +6,7 @@ const LEDGER_PROJECT_NUMBER = 16;
 const SCORE_FIELD_NAME = 'Score';
 const PR_FIELD_NAME = 'Pull Request';
 const CREATED_AT_FIELD_NAME = 'Created At';
+const STATUS_FIELD_NAME = 'Status';
 
 const REVIEW_SCORES: Record<string, number> = {
   APPROVED: 2,
@@ -13,11 +14,19 @@ const REVIEW_SCORES: Record<string, number> = {
   COMMENTED: 1,
 };
 
+const REVIEW_STATUS_LABELS: Record<string, string> = {
+  APPROVED: 'Approve',
+  CHANGES_REQUESTED: 'Request changes',
+  COMMENTED: 'Comment',
+};
+
 interface ProjectData {
   id: string;
   scoreFieldId: string;
   prFieldId: string;
   createdAtFieldId: string;
+  statusFieldId: string;
+  statusOptions: Map<string, string>; // label -> optionId
 }
 
 interface LedgerEntry {
@@ -80,12 +89,23 @@ export async function updateReviewerScoreLedger(
       return;
     }
 
+    // Look up status option ID for this review type
+    const statusLabel = REVIEW_STATUS_LABELS[reviewState];
+    const statusOptionId = project.statusOptions.get(statusLabel);
+    if (!statusOptionId) {
+      core.warning(`Status option "${statusLabel}" not found in ledger project`);
+      core.endGroup();
+      return;
+    }
+
     // Create ledger entry (multiple reviews on same PR add more score)
     await createLedgerEntry(client, {
       projectId: project.id,
       scoreFieldId: project.scoreFieldId,
       prFieldId: project.prFieldId,
       createdAtFieldId: project.createdAtFieldId,
+      statusFieldId: project.statusFieldId,
+      statusOptionId,
       title: data.title,
       reviewer,
       score,
@@ -118,6 +138,10 @@ async function getProjectData(
               ... on ProjectV2SingleSelectField {
                 id
                 name
+                options {
+                  id
+                  name
+                }
               }
             }
           }
@@ -126,12 +150,18 @@ async function getProjectData(
     }
   `;
 
+  interface FieldNode {
+    id: string;
+    name: string;
+    options?: Array<{ id: string; name: string }>;
+  }
+
   const result = await client.graphql<{
     organization?: {
       projectV2?: {
         id: string;
         fields: {
-          nodes: Array<{ id: string; name: string } | null>;
+          nodes: Array<FieldNode | null>;
         };
       };
     };
@@ -149,12 +179,20 @@ async function getProjectData(
   const createdAtField = project.fields.nodes.find(
     f => f?.name === CREATED_AT_FIELD_NAME,
   );
+  const statusField = project.fields.nodes.find(
+    f => f?.name === STATUS_FIELD_NAME,
+  );
 
-  if (!scoreField || !prField || !createdAtField) {
+  if (!scoreField || !prField || !createdAtField || !statusField) {
     core.warning(
-      `Missing required fields in ledger project: Score=${!!scoreField}, Pull Request=${!!prField}, Created At=${!!createdAtField}`,
+      `Missing required fields in ledger project: Score=${!!scoreField}, Pull Request=${!!prField}, Created At=${!!createdAtField}, Status=${!!statusField}`,
     );
     return null;
+  }
+
+  const statusOptions = new Map<string, string>();
+  for (const opt of statusField.options ?? []) {
+    statusOptions.set(opt.name, opt.id);
   }
 
   return {
@@ -162,6 +200,8 @@ async function getProjectData(
     scoreFieldId: scoreField.id,
     prFieldId: prField.id,
     createdAtFieldId: createdAtField.id,
+    statusFieldId: statusField.id,
+    statusOptions,
   };
 }
 
@@ -319,6 +359,8 @@ async function createLedgerEntry(
     scoreFieldId: string;
     prFieldId: string;
     createdAtFieldId: string;
+    statusFieldId: string;
+    statusOptionId: string;
     title: string;
     reviewer: string;
     score: number;
@@ -330,6 +372,8 @@ async function createLedgerEntry(
     scoreFieldId,
     prFieldId,
     createdAtFieldId,
+    statusFieldId,
+    statusOptionId,
     title,
     reviewer,
     score,
@@ -389,6 +433,8 @@ async function createLedgerEntry(
       $prRef: String!
       $createdAtFieldId: ID!
       $createdAt: Date!
+      $statusFieldId: ID!
+      $statusOptionId: String!
     ) {
       setScore: updateProjectV2ItemFieldValue(input: {
         projectId: $projectId
@@ -414,6 +460,14 @@ async function createLedgerEntry(
       }) {
         projectV2Item { id }
       }
+      setStatus: updateProjectV2ItemFieldValue(input: {
+        projectId: $projectId
+        itemId: $itemId
+        fieldId: $statusFieldId
+        value: { singleSelectOptionId: $statusOptionId }
+      }) {
+        projectV2Item { id }
+      }
     }
   `;
 
@@ -427,5 +481,7 @@ async function createLedgerEntry(
     prRef,
     createdAtFieldId,
     createdAt: today,
+    statusFieldId,
+    statusOptionId,
   });
 }
