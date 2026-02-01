@@ -154,17 +154,7 @@ export async function collectInput(
 ): Promise<AutomationInput | null> {
   const event = getEventContext();
 
-  // [DEBUG] Log event context
-  core.info(
-    `[DEBUG] collectInput: Event context - eventName=${
-      event.eventName
-    }, action=${event.action ?? 'none'}, issueNumber=${
-      event.issueNumber ?? 'none'
-    }, actor=${event.actor}`,
-  );
-
   if (!event.issueNumber) {
-    core.info('[DEBUG] collectInput: No issue number in event, returning null');
     return null;
   }
   const issueNumber = event.issueNumber;
@@ -175,23 +165,15 @@ export async function collectInput(
 
   const client = createAppClient();
   const botLogin = await getBotLogin(client);
-  core.info(`[DEBUG] collectInput: Bot login=${botLogin ?? 'none'}`);
 
   if (
     botLogin &&
     (event.actor === botLogin || event.commentAuthorLogin === botLogin)
   ) {
-    core.info(
-      `[DEBUG] collectInput: Skipping - triggered by bot (actor=${
-        event.actor
-      }, commentAuthorLogin=${event.commentAuthorLogin ?? 'none'})`,
-    );
+    core.info(`Skipping: triggered by bot (${botLogin})`);
     return null;
   }
 
-  core.info(
-    `[DEBUG] collectInput: Fetching PR data for ${ensuredEvent.owner}/${ensuredEvent.repo}#${ensuredEvent.issueNumber}`,
-  );
   const data = await getPrAutomationData(client, {
     owner: ensuredEvent.owner,
     repo: ensuredEvent.repo,
@@ -199,9 +181,6 @@ export async function collectInput(
     projectOwner: config.projectOwner,
     projectNumber: config.projectNumber,
   });
-  core.info(
-    `[DEBUG] collectInput: Successfully fetched PR data - PR #${data.number}: "${data.title}"`,
-  );
 
   let reviewerLogins: Set<string> | undefined;
   let reviewerTeamMissing = false;
@@ -300,20 +279,6 @@ async function getPrAutomationData(
     .map(field => mapProjectField(field))
     .filter((field): field is ProjectField => Boolean(field));
 
-  // [DEBUG] Log project data
-  core.info(
-    `[DEBUG] getPrAutomationData: Project ID=${projectId ?? 'none'}, found ${
-      projectFields.length
-    } project field(s)`,
-  );
-  projectFields.forEach(field => {
-    core.info(
-      `[DEBUG] getPrAutomationData: Project field - name="${field.name}", id=${
-        field.id
-      }, type=${field.options ? 'singleSelect' : 'other'}`,
-    );
-  });
-
   const projectItem = pr.projectItems?.nodes?.find(
     item => item?.project?.id && item.project.id === projectId,
   );
@@ -322,113 +287,23 @@ async function getPrAutomationData(
       ?.map(value => mapProjectItemField(value))
       .filter((value): value is ProjectItemFieldValue => Boolean(value)) ?? [];
 
-  // [DEBUG] Log project item data
-  if (projectItem) {
-    core.info(
-      `[DEBUG] getPrAutomationData: Found project item id=${projectItem.id}, with ${projectItemFieldValues.length} field value(s)`,
-    );
-    projectItemFieldValues.forEach(fieldValue => {
-      const valueStr =
-        typeof fieldValue.value === 'number'
-          ? fieldValue.value
-          : fieldValue.value ?? 'null';
-      core.info(
-        `[DEBUG] getPrAutomationData: Project item field - name="${fieldValue.fieldName}", value=${valueStr}`,
-      );
-    });
-  } else {
-    core.info('[DEBUG] getPrAutomationData: No project item found for this PR');
-  }
-
   const assignees =
     pr.assignees?.nodes
       ?.map(assignee => assignee?.login)
       .filter((login): login is string => Boolean(login)) ?? [];
 
-  // [DEBUG] Log assignment-related data
-  core.info(
-    `[DEBUG] Current assignees: ${
-      assignees.length > 0 ? assignees.join(', ') : 'none'
-    }`,
-  );
-  core.info(
-    `[DEBUG] Fetched ${
-      pr.timelineItems?.nodes?.length ?? 0
-    } assignment timeline events`,
+  const mostRecentAssignmentAt = findMostRecentAssignment(
+    pr.timelineItems?.nodes,
+    assignees,
   );
 
-  const mostRecentAssignmentAt = (() => {
-    if (!pr.timelineItems?.nodes) {
-      core.info('[DEBUG] No timeline items found for assignment events');
-      return undefined;
-    }
-    // Iterate backwards to find the most recent assignment
-    // (nodes are in chronological order, so last items are most recent)
-    let checkedCount = 0;
-    for (let i = pr.timelineItems.nodes.length - 1; i >= 0; i--) {
-      const node = pr.timelineItems.nodes[i];
-      checkedCount++;
-      if (
-        node &&
-        '__typename' in node &&
-        node.__typename === 'AssignedEvent' &&
-        'createdAt' in node &&
-        'assignee' in node &&
-        node.assignee &&
-        typeof node.assignee === 'object' &&
-        'login' in node.assignee &&
-        typeof node.assignee.login === 'string'
-      ) {
-        const assigneeLogin = node.assignee.login;
-        const isCurrentlyAssigned = assignees.includes(assigneeLogin);
-        core.info(
-          `[DEBUG] Found AssignedEvent #${checkedCount} (from end): assignee=${assigneeLogin}, createdAt=${node.createdAt}, currentlyAssigned=${isCurrentlyAssigned}`,
-        );
-        if (isCurrentlyAssigned) {
-          core.info(`[DEBUG] Using assignment timestamp: ${node.createdAt}`);
-          return node.createdAt;
-        }
-      }
-    }
-    core.info(
-      `[DEBUG] No matching assignment found for current assignees after checking ${checkedCount} events`,
-    );
-    return undefined;
-  })();
-
-  if (mostRecentAssignmentAt) {
-    const assignmentDate = new Date(mostRecentAssignmentAt);
-    const ageDays = Math.floor(
-      (Date.now() - assignmentDate.getTime()) / (24 * 60 * 60 * 1000),
-    );
-    core.info(
-      `[DEBUG] Most recent assignment age: ${ageDays} days (${mostRecentAssignmentAt})`,
-    );
-  } else {
-    core.info('[DEBUG] No mostRecentAssignmentAt timestamp found');
-  }
-
-  const latestReviewsData =
+  const latestReviews =
     (pr as { latestReviews?: typeof pr.reviews }).latestReviews?.nodes?.map(
       review => ({
         state: review?.state ?? '',
         authorLogin: review?.author?.login ?? undefined,
       }),
     ) ?? [];
-
-  // [DEBUG] Log reviews data
-  core.info(
-    `[DEBUG] getPrAutomationData: Found ${
-      pr.reviews?.nodes?.length ?? 0
-    } review(s) and ${latestReviewsData.length} latest review(s)`,
-  );
-  latestReviewsData.forEach((review, index) => {
-    core.info(
-      `[DEBUG] getPrAutomationData: Latest review ${index + 1}: state=${
-        review.state
-      }, author=${review.authorLogin ?? 'none'}`,
-    );
-  });
 
   return {
     number: pr.number,
@@ -445,7 +320,7 @@ async function getPrAutomationData(
         submittedAt: review?.submittedAt ?? undefined,
         authorLogin: review?.author?.login ?? undefined,
       })) ?? [],
-    latestReviews: latestReviewsData,
+    latestReviews,
     files:
       pr.files?.nodes?.map(file => ({
         path: file?.path ?? '',
@@ -458,6 +333,36 @@ async function getPrAutomationData(
       ? { id: projectItem.id, fieldValues: projectItemFieldValues }
       : undefined,
   };
+}
+
+function findMostRecentAssignment(
+  timelineNodes: unknown[] | null | undefined,
+  assignees: string[],
+): string | undefined {
+  if (!timelineNodes || assignees.length === 0) {
+    return undefined;
+  }
+  // Iterate backwards to find the most recent assignment
+  // (nodes are in chronological order, so last items are most recent)
+  for (let i = timelineNodes.length - 1; i >= 0; i--) {
+    const node = timelineNodes[i];
+    if (
+      node &&
+      typeof node === 'object' &&
+      '__typename' in node &&
+      node.__typename === 'AssignedEvent' &&
+      'createdAt' in node &&
+      'assignee' in node &&
+      node.assignee &&
+      typeof node.assignee === 'object' &&
+      'login' in node.assignee &&
+      typeof node.assignee.login === 'string' &&
+      assignees.includes(node.assignee.login)
+    ) {
+      return node.createdAt as string;
+    }
+  }
+  return undefined;
 }
 
 function mapProjectField(field: unknown): ProjectField | undefined {

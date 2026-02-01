@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import { collectInput } from './collectInput';
 import { applyOutput } from './applyOutput';
-import type { AutomationInput } from './types';
 import { getConfig } from './getConfig';
 import { determineTargetStatusLabel } from './logic/determineTargetStatusLabel';
 import { estimateTotalAdditions } from './logic/estimateTotalAdditions';
@@ -19,56 +18,99 @@ export async function main() {
     return;
   }
 
-  const event = input.event;
-  const data = input.data;
-  const reviewerLogins = input.reviewerLogins;
-  const reviewerTeamMissing = input.reviewerTeamMissing;
+  const { event, data, reviewerLogins, reviewerTeamMissing } = input;
+
   core.info(
-    `PR automation for #${event.issueNumber} ${event.eventName}/${
+    `Processing PR #${data.number}: "${data.title}" (${event.eventName}/${
       event.action ?? 'n/a'
-    }`,
+    })`,
   );
 
+  // Log collected input
+  core.startGroup('Collected Input');
+  core.info(`Event: ${event.eventName}/${event.action ?? 'n/a'}`);
+  core.info(`Actor: ${event.actor}`);
+  if (event.labelAdded) {
+    core.info(`Label added: ${event.labelAdded}`);
+  }
+  core.info(`Labels: [${data.labels.join(', ')}]`);
+  core.info(`Assignees: [${data.assignees.join(', ') || 'none'}]`);
+  core.info(`Files: ${data.filesTotalCount} total`);
+  core.info(
+    `Reviews: ${
+      data.latestReviews.length > 0
+        ? data.latestReviews
+            .map(r => `${r.authorLogin ?? 'unknown'}:${r.state}`)
+            .join(', ')
+        : 'none'
+    }`,
+  );
+  if (data.mostRecentAssignmentAt) {
+    const ageDays = Math.floor(
+      (Date.now() - new Date(data.mostRecentAssignmentAt).getTime()) /
+        (24 * 60 * 60 * 1000),
+    );
+    core.info(`Most recent assignment: ${ageDays} days ago`);
+  }
+  if (data.projectItem) {
+    const statusValue = data.projectItem.fieldValues.find(
+      f => f.fieldName === config.statusFieldName,
+    )?.value;
+    const priorityValue = data.projectItem.fieldValues.find(
+      f => f.fieldName === config.priorityFieldName,
+    )?.value;
+    core.info(
+      `Project: status="${statusValue ?? 'unset'}", priority=${
+        priorityValue ?? 'unset'
+      }`,
+    );
+  } else {
+    core.info('Project: not on board');
+  }
+  core.endGroup();
+
+  // Compute decisions
+  core.startGroup('Computing Output');
+
+  // Size calculation
   const additionsEstimate = estimateTotalAdditions(
     data.files,
     data.filesTotalCount,
     config.ignorePatterns,
   );
+  const sizeLabel = calculateSizeLabel(additionsEstimate.additions);
   core.info(
-    `${additionsEstimate.estimated ? 'Estimated' : 'Counted'} ${
-      additionsEstimate.additions
-    } additions across ${additionsEstimate.totalFiles} files`,
+    `Size: ${additionsEstimate.additions} additions${
+      additionsEstimate.estimated ? ' (estimated)' : ''
+    } → ${sizeLabel}`,
   );
 
-  const sizeLabel = calculateSizeLabel(additionsEstimate.additions);
+  // Reviewer approved calculation
   const existingLabels = new Set(data.labels);
   let reviewerApproved = existingLabels.has(config.reviewerApprovedLabel);
   if (reviewerTeamMissing) {
     core.info(
-      `Reviewer team ${config.reviewerTeamOrg}/${config.reviewerTeamSlug} not accessible, skipping reviewer-approved sync`,
+      `Reviewer approved: keeping existing (team ${config.reviewerTeamOrg}/${config.reviewerTeamSlug} not accessible)`,
     );
   } else if (reviewerLogins) {
     reviewerApproved = shouldHaveReviewerApprovedLabel(
       data.reviews,
       reviewerLogins,
     );
+    core.info(
+      `Reviewer approved: ${reviewerApproved} (based on ${reviewerLogins.size} team members)`,
+    );
+  } else {
+    core.info(`Reviewer approved: ${reviewerApproved} (keeping existing)`);
   }
 
-  const statusLabels: Set<string> = new Set(Object.keys(config.statusLabelMap));
-
-  // [DEBUG] Log inputs to determineTargetStatusLabel
-  core.info(
-    `[DEBUG] determineTargetStatusLabel: latestReviews count=${
-      data.latestReviews.length
-    }, states=[${data.latestReviews.map(r => r.state).join(', ')}]`,
+  // Status label calculation
+  const statusLabels = new Set(Object.keys(config.statusLabelMap));
+  const existingStatusLabels = data.labels.filter(l => statusLabels.has(l));
+  const hasChangesRequested = data.latestReviews.some(
+    r => r.state === 'CHANGES_REQUESTED',
   );
-  core.info(
-    `[DEBUG] determineTargetStatusLabel: existing status labels=[${Array.from(
-      existingLabels,
-    )
-      .filter(l => statusLabels.has(l))
-      .join(', ')}], labelAdded=${event.labelAdded ?? 'none'}`,
-  );
+  const hasApprovals = data.latestReviews.some(r => r.state === 'APPROVED');
 
   const targetStatusLabel = determineTargetStatusLabel({
     labels: existingLabels,
@@ -82,13 +124,58 @@ export async function main() {
     labelAdded: event.labelAdded,
   });
 
+  if (event.labelAdded && statusLabels.has(event.labelAdded)) {
+    core.info(`Status: ${targetStatusLabel} (manually set via label)`);
+  } else if (existingLabels.has(config.needsDecisionLabel)) {
+    core.info(`Status: keeping existing (needs-decision label present)`);
+  } else if (hasChangesRequested) {
+    core.info(`Status: ${targetStatusLabel} (changes requested in reviews)`);
+  } else if (hasApprovals) {
+    core.info(`Status: ${targetStatusLabel} (approved in reviews)`);
+  } else {
+    core.info(`Status: ${targetStatusLabel} (no actionable reviews)`);
+  }
+
+  // Priority calculation
+  const priority = calculatePriority(
+    additionsEstimate.additions,
+    config.priorityParams,
+    reviewerApproved,
+  );
   core.info(
-    `[DEBUG] determineTargetStatusLabel result: ${targetStatusLabel ?? 'null'}`,
+    `Priority: ${priority}${
+      reviewerApproved ? ' (boosted for reviewer approval)' : ''
+    }`,
   );
 
-  const sizeLabelSet: Set<string> = new Set(
-    config.sizeLabels.map(sizeLabel => sizeLabel.label),
-  );
+  // Stale review check
+  const hasWaitingForReviewLabel = existingLabels.has(config.needsReviewLabel);
+  const shouldUnassign = shouldUnassignStaleReview({
+    hasWaitingForReviewLabel,
+    assignees: data.assignees,
+    mostRecentAssignmentAt: data.mostRecentAssignmentAt,
+  });
+
+  if (!hasWaitingForReviewLabel) {
+    core.info('Stale review: no (not waiting for review)');
+  } else if (data.assignees.length === 0) {
+    core.info('Stale review: no (no assignees)');
+  } else if (!data.mostRecentAssignmentAt) {
+    core.info('Stale review: no (no assignment timestamp)');
+  } else {
+    const ageDays = Math.floor(
+      (Date.now() - new Date(data.mostRecentAssignmentAt).getTime()) /
+        (24 * 60 * 60 * 1000),
+    );
+    core.info(
+      `Stale review: ${
+        shouldUnassign ? 'yes' : 'no'
+      } (assigned ${ageDays} days ago, threshold: 14 days)`,
+    );
+  }
+
+  // Plan label changes
+  const sizeLabelSet = new Set(config.sizeLabels.map(s => s.label));
   const labelPlan = planLabelChanges({
     existingLabels,
     sizeLabel,
@@ -100,39 +187,24 @@ export async function main() {
     defaultStatusLabel: config.defaultStatusLabel,
   });
 
-  const priority = calculatePriority(
-    additionsEstimate.additions,
-    config.priorityParams,
-    reviewerApproved,
-  );
+  core.endGroup();
 
-  // [DEBUG] Log stale review unassignment decision
-  const hasWaitingForReviewLabel = existingLabels.has(config.needsReviewLabel);
+  // Log computed output
+  core.startGroup('Computed Output');
   core.info(
-    `[DEBUG] Stale review check: hasWaitingForReviewLabel=${hasWaitingForReviewLabel}, assignees=[${data.assignees.join(
-      ', ',
-    )}], mostRecentAssignmentAt=${data.mostRecentAssignmentAt ?? 'none'}`,
+    `Labels to add: [${
+      Array.from(labelPlan.labelsToAdd).join(', ') || 'none'
+    }]`,
   );
-
-  const shouldUnassign = shouldUnassignStaleReview({
-    hasWaitingForReviewLabel,
-    assignees: data.assignees,
-    mostRecentAssignmentAt: data.mostRecentAssignmentAt,
-  });
-
   core.info(
-    `[DEBUG] Stale review unassignment decision: shouldUnassign=${shouldUnassign}`,
+    `Labels to remove: [${
+      Array.from(labelPlan.labelsToRemove).join(', ') || 'none'
+    }]`,
   );
-
-  // [DEBUG] Log label plan details
-  core.info(
-    `[DEBUG] Label plan: add=[${Array.from(labelPlan.labelsToAdd).join(
-      ', ',
-    )}], remove=[${Array.from(labelPlan.labelsToRemove).join(
-      ', ',
-    )}], statusLabelToSync=${labelPlan.statusLabelToSync ?? 'none'}`,
-  );
-  core.info(`[DEBUG] Priority: ${priority}`);
+  core.info(`Status to sync: ${labelPlan.statusLabelToSync ?? 'none'}`);
+  core.info(`Priority: ${priority}`);
+  core.info(`Unassign stale reviewers: ${shouldUnassign}`);
+  core.endGroup();
 
   await applyOutput(input, { labelPlan, priority, shouldUnassign });
 }

@@ -11,71 +11,122 @@ export async function applyOutput(input: AutomationInput, output: OutputPlan) {
   const { event, config, client, data } = input;
   const { labelPlan, priority } = output;
 
-  // [DEBUG] Log what actions will be taken
-  core.info(
-    `[DEBUG] applyOutput: Starting output application for PR #${event.issueNumber}`,
-  );
-  core.info(
-    `[DEBUG] applyOutput: Labels to add: ${
-      labelPlan.labelsToAdd.size > 0
-        ? Array.from(labelPlan.labelsToAdd).join(', ')
-        : 'none'
-    }`,
-  );
-  core.info(
-    `[DEBUG] applyOutput: Labels to remove: ${
-      labelPlan.labelsToRemove.size > 0
-        ? Array.from(labelPlan.labelsToRemove).join(', ')
-        : 'none'
-    }`,
-  );
-  core.info(`[DEBUG] applyOutput: Priority: ${priority}`);
-  core.info(
-    `[DEBUG] applyOutput: Should unassign stale reviewers: ${
-      output.shouldUnassign ?? false
-    }`,
-  );
+  const hasLabelChanges =
+    labelPlan.labelsToAdd.size > 0 || labelPlan.labelsToRemove.size > 0;
+  const hasProjectChanges = data.projectItem !== undefined;
+  const hasUnassignment = output.shouldUnassign && data.assignees.length > 0;
 
-  await applyLabelChanges(client, {
-    owner: event.owner,
-    repo: event.repo,
-    issueNumber: event.issueNumber,
-    labelsToAdd: [...labelPlan.labelsToAdd],
-    labelsToRemove: [...labelPlan.labelsToRemove],
-  });
+  if (!hasLabelChanges && !hasProjectChanges && !hasUnassignment) {
+    core.info('No changes to apply');
+    return;
+  }
+
+  core.startGroup('Applying Changes');
+
+  if (hasLabelChanges) {
+    await applyLabelChanges(client, {
+      owner: event.owner,
+      repo: event.repo,
+      issueNumber: event.issueNumber,
+      labelsToAdd: [...labelPlan.labelsToAdd],
+      labelsToRemove: [...labelPlan.labelsToRemove],
+    });
+  }
 
   if (output.shouldUnassign) {
-    core.info(`[DEBUG] applyOutput: Executing stale review unassignment`);
-    await unassignStaleReview(client, {
+    await unassignReviewers(client, {
       owner: event.owner,
       repo: event.repo,
       issueNumber: event.issueNumber,
       assignees: data.assignees,
     });
-  } else {
-    core.info(
-      '[DEBUG] applyOutput: Skipping stale review unassignment (shouldUnassign=false)',
-    );
   }
 
-  await syncProjectFields(client, {
-    projectId: data.projectId,
-    projectItemId: data.projectItem?.id,
-    projectFields: data.projectFields,
-    projectItemFields: data.projectItem?.fieldValues ?? [],
-    statusFieldName: config.statusFieldName,
-    priorityFieldName: config.priorityFieldName,
-    statusLabelMap: config.statusLabelMap,
-    statusLabelToSync: labelPlan.statusLabelToSync,
-    priority,
+  if (data.projectItem) {
+    await syncProjectFields(client, {
+      projectId: data.projectId,
+      projectItemId: data.projectItem.id,
+      projectFields: data.projectFields,
+      projectItemFields: data.projectItem.fieldValues,
+      statusFieldName: config.statusFieldName,
+      priorityFieldName: config.priorityFieldName,
+      statusLabelMap: config.statusLabelMap,
+      statusLabelToSync: labelPlan.statusLabelToSync,
+      priority,
+    });
+  }
+
+  core.endGroup();
+}
+
+async function applyLabelChanges(
+  client: ReturnType<typeof github.getOctokit>,
+  options: {
+    owner: string;
+    repo: string;
+    issueNumber: number;
+    labelsToAdd: string[];
+    labelsToRemove: string[];
+  },
+) {
+  const { owner, repo, issueNumber, labelsToAdd, labelsToRemove } = options;
+
+  for (const label of labelsToRemove) {
+    try {
+      await client.rest.issues.removeLabel({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        name: label,
+      });
+      core.info(`Removed label: ${label}`);
+    } catch (error) {
+      if ((error as { status?: number }).status === 404) {
+        core.info(`Label not present: ${label}`);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  if (labelsToAdd.length > 0) {
+    await client.rest.issues.addLabels({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      labels: labelsToAdd,
+    });
+    core.info(`Added labels: ${labelsToAdd.join(', ')}`);
+  }
+}
+
+async function unassignReviewers(
+  client: ReturnType<typeof github.getOctokit>,
+  options: {
+    owner: string;
+    repo: string;
+    issueNumber: number;
+    assignees: string[];
+  },
+) {
+  const { owner, repo, issueNumber, assignees } = options;
+  if (assignees.length === 0) {
+    return;
+  }
+  await client.rest.issues.removeAssignees({
+    owner,
+    repo,
+    issue_number: issueNumber,
+    assignees,
   });
+  core.info(`Unassigned stale reviewers: ${assignees.join(', ')}`);
 }
 
 async function syncProjectFields(
   client: ReturnType<typeof github.getOctokit>,
   options: {
     projectId?: string;
-    projectItemId?: string;
+    projectItemId: string;
     projectFields: ProjectField[];
     projectItemFields: ProjectItemFieldValue[];
     statusFieldName: string;
@@ -97,25 +148,8 @@ async function syncProjectFields(
     priority,
   } = options;
 
-  // [DEBUG] Log project field sync details
-  core.info(`[DEBUG] syncProjectFields: Starting project field sync`);
-  core.info(
-    `[DEBUG] syncProjectFields: projectId=${
-      projectId ?? 'none'
-    }, projectItemId=${projectItemId ?? 'none'}`,
-  );
-  core.info(
-    `[DEBUG] syncProjectFields: statusLabelToSync=${
-      statusLabelToSync ?? 'none'
-    }, priority=${priority}`,
-  );
-
   if (!projectId) {
     throw new Error('Project ID not found for configured project');
-  }
-  if (!projectItemId) {
-    core.info('PR is not part of the project board, skipping project sync');
-    return;
   }
 
   const statusField = projectFields.find(
@@ -131,10 +165,6 @@ async function syncProjectFields(
     throw new Error(`Could not find "${priorityFieldName}" field`);
   }
 
-  core.info(
-    `[DEBUG] syncProjectFields: Found statusField id=${statusField.id}, priorityField id=${priorityField.id}`,
-  );
-
   const updates = buildProjectUpdates({
     projectItemFields,
     statusField,
@@ -144,45 +174,33 @@ async function syncProjectFields(
     priority,
   });
 
-  // [DEBUG] Log project updates
-  core.info(
-    `[DEBUG] syncProjectFields: Computed ${updates.length} field update(s)`,
-  );
-  updates.forEach((update, index) => {
-    if ('singleSelectOptionId' in update.value) {
-      core.info(
-        `[DEBUG] syncProjectFields: Update ${index + 1}: status field=${
-          update.fieldId
-        }, optionId=${update.value.singleSelectOptionId}`,
-      );
-    } else {
-      core.info(
-        `[DEBUG] syncProjectFields: Update ${index + 1}: priority field=${
-          update.fieldId
-        }, value=${update.value.number}`,
-      );
-    }
-  });
-
   if (updates.length === 0) {
     core.info('Project fields already up to date');
     return;
   }
 
-  core.info(
-    `[DEBUG] syncProjectFields: Executing GraphQL mutation with ${updates.length} update(s)`,
-  );
   const { mutation, variables } = buildProjectMutation(
     projectId,
     projectItemId,
     updates,
   );
   await client.graphql(mutation, variables);
-  core.info('[DEBUG] syncProjectFields: Successfully updated project fields');
+
+  for (const update of updates) {
+    if ('singleSelectOptionId' in update.value) {
+      core.info(`Updated project status: ${update.targetValue}`);
+    } else {
+      core.info(`Updated project priority: ${update.value.number}`);
+    }
+  }
 }
 
 type ProjectUpdate =
-  | { fieldId: string; value: { singleSelectOptionId: string } }
+  | {
+      fieldId: string;
+      value: { singleSelectOptionId: string };
+      targetValue: string;
+    }
   | { fieldId: string; value: { number: number } };
 
 function buildProjectUpdates(options: {
@@ -192,7 +210,7 @@ function buildProjectUpdates(options: {
   statusLabelMap: Record<string, string>;
   statusLabelToSync: string | null;
   priority: number;
-}) {
+}): ProjectUpdate[] {
   const {
     projectItemFields,
     statusField,
@@ -204,57 +222,26 @@ function buildProjectUpdates(options: {
 
   const updates: ProjectUpdate[] = [];
 
-  // [DEBUG] Log status field sync logic
-  core.info(
-    `[DEBUG] buildProjectUpdates: statusLabelToSync=${
-      statusLabelToSync ?? 'none'
-    }`,
-  );
   if (statusLabelToSync) {
     const statusName = statusLabelMap[statusLabelToSync];
-    core.info(
-      `[DEBUG] buildProjectUpdates: statusLabelToSync="${statusLabelToSync}" maps to statusName="${
-        statusName ?? 'none'
-      }"`,
-    );
     if (statusName) {
       const statusOptionId = statusField.options?.find(
         option => option.name === statusName,
       )?.id;
-      core.info(
-        `[DEBUG] buildProjectUpdates: Found statusOptionId=${
-          statusOptionId ?? 'none'
-        } for statusName="${statusName}"`,
-      );
       if (!statusOptionId) {
-        throw new Error(`"${statusName}" is not a valid option`);
+        throw new Error(`"${statusName}" is not a valid project status option`);
       }
       const currentStatus = getCurrentFieldValue(
         projectItemFields,
         statusField.name,
       );
-      core.info(
-        `[DEBUG] buildProjectUpdates: Current status="${
-          currentStatus ?? 'none'
-        }", target status="${statusName}", match=${
-          currentStatus === statusName
-        }`,
-      );
       if (currentStatus !== statusName) {
         updates.push({
           fieldId: statusField.id,
           value: { singleSelectOptionId: statusOptionId },
+          targetValue: statusName,
         });
-        core.info(`[DEBUG] buildProjectUpdates: Added status field update`);
-      } else {
-        core.info(
-          `[DEBUG] buildProjectUpdates: Skipping status field update - already matches`,
-        );
       }
-    } else {
-      core.info(
-        `[DEBUG] buildProjectUpdates: No statusName found for statusLabelToSync="${statusLabelToSync}"`,
-      );
     }
   }
 
@@ -339,91 +326,4 @@ function getCurrentFieldValue(
 ): string | number | undefined {
   const field = fields.find(value => value.fieldName === name);
   return field?.value;
-}
-
-async function applyLabelChanges(
-  client: ReturnType<typeof github.getOctokit>,
-  options: {
-    owner: string;
-    repo: string;
-    issueNumber: number;
-    labelsToAdd: string[];
-    labelsToRemove: string[];
-  },
-) {
-  const { owner, repo, issueNumber, labelsToAdd, labelsToRemove } = options;
-
-  // [DEBUG] Log label changes
-  core.info(
-    `[DEBUG] applyLabelChanges: Removing ${labelsToRemove.length} label(s)`,
-  );
-  for (const label of labelsToRemove) {
-    try {
-      core.info(`[DEBUG] applyLabelChanges: Removing label "${label}"`);
-      await client.rest.issues.removeLabel({
-        owner,
-        repo,
-        issue_number: issueNumber,
-        name: label,
-      });
-      core.info(
-        `[DEBUG] applyLabelChanges: Successfully removed label "${label}"`,
-      );
-    } catch (error) {
-      if ((error as { status?: number }).status !== 404) {
-        throw error;
-      }
-      core.info(
-        `[DEBUG] applyLabelChanges: Label "${label}" not found (404), skipping`,
-      );
-    }
-  }
-
-  if (labelsToAdd.length > 0) {
-    core.info(
-      `[DEBUG] applyLabelChanges: Adding ${
-        labelsToAdd.length
-      } label(s): ${labelsToAdd.join(', ')}`,
-    );
-    await client.rest.issues.addLabels({
-      owner,
-      repo,
-      issue_number: issueNumber,
-      labels: labelsToAdd,
-    });
-    core.info(`[DEBUG] applyLabelChanges: Successfully added labels`);
-  } else {
-    core.info('[DEBUG] applyLabelChanges: No labels to add');
-  }
-}
-
-async function unassignStaleReview(
-  client: ReturnType<typeof github.getOctokit>,
-  options: {
-    owner: string;
-    repo: string;
-    issueNumber: number;
-    assignees: string[];
-  },
-) {
-  const { owner, repo, issueNumber, assignees } = options;
-  if (assignees.length === 0) {
-    core.info('[DEBUG] unassignStaleReview: No assignees to remove, skipping');
-    return;
-  }
-  core.info(
-    `Unassigning stale review: removing ${assignees.length} assignee(s) from PR #${issueNumber}`,
-  );
-  core.info(
-    `[DEBUG] unassignStaleReview: Removing assignees: ${assignees.join(', ')}`,
-  );
-  await client.rest.issues.removeAssignees({
-    owner,
-    repo,
-    issue_number: issueNumber,
-    assignees,
-  });
-  core.info(
-    `[DEBUG] unassignStaleReview: Successfully unassigned ${assignees.length} assignee(s)`,
-  );
 }
