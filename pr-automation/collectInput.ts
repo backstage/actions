@@ -339,6 +339,21 @@ async function getPrAutomationData(
   };
 }
 
+interface AssignedEventNode {
+  __typename: 'AssignedEvent';
+  createdAt: string;
+  assignee?: { login?: string } | null;
+}
+
+function isAssignedEvent(node: unknown): node is AssignedEventNode {
+  return (
+    node !== null &&
+    typeof node === 'object' &&
+    '__typename' in node &&
+    (node as { __typename: unknown }).__typename === 'AssignedEvent'
+  );
+}
+
 function findMostRecentAssignment(
   timelineNodes: unknown[] | null | undefined,
   assignees: string[],
@@ -351,19 +366,11 @@ function findMostRecentAssignment(
   for (let i = timelineNodes.length - 1; i >= 0; i--) {
     const node = timelineNodes[i];
     if (
-      node &&
-      typeof node === 'object' &&
-      '__typename' in node &&
-      node.__typename === 'AssignedEvent' &&
-      'createdAt' in node &&
-      'assignee' in node &&
-      node.assignee &&
-      typeof node.assignee === 'object' &&
-      'login' in node.assignee &&
-      typeof node.assignee.login === 'string' &&
+      isAssignedEvent(node) &&
+      node.assignee?.login &&
       assignees.includes(node.assignee.login)
     ) {
-      return node.createdAt as string;
+      return node.createdAt;
     }
   }
   return undefined;

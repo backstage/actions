@@ -187,9 +187,9 @@ async function syncProjectFields(
   await client.graphql(mutation, variables);
 
   for (const update of updates) {
-    if ('singleSelectOptionId' in update.value) {
+    if ('singleSelectOptionId' in update.value && 'targetValue' in update) {
       core.info(`Updated project status: ${update.targetValue}`);
-    } else {
+    } else if ('number' in update.value) {
       core.info(`Updated project priority: ${update.value.number}`);
     }
   }
