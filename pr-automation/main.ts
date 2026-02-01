@@ -9,6 +9,7 @@ import { calculatePriority } from './logic/calculatePriority';
 import { shouldHaveReviewerApprovedLabel } from './logic/shouldHaveReviewerApprovedLabel';
 import { planLabelChanges } from './logic/planLabelChanges';
 import { shouldUnassignStaleReview } from './logic/shouldUnassignStaleReview';
+import { updateReviewerScoreLedger } from './reviewerScoreLedger';
 
 export async function main() {
   const config = getConfig();
@@ -207,6 +208,8 @@ export async function main() {
   core.endGroup();
 
   await applyOutput(input, { labelPlan, priority, shouldUnassign });
+
+  await updateReviewerScoreLedger(input, reviewerLogins);
 }
 
 main().catch(error => {
