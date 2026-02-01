@@ -32,9 +32,7 @@ export function estimateTotalAdditions(
   const relevantRatio = relevantFiles.length / files.length;
   const estimatedRelevantCount = Math.round(totalCount * relevantRatio);
   const averageRelevantAdditions =
-    relevantFiles.length === 0
-      ? 0
-      : relevantAdditions / relevantFiles.length;
+    relevantFiles.length === 0 ? 0 : relevantAdditions / relevantFiles.length;
   const estimatedAdditions = Math.round(
     averageRelevantAdditions * estimatedRelevantCount,
   );

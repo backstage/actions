@@ -1,9 +1,15 @@
 import { shouldUnassignStaleReview } from './shouldUnassignStaleReview';
 
 describe('shouldUnassignStaleReview', () => {
-  const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
-  const threeWeeksAgo = new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString();
-  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const twoWeeksAgo = new Date(
+    Date.now() - 14 * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  const threeWeeksAgo = new Date(
+    Date.now() - 21 * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  const oneWeekAgo = new Date(
+    Date.now() - 7 * 24 * 60 * 60 * 1000,
+  ).toISOString();
 
   it('should return false if PR does not have waiting-for:review label', () => {
     expect(

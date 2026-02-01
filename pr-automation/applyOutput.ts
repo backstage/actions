@@ -1,13 +1,40 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { AutomationInput, OutputPlan, ProjectField, ProjectItemFieldValue } from './types';
+import {
+  AutomationInput,
+  OutputPlan,
+  ProjectField,
+  ProjectItemFieldValue,
+} from './types';
 
-export async function applyOutput(
-  input: AutomationInput,
-  output: OutputPlan,
-) {
+export async function applyOutput(input: AutomationInput, output: OutputPlan) {
   const { event, config, client, data } = input;
   const { labelPlan, priority } = output;
+
+  // [DEBUG] Log what actions will be taken
+  core.info(
+    `[DEBUG] applyOutput: Starting output application for PR #${event.issueNumber}`,
+  );
+  core.info(
+    `[DEBUG] applyOutput: Labels to add: ${
+      labelPlan.labelsToAdd.size > 0
+        ? Array.from(labelPlan.labelsToAdd).join(', ')
+        : 'none'
+    }`,
+  );
+  core.info(
+    `[DEBUG] applyOutput: Labels to remove: ${
+      labelPlan.labelsToRemove.size > 0
+        ? Array.from(labelPlan.labelsToRemove).join(', ')
+        : 'none'
+    }`,
+  );
+  core.info(`[DEBUG] applyOutput: Priority: ${priority}`);
+  core.info(
+    `[DEBUG] applyOutput: Should unassign stale reviewers: ${
+      output.shouldUnassign ?? false
+    }`,
+  );
 
   await applyLabelChanges(client, {
     owner: event.owner,
@@ -18,12 +45,17 @@ export async function applyOutput(
   });
 
   if (output.shouldUnassign) {
+    core.info(`[DEBUG] applyOutput: Executing stale review unassignment`);
     await unassignStaleReview(client, {
       owner: event.owner,
       repo: event.repo,
       issueNumber: event.issueNumber,
       assignees: data.assignees,
     });
+  } else {
+    core.info(
+      '[DEBUG] applyOutput: Skipping stale review unassignment (shouldUnassign=false)',
+    );
   }
 
   await syncProjectFields(client, {
@@ -65,6 +97,19 @@ async function syncProjectFields(
     priority,
   } = options;
 
+  // [DEBUG] Log project field sync details
+  core.info(`[DEBUG] syncProjectFields: Starting project field sync`);
+  core.info(
+    `[DEBUG] syncProjectFields: projectId=${
+      projectId ?? 'none'
+    }, projectItemId=${projectItemId ?? 'none'}`,
+  );
+  core.info(
+    `[DEBUG] syncProjectFields: statusLabelToSync=${
+      statusLabelToSync ?? 'none'
+    }, priority=${priority}`,
+  );
+
   if (!projectId) {
     throw new Error('Project ID not found for configured project');
   }
@@ -73,14 +118,22 @@ async function syncProjectFields(
     return;
   }
 
-  const statusField = projectFields.find(field => field.name === statusFieldName);
-  const priorityField = projectFields.find(field => field.name === priorityFieldName);
+  const statusField = projectFields.find(
+    field => field.name === statusFieldName,
+  );
+  const priorityField = projectFields.find(
+    field => field.name === priorityFieldName,
+  );
   if (!statusField) {
     throw new Error(`Could not find "${statusFieldName}" field`);
   }
   if (!priorityField) {
     throw new Error(`Could not find "${priorityFieldName}" field`);
   }
+
+  core.info(
+    `[DEBUG] syncProjectFields: Found statusField id=${statusField.id}, priorityField id=${priorityField.id}`,
+  );
 
   const updates = buildProjectUpdates({
     projectItemFields,
@@ -91,17 +144,41 @@ async function syncProjectFields(
     priority,
   });
 
+  // [DEBUG] Log project updates
+  core.info(
+    `[DEBUG] syncProjectFields: Computed ${updates.length} field update(s)`,
+  );
+  updates.forEach((update, index) => {
+    if ('singleSelectOptionId' in update.value) {
+      core.info(
+        `[DEBUG] syncProjectFields: Update ${index + 1}: status field=${
+          update.fieldId
+        }, optionId=${update.value.singleSelectOptionId}`,
+      );
+    } else {
+      core.info(
+        `[DEBUG] syncProjectFields: Update ${index + 1}: priority field=${
+          update.fieldId
+        }, value=${update.value.number}`,
+      );
+    }
+  });
+
   if (updates.length === 0) {
     core.info('Project fields already up to date');
     return;
   }
 
+  core.info(
+    `[DEBUG] syncProjectFields: Executing GraphQL mutation with ${updates.length} update(s)`,
+  );
   const { mutation, variables } = buildProjectMutation(
     projectId,
     projectItemId,
     updates,
   );
   await client.graphql(mutation, variables);
+  core.info('[DEBUG] syncProjectFields: Successfully updated project fields');
 }
 
 type ProjectUpdate =
@@ -127,26 +204,64 @@ function buildProjectUpdates(options: {
 
   const updates: ProjectUpdate[] = [];
 
+  // [DEBUG] Log status field sync logic
+  core.info(
+    `[DEBUG] buildProjectUpdates: statusLabelToSync=${
+      statusLabelToSync ?? 'none'
+    }`,
+  );
   if (statusLabelToSync) {
     const statusName = statusLabelMap[statusLabelToSync];
+    core.info(
+      `[DEBUG] buildProjectUpdates: statusLabelToSync="${statusLabelToSync}" maps to statusName="${
+        statusName ?? 'none'
+      }"`,
+    );
     if (statusName) {
       const statusOptionId = statusField.options?.find(
         option => option.name === statusName,
       )?.id;
+      core.info(
+        `[DEBUG] buildProjectUpdates: Found statusOptionId=${
+          statusOptionId ?? 'none'
+        } for statusName="${statusName}"`,
+      );
       if (!statusOptionId) {
         throw new Error(`"${statusName}" is not a valid option`);
       }
-      const currentStatus = getCurrentFieldValue(projectItemFields, statusField.name);
+      const currentStatus = getCurrentFieldValue(
+        projectItemFields,
+        statusField.name,
+      );
+      core.info(
+        `[DEBUG] buildProjectUpdates: Current status="${
+          currentStatus ?? 'none'
+        }", target status="${statusName}", match=${
+          currentStatus === statusName
+        }`,
+      );
       if (currentStatus !== statusName) {
         updates.push({
           fieldId: statusField.id,
           value: { singleSelectOptionId: statusOptionId },
         });
+        core.info(`[DEBUG] buildProjectUpdates: Added status field update`);
+      } else {
+        core.info(
+          `[DEBUG] buildProjectUpdates: Skipping status field update - already matches`,
+        );
       }
+    } else {
+      core.info(
+        `[DEBUG] buildProjectUpdates: No statusName found for statusLabelToSync="${statusLabelToSync}"`,
+      );
     }
   }
 
-  const currentPriorityRaw = getCurrentFieldValue(projectItemFields, priorityField.name);
+  const currentPriorityRaw = getCurrentFieldValue(
+    projectItemFields,
+    priorityField.name,
+  );
   const currentPriority =
     typeof currentPriorityRaw === 'number' ? currentPriorityRaw : undefined;
   if (currentPriority !== priority) {
@@ -237,28 +352,48 @@ async function applyLabelChanges(
   },
 ) {
   const { owner, repo, issueNumber, labelsToAdd, labelsToRemove } = options;
+
+  // [DEBUG] Log label changes
+  core.info(
+    `[DEBUG] applyLabelChanges: Removing ${labelsToRemove.length} label(s)`,
+  );
   for (const label of labelsToRemove) {
     try {
+      core.info(`[DEBUG] applyLabelChanges: Removing label "${label}"`);
       await client.rest.issues.removeLabel({
         owner,
         repo,
         issue_number: issueNumber,
         name: label,
       });
+      core.info(
+        `[DEBUG] applyLabelChanges: Successfully removed label "${label}"`,
+      );
     } catch (error) {
       if ((error as { status?: number }).status !== 404) {
         throw error;
       }
+      core.info(
+        `[DEBUG] applyLabelChanges: Label "${label}" not found (404), skipping`,
+      );
     }
   }
 
   if (labelsToAdd.length > 0) {
+    core.info(
+      `[DEBUG] applyLabelChanges: Adding ${
+        labelsToAdd.length
+      } label(s): ${labelsToAdd.join(', ')}`,
+    );
     await client.rest.issues.addLabels({
       owner,
       repo,
       issue_number: issueNumber,
       labels: labelsToAdd,
     });
+    core.info(`[DEBUG] applyLabelChanges: Successfully added labels`);
+  } else {
+    core.info('[DEBUG] applyLabelChanges: No labels to add');
   }
 }
 
@@ -273,10 +408,14 @@ async function unassignStaleReview(
 ) {
   const { owner, repo, issueNumber, assignees } = options;
   if (assignees.length === 0) {
+    core.info('[DEBUG] unassignStaleReview: No assignees to remove, skipping');
     return;
   }
   core.info(
     `Unassigning stale review: removing ${assignees.length} assignee(s) from PR #${issueNumber}`,
+  );
+  core.info(
+    `[DEBUG] unassignStaleReview: Removing assignees: ${assignees.join(', ')}`,
   );
   await client.rest.issues.removeAssignees({
     owner,
@@ -284,4 +423,7 @@ async function unassignStaleReview(
     issue_number: issueNumber,
     assignees,
   });
+  core.info(
+    `[DEBUG] unassignStaleReview: Successfully unassigned ${assignees.length} assignee(s)`,
+  );
 }

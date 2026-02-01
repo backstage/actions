@@ -74,7 +74,9 @@ describe('shouldHaveReviewerApprovedLabel', () => {
         new Set(['reviewer']),
       ),
     ).toBe(true);
-    expect(shouldHaveReviewerApprovedLabel([], new Set(['reviewer']))).toBe(false);
+    expect(shouldHaveReviewerApprovedLabel([], new Set(['reviewer']))).toBe(
+      false,
+    );
   });
 
   it('uses latest review when comparing approvals and changes requested', () => {

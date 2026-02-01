@@ -55,6 +55,28 @@ export async function main() {
   }
 
   const statusLabels: Set<string> = new Set(Object.keys(config.statusLabelMap));
+
+  // [DEBUG] Log inputs to determineTargetStatusLabel
+  core.info(
+    `[DEBUG] determineTargetStatusLabel inputs: eventName=${
+      event.eventName
+    }, action=${event.action ?? 'none'}, reviewState=${
+      event.reviewState ?? 'none'
+    }`,
+  );
+  core.info(
+    `[DEBUG] determineTargetStatusLabel: latestReviews count=${
+      data.latestReviews.length
+    }, states=[${data.latestReviews.map(r => r.state).join(', ')}]`,
+  );
+  core.info(
+    `[DEBUG] determineTargetStatusLabel: existing status labels=[${Array.from(
+      existingLabels,
+    )
+      .filter(l => statusLabels.has(l))
+      .join(', ')}]`,
+  );
+
   const targetStatusLabel = determineTargetStatusLabel({
     eventName: event.eventName,
     action: event.action,
@@ -73,6 +95,10 @@ export async function main() {
     commentAuthor: event.commentAuthor,
     latestReviews: data.latestReviews,
   });
+
+  core.info(
+    `[DEBUG] determineTargetStatusLabel result: ${targetStatusLabel ?? 'null'}`,
+  );
 
   const sizeLabelSet: Set<string> = new Set(
     config.sizeLabels.map(sizeLabel => sizeLabel.label),
@@ -94,11 +120,33 @@ export async function main() {
     reviewerApproved,
   );
 
+  // [DEBUG] Log stale review unassignment decision
+  const hasWaitingForReviewLabel = existingLabels.has(config.needsReviewLabel);
+  core.info(
+    `[DEBUG] Stale review check: hasWaitingForReviewLabel=${hasWaitingForReviewLabel}, assignees=[${data.assignees.join(
+      ', ',
+    )}], mostRecentAssignmentAt=${data.mostRecentAssignmentAt ?? 'none'}`,
+  );
+
   const shouldUnassign = shouldUnassignStaleReview({
-    hasWaitingForReviewLabel: existingLabels.has(config.needsReviewLabel),
+    hasWaitingForReviewLabel,
     assignees: data.assignees,
     mostRecentAssignmentAt: data.mostRecentAssignmentAt,
   });
+
+  core.info(
+    `[DEBUG] Stale review unassignment decision: shouldUnassign=${shouldUnassign}`,
+  );
+
+  // [DEBUG] Log label plan details
+  core.info(
+    `[DEBUG] Label plan: add=[${Array.from(labelPlan.labelsToAdd).join(
+      ', ',
+    )}], remove=[${Array.from(labelPlan.labelsToRemove).join(
+      ', ',
+    )}], statusLabelToSync=${labelPlan.statusLabelToSync ?? 'none'}`,
+  );
+  core.info(`[DEBUG] Priority: ${priority}`);
 
   await applyOutput(input, { labelPlan, priority, shouldUnassign });
 }

@@ -4,7 +4,13 @@ describe('planLabelChanges', () => {
   const baseOptions = {
     existingLabels: new Set<string>(),
     sizeLabel: 'size:small',
-    sizeLabelSet: new Set(['size:tiny', 'size:small', 'size:medium', 'size:large', 'size:huge']),
+    sizeLabelSet: new Set([
+      'size:tiny',
+      'size:small',
+      'size:medium',
+      'size:large',
+      'size:huge',
+    ]),
     reviewerApprovedLabel: 'reviewer-approved',
     reviewerApproved: false,
     statusLabels: new Set(['waiting-for:review', 'waiting-for:merge']),
@@ -107,7 +113,11 @@ describe('planLabelChanges', () => {
   it('handles complex scenario with all label types', () => {
     const plan = planLabelChanges({
       ...baseOptions,
-      existingLabels: new Set(['size:tiny', 'reviewer-approved', 'waiting-for:review']),
+      existingLabels: new Set([
+        'size:tiny',
+        'reviewer-approved',
+        'waiting-for:review',
+      ]),
       sizeLabel: 'size:medium',
       reviewerApproved: true,
       targetStatusLabel: 'waiting-for:merge',
