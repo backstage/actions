@@ -80,19 +80,7 @@ export async function updateReviewerScoreLedger(
       return;
     }
 
-    // Check if entry already exists
-    const existingEntries = await getLedgerEntries(client, project.id);
-    const alreadyExists = existingEntries.some(
-      entry => entry.prRef === prRef && entry.assigneeLogin === reviewer,
-    );
-
-    if (alreadyExists) {
-      core.info(`Entry already exists for ${reviewer} on ${prRef}`);
-      core.endGroup();
-      return;
-    }
-
-    // Create new ledger entry
+    // Create ledger entry (multiple reviews on same PR add more score)
     await createLedgerEntry(client, {
       projectId: project.id,
       scoreFieldId: project.scoreFieldId,
