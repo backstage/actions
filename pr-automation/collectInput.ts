@@ -43,6 +43,13 @@ const QUERY = `
         author {
           login
         }
+        headRef {
+          target {
+            ... on Commit {
+              committedDate
+            }
+          }
+        }
         assignees(first: 100) {
           nodes {
             login
@@ -336,6 +343,10 @@ async function getPrAutomationData(
     | 'REVIEW_REQUIRED'
     | undefined;
 
+  const headCommitDate = (
+    pr as { headRef?: { target?: { committedDate?: string } } }
+  ).headRef?.target?.committedDate;
+
   return {
     number: pr.number,
     title: pr.title,
@@ -347,6 +358,7 @@ async function getPrAutomationData(
         .filter((label): label is string => Boolean(label)) ?? [],
     assignees,
     mostRecentAssignmentAt,
+    headCommitDate,
     reviews:
       pr.reviews?.nodes?.map(review => ({
         state: review?.state ?? '',

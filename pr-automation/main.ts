@@ -113,10 +113,12 @@ export async function main() {
   const statusLabels = new Set(Object.keys(config.statusLabelMap));
 
   // Check if the author has responded after the most recent changes request
+  // (either by commenting or pushing new commits)
   const authorHasRespondedToChangesRequest = hasAuthorRespondedToChangesRequest(
     data.reviews,
     data.comments,
     data.authorLogin,
+    data.headCommitDate,
   );
 
   const targetStatusLabel = determineTargetStatusLabel({

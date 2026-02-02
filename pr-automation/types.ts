@@ -48,6 +48,7 @@ export interface PrData {
   labels: string[];
   assignees: string[];
   mostRecentAssignmentAt?: string;
+  headCommitDate?: string;
   reviews: Review[];
   latestReviews: LatestReview[];
   comments: Comment[];

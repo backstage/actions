@@ -1,18 +1,16 @@
 import { Review, Comment } from '../types';
 
 /**
- * Checks if the PR author has commented after the most recent "changes requested" review.
+ * Checks if the PR author has responded after the most recent "changes requested" review,
+ * either by commenting or by pushing new commits.
  * This is used to determine if a PR should be pushed back to the review queue.
  */
 export function hasAuthorRespondedToChangesRequest(
   reviews: Review[],
   comments: Comment[],
   authorLogin?: string,
+  headCommitDate?: string,
 ): boolean {
-  if (!authorLogin) {
-    return false;
-  }
-
   // Find the most recent CHANGES_REQUESTED review
   const changesRequestedReviews = reviews.filter(
     r => r.state === 'CHANGES_REQUESTED' && r.submittedAt,
@@ -26,20 +24,33 @@ export function hasAuthorRespondedToChangesRequest(
       !latest || review.submittedAt! > latest.submittedAt! ? review : latest,
   );
 
-  // Find the most recent comment by the author
-  const authorComments = comments.filter(
-    c => c.authorLogin === authorLogin && c.createdAt,
-  );
-  if (authorComments.length === 0) {
-    return false;
+  // Check if the head commit is more recent than the changes request
+  if (
+    headCommitDate &&
+    headCommitDate > mostRecentChangesRequest.submittedAt!
+  ) {
+    return true;
   }
 
-  const mostRecentAuthorComment = authorComments.reduce((latest, comment) =>
-    !latest || comment.createdAt! > latest.createdAt! ? comment : latest,
-  );
+  // Check if the author has commented more recently than the changes request
+  if (authorLogin) {
+    const authorComments = comments.filter(
+      c => c.authorLogin === authorLogin && c.createdAt,
+    );
 
-  // Check if the author's comment is more recent than the changes request
-  return (
-    mostRecentAuthorComment.createdAt! > mostRecentChangesRequest.submittedAt!
-  );
+    if (authorComments.length > 0) {
+      const mostRecentAuthorComment = authorComments.reduce((latest, comment) =>
+        !latest || comment.createdAt! > latest.createdAt! ? comment : latest,
+      );
+
+      if (
+        mostRecentAuthorComment.createdAt! >
+        mostRecentChangesRequest.submittedAt!
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
