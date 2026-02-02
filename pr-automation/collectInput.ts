@@ -80,6 +80,7 @@ const QUERY = `
           nodes {
             state
             submittedAt
+            body
             author {
               login
             }
@@ -364,6 +365,7 @@ async function getPrAutomationData(
         state: review?.state ?? '',
         submittedAt: review?.submittedAt ?? undefined,
         authorLogin: review?.author?.login ?? undefined,
+        body: review?.body ?? undefined,
       })) ?? [],
     latestReviews,
     comments,

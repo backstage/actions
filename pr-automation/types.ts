@@ -4,6 +4,7 @@ export interface Review {
   state: string;
   submittedAt?: string;
   authorLogin?: string;
+  body?: string;
 }
 
 export interface LatestReview {

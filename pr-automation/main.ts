@@ -14,6 +14,7 @@ import {
   getReviewerScore,
 } from './reviewerScoreLedger';
 import { hasAuthorRespondedToChangesRequest } from './logic/hasAuthorRespondedToChangesRequest';
+import { getCopilotReviewPriority } from './logic/getCopilotReviewPriority';
 
 export async function main() {
   const config = getConfig();
@@ -164,11 +165,16 @@ export async function main() {
   const authorScore = data.authorLogin
     ? await getReviewerScore(input.client, event.owner, data.authorLogin)
     : 0;
-  const priority = basePriority + authorScore;
+
+  // Get copilot review priority boost
+  const copilotPriority = getCopilotReviewPriority(data.reviews);
+
+  const priority = basePriority + authorScore + copilotPriority;
 
   const priorityParts: string[] = [];
   if (reviewerApproved) priorityParts.push('reviewer approval');
   if (authorScore > 0) priorityParts.push(`author score +${authorScore}`);
+  if (copilotPriority > 0) priorityParts.push(`copilot +${copilotPriority}`);
   core.info(
     `Priority: ${priority}${
       priorityParts.length > 0 ? ` (${priorityParts.join(', ')})` : ''
