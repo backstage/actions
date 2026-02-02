@@ -184,7 +184,16 @@ async function syncProjectFields(
     projectItemId,
     updates,
   );
-  await client.graphql(mutation, variables);
+
+  try {
+    await client.graphql(mutation, variables);
+  } catch (error) {
+    if (isArchivedItemError(error)) {
+      core.info('Project item is archived, skipping project field updates');
+      return;
+    }
+    throw error;
+  }
 
   for (const update of updates) {
     if ('singleSelectOptionId' in update.value && 'targetValue' in update) {
@@ -310,4 +319,18 @@ function getCurrentFieldValue(
 ): string | number | undefined {
   const field = fields.find(value => value.fieldName === name);
   return field?.value;
+}
+
+function isArchivedItemError(error: unknown): boolean {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'errors' in error &&
+    Array.isArray((error as { errors: unknown[] }).errors)
+  ) {
+    return (error as { errors: { message?: string }[] }).errors.some(e =>
+      e.message?.includes('The item is archived'),
+    );
+  }
+  return false;
 }
