@@ -110,11 +110,6 @@ export async function main() {
 
   // Status label calculation
   const statusLabels = new Set(Object.keys(config.statusLabelMap));
-  const existingStatusLabels = data.labels.filter(l => statusLabels.has(l));
-  const hasChangesRequested = data.latestReviews.some(
-    r => r.state === 'CHANGES_REQUESTED',
-  );
-  const hasApprovals = data.latestReviews.some(r => r.state === 'APPROVED');
 
   const targetStatusLabel = determineTargetStatusLabel({
     labels: existingLabels,
@@ -124,7 +119,7 @@ export async function main() {
     needsChangesLabel: config.needsChangesLabel,
     awaitingMergeLabel: config.awaitingMergeLabel,
     needsReviewLabel: config.needsReviewLabel,
-    latestReviews: data.latestReviews,
+    reviewDecision: data.reviewDecision,
     labelAdded: event.labelAdded,
   });
 
@@ -132,12 +127,12 @@ export async function main() {
     core.info(`Status: ${targetStatusLabel} (manually set via label)`);
   } else if (existingLabels.has(config.needsDecisionLabel)) {
     core.info(`Status: keeping existing (needs-decision label present)`);
-  } else if (hasChangesRequested) {
-    core.info(`Status: ${targetStatusLabel} (changes requested in reviews)`);
-  } else if (hasApprovals) {
-    core.info(`Status: ${targetStatusLabel} (approved in reviews)`);
   } else {
-    core.info(`Status: ${targetStatusLabel} (no actionable reviews)`);
+    core.info(
+      `Status: ${targetStatusLabel} (reviewDecision: ${
+        data.reviewDecision ?? 'none'
+      })`,
+    );
   }
 
   // Priority calculation

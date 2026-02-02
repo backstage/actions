@@ -14,7 +14,11 @@ describe('determineTargetStatusLabel', () => {
     needsChangesLabel: 'waiting-for:author',
     awaitingMergeLabel: 'waiting-for:merge',
     needsReviewLabel: 'waiting-for:review',
-    latestReviews: [],
+    reviewDecision: undefined as
+      | 'APPROVED'
+      | 'CHANGES_REQUESTED'
+      | 'REVIEW_REQUIRED'
+      | undefined,
   };
 
   it('respects manually added status labels', () => {
@@ -52,62 +56,44 @@ describe('determineTargetStatusLabel', () => {
       determineTargetStatusLabel({
         ...baseInput,
         labels: new Set(['waiting-for:decision']),
-        latestReviews: [{ state: 'APPROVED' }],
+        reviewDecision: 'APPROVED',
       }),
     ).toBe(null);
     expect(
       determineTargetStatusLabel({
         ...baseInput,
         labels: new Set(['waiting-for:decision']),
-        latestReviews: [{ state: 'CHANGES_REQUESTED' }],
+        reviewDecision: 'CHANGES_REQUESTED',
       }),
     ).toBe(null);
   });
 
-  it('returns needs-changes when there are change requests', () => {
+  it('returns needs-changes when reviewDecision is CHANGES_REQUESTED', () => {
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        latestReviews: [{ state: 'CHANGES_REQUESTED' }],
-      }),
-    ).toBe('waiting-for:author');
-    expect(
-      determineTargetStatusLabel({
-        ...baseInput,
-        latestReviews: [{ state: 'APPROVED' }, { state: 'CHANGES_REQUESTED' }],
+        reviewDecision: 'CHANGES_REQUESTED',
       }),
     ).toBe('waiting-for:author');
   });
 
-  it('returns awaiting-merge when there are approvals and no change requests', () => {
+  it('returns awaiting-merge when reviewDecision is APPROVED', () => {
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        latestReviews: [{ state: 'APPROVED' }],
-      }),
-    ).toBe('waiting-for:merge');
-    expect(
-      determineTargetStatusLabel({
-        ...baseInput,
-        latestReviews: [{ state: 'APPROVED' }, { state: 'APPROVED' }],
+        reviewDecision: 'APPROVED',
       }),
     ).toBe('waiting-for:merge');
   });
 
-  it('returns needs-review when there are no reviews', () => {
+  it('returns needs-review when reviewDecision is REVIEW_REQUIRED or undefined', () => {
     expect(determineTargetStatusLabel({ ...baseInput })).toBe(
       'waiting-for:review',
     );
     expect(
       determineTargetStatusLabel({
         ...baseInput,
-        latestReviews: [{ state: 'COMMENTED' }],
-      }),
-    ).toBe('waiting-for:review');
-    expect(
-      determineTargetStatusLabel({
-        ...baseInput,
-        latestReviews: [{ state: 'DISMISSED' }],
+        reviewDecision: 'REVIEW_REQUIRED',
       }),
     ).toBe('waiting-for:review');
   });

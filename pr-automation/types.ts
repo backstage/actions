@@ -39,6 +39,7 @@ export interface PrData {
   number: number;
   title: string;
   authorLogin?: string;
+  reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   labels: string[];
   assignees: string[];
   mostRecentAssignmentAt?: string;

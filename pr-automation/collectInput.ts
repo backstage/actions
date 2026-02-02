@@ -38,6 +38,7 @@ const QUERY = `
       pullRequest(number: $issueNumber) {
         number
         title
+        reviewDecision
         author {
           login
         }
@@ -308,10 +309,17 @@ async function getPrAutomationData(
       }),
     ) ?? [];
 
+  const reviewDecision = (pr as { reviewDecision?: string }).reviewDecision as
+    | 'APPROVED'
+    | 'CHANGES_REQUESTED'
+    | 'REVIEW_REQUIRED'
+    | undefined;
+
   return {
     number: pr.number,
     title: pr.title,
     authorLogin: pr.author?.login ?? undefined,
+    reviewDecision,
     labels:
       pr.labels?.nodes
         ?.map(label => label?.name)

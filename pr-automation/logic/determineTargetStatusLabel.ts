@@ -1,5 +1,3 @@
-import { LatestReview } from '../types';
-
 export interface StatusDecisionInput {
   labels: Set<string>;
   statusLabels: Set<string>;
@@ -8,15 +6,14 @@ export interface StatusDecisionInput {
   needsChangesLabel: string;
   awaitingMergeLabel: string;
   needsReviewLabel: string;
-  latestReviews: LatestReview[];
+  reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   // Only used to detect manual status label changes
   labelAdded?: string;
 }
 
 /**
  * Determines the target status label for a PR based on its current state.
- * This is trigger-agnostic - it computes the correct status based on PR state,
- * not on what event triggered the automation.
+ * Uses GitHub's reviewDecision which reflects the branch protection rules.
  */
 export function determineTargetStatusLabel(
   input: StatusDecisionInput,
@@ -32,19 +29,13 @@ export function determineTargetStatusLabel(
     return null;
   }
 
-  // Compute status based on review state
-  const hasChangesRequested = input.latestReviews.some(
-    review => review.state === 'CHANGES_REQUESTED',
-  );
-  const hasApprovals = input.latestReviews.some(
-    review => review.state === 'APPROVED',
-  );
-
-  if (hasChangesRequested) {
-    return input.needsChangesLabel;
+  // Use GitHub's review decision which reflects branch protection rules
+  switch (input.reviewDecision) {
+    case 'CHANGES_REQUESTED':
+      return input.needsChangesLabel;
+    case 'APPROVED':
+      return input.awaitingMergeLabel;
+    default:
+      return input.needsReviewLabel;
   }
-  if (hasApprovals) {
-    return input.awaitingMergeLabel;
-  }
-  return input.needsReviewLabel;
 }
