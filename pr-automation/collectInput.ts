@@ -21,6 +21,7 @@ interface EventContext {
   actor: string;
   labelAdded?: string;
   commentAuthorLogin?: string;
+  reviewState?: string;
 }
 
 interface RawEventContext extends Omit<EventContext, 'issueNumber'> {
@@ -230,18 +231,37 @@ export async function collectInput(
 }
 
 function getEventContext(): RawEventContext {
+  const prNumberInput = core.getInput('pr-number');
+  const labelAddedInput = core.getInput('label-added');
+  const reviewStateInput = core.getInput('review-state');
+
+  // Infer event type from inputs
+  let eventName = github.context.eventName;
+  let action = github.context.payload.action;
+
+  if (reviewStateInput) {
+    eventName = 'pull_request_review';
+    action = 'submitted';
+  } else if (labelAddedInput) {
+    action = 'labeled';
+  }
+
   return {
-    issueNumber: getPrNumber(),
-    eventName: github.context.eventName,
-    action: github.context.payload.action,
+    issueNumber: prNumberInput ? parseInt(prNumberInput, 10) : getPrNumber(),
+    eventName,
+    action,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     actor: github.context.actor,
     labelAdded:
-      github.context.payload.action === 'labeled'
+      labelAddedInput ||
+      (github.context.payload.action === 'labeled'
         ? github.context.payload.label?.name
-        : undefined,
+        : undefined),
     commentAuthorLogin: github.context.payload.comment?.user?.login,
+    reviewState:
+      reviewStateInput ||
+      (github.context.payload.review?.state as string | undefined),
   };
 }
 

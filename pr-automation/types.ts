@@ -68,6 +68,7 @@ export interface AutomationInput {
     repo: string;
     actor: string;
     labelAdded?: string;
+    reviewState?: string;
   };
   config: Config;
   client: ReturnType<typeof github.getOctokit>;

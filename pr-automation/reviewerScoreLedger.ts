@@ -66,10 +66,8 @@ export async function updateReviewerScoreLedger(
     return;
   }
 
-  // Get review state from the event payload
-  const reviewState = (
-    github.context.payload.review?.state as string | undefined
-  )?.toUpperCase();
+  // Get review state from the event context
+  const reviewState = event.reviewState?.toUpperCase();
   if (!reviewState || !(reviewState in REVIEW_SCORES)) {
     return;
   }
@@ -93,7 +91,9 @@ export async function updateReviewerScoreLedger(
     const statusLabel = REVIEW_STATUS_LABELS[reviewState];
     const statusOptionId = project.statusOptions.get(statusLabel);
     if (!statusOptionId) {
-      core.warning(`Status option "${statusLabel}" not found in ledger project`);
+      core.warning(
+        `Status option "${statusLabel}" not found in ledger project`,
+      );
       core.endGroup();
       return;
     }
