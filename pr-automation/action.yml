@@ -22,6 +22,15 @@ inputs:
     description: Comma or newline-separated regex patterns for files to ignore
     required: false
     default: yarn\\.lock$
+  pr-number:
+    description: PR number to process (defaults to PR from event payload)
+    required: false
+  label-added:
+    description: Simulate a label being added (implies labeled action)
+    required: false
+  review-state:
+    description: Simulate a review submission with this state (approved, changes_requested, commented)
+    required: false
 outputs: {}
 runs:
   using: node24
