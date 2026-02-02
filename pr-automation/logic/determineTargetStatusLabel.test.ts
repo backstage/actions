@@ -97,4 +97,44 @@ describe('determineTargetStatusLabel', () => {
       }),
     ).toBe('waiting-for:review');
   });
+
+  it('returns needs-review when author has responded to changes request', () => {
+    // With changes requested but author has responded, should go back to review
+    expect(
+      determineTargetStatusLabel({
+        ...baseInput,
+        reviewDecision: 'CHANGES_REQUESTED',
+        authorHasRespondedToChangesRequest: true,
+      }),
+    ).toBe('waiting-for:review');
+
+    // Without author response, should stay waiting for author
+    expect(
+      determineTargetStatusLabel({
+        ...baseInput,
+        reviewDecision: 'CHANGES_REQUESTED',
+        authorHasRespondedToChangesRequest: false,
+      }),
+    ).toBe('waiting-for:author');
+
+    // Undefined should also stay waiting for author
+    expect(
+      determineTargetStatusLabel({
+        ...baseInput,
+        reviewDecision: 'CHANGES_REQUESTED',
+      }),
+    ).toBe('waiting-for:author');
+  });
+
+  it('ignores author response when manually setting status', () => {
+    // Manual status override takes precedence
+    expect(
+      determineTargetStatusLabel({
+        ...baseInput,
+        reviewDecision: 'CHANGES_REQUESTED',
+        authorHasRespondedToChangesRequest: true,
+        labelAdded: 'waiting-for:author',
+      }),
+    ).toBe('waiting-for:author');
+  });
 });

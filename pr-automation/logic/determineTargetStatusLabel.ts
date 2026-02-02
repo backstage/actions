@@ -9,6 +9,8 @@ export interface StatusDecisionInput {
   reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   // Only used to detect manual status label changes
   labelAdded?: string;
+  // If true, the author has commented after the most recent changes request
+  authorHasRespondedToChangesRequest?: boolean;
 }
 
 /**
@@ -32,6 +34,11 @@ export function determineTargetStatusLabel(
   // Use GitHub's review decision which reflects branch protection rules
   switch (input.reviewDecision) {
     case 'CHANGES_REQUESTED':
+      // If the author has commented after the most recent changes request,
+      // push the PR back into the review queue
+      if (input.authorHasRespondedToChangesRequest) {
+        return input.needsReviewLabel;
+      }
       return input.needsChangesLabel;
     case 'APPROVED':
       return input.awaitingMergeLabel;

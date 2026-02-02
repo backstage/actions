@@ -13,6 +13,7 @@ import {
   updateReviewerScoreLedger,
   getReviewerScore,
 } from './reviewerScoreLedger';
+import { hasAuthorRespondedToChangesRequest } from './logic/hasAuthorRespondedToChangesRequest';
 
 export async function main() {
   const config = getConfig();
@@ -111,6 +112,13 @@ export async function main() {
   // Status label calculation
   const statusLabels = new Set(Object.keys(config.statusLabelMap));
 
+  // Check if the author has responded after the most recent changes request
+  const authorHasRespondedToChangesRequest = hasAuthorRespondedToChangesRequest(
+    data.reviews,
+    data.comments,
+    data.authorLogin,
+  );
+
   const targetStatusLabel = determineTargetStatusLabel({
     labels: existingLabels,
     statusLabels,
@@ -121,12 +129,20 @@ export async function main() {
     needsReviewLabel: config.needsReviewLabel,
     reviewDecision: data.reviewDecision,
     labelAdded: event.labelAdded,
+    authorHasRespondedToChangesRequest,
   });
 
   if (event.labelAdded && statusLabels.has(event.labelAdded)) {
     core.info(`Status: ${targetStatusLabel} (manually set via label)`);
   } else if (existingLabels.has(config.needsDecisionLabel)) {
     core.info(`Status: keeping existing (needs-decision label present)`);
+  } else if (
+    data.reviewDecision === 'CHANGES_REQUESTED' &&
+    authorHasRespondedToChangesRequest
+  ) {
+    core.info(
+      `Status: ${targetStatusLabel} (author responded to changes request)`,
+    );
   } else {
     core.info(
       `Status: ${targetStatusLabel} (reviewDecision: ${

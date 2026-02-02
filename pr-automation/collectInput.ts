@@ -4,6 +4,7 @@ import { Organization, Repository } from '@octokit/graphql-schema';
 import { createAppClient } from '../lib/createAppClient';
 import {
   AutomationInput,
+  Comment,
   Config,
   DataOptions,
   PrData,
@@ -80,6 +81,14 @@ const QUERY = `
         latestReviews(first: 100) {
           nodes {
             state
+            author {
+              login
+            }
+          }
+        }
+        comments(last: 100) {
+          nodes {
+            createdAt
             author {
               login
             }
@@ -309,6 +318,18 @@ async function getPrAutomationData(
       }),
     ) ?? [];
 
+  const comments: Comment[] =
+    (
+      pr as {
+        comments?: {
+          nodes?: { createdAt?: string; author?: { login?: string } }[];
+        };
+      }
+    ).comments?.nodes?.map(comment => ({
+      authorLogin: comment?.author?.login ?? undefined,
+      createdAt: comment?.createdAt ?? undefined,
+    })) ?? [];
+
   const reviewDecision = (pr as { reviewDecision?: string }).reviewDecision as
     | 'APPROVED'
     | 'CHANGES_REQUESTED'
@@ -333,6 +354,7 @@ async function getPrAutomationData(
         authorLogin: review?.author?.login ?? undefined,
       })) ?? [],
     latestReviews,
+    comments,
     files:
       pr.files?.nodes?.map(file => ({
         path: file?.path ?? '',

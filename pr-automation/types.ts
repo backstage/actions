@@ -35,6 +35,11 @@ export interface ProjectItem {
   fieldValues: ProjectItemFieldValue[];
 }
 
+export interface Comment {
+  authorLogin?: string;
+  createdAt?: string;
+}
+
 export interface PrData {
   number: number;
   title: string;
@@ -45,6 +50,7 @@ export interface PrData {
   mostRecentAssignmentAt?: string;
   reviews: Review[];
   latestReviews: LatestReview[];
+  comments: Comment[];
   files: FileChange[];
   filesTotalCount: number;
   projectId?: string;
