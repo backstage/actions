@@ -9,6 +9,8 @@ export function shouldHaveReviewerApprovedLabel(
       normalizeReviewState(review.state) === 'APPROVED' &&
       (review.authorLogin ? reviewerLogins.has(review.authorLogin) : false),
   );
+  // Any change request (from anyone, not just reviewers) trumps reviewer approval.
+  // This ensures that outstanding issues are addressed before the label is applied.
   const changesRequested = reviews.filter(
     review => normalizeReviewState(review.state) === 'CHANGES_REQUESTED',
   );

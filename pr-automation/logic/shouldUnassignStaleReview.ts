@@ -1,4 +1,5 @@
-const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+const UNASSIGN_AFTER_DAYS = 14;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export function shouldUnassignStaleReview(options: {
   hasWaitingForReviewLabel: boolean;
@@ -21,7 +22,7 @@ export function shouldUnassignStaleReview(options: {
   }
 
   const assignmentAt = new Date(mostRecentAssignmentAt).getTime();
-  const ageMs = Date.now() - assignmentAt;
+  const ageDays = (Date.now() - assignmentAt) / MS_PER_DAY;
 
-  return ageMs >= TWO_WEEKS_MS;
+  return ageDays >= UNASSIGN_AFTER_DAYS;
 }

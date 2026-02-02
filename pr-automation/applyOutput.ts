@@ -268,41 +268,25 @@ function buildProjectMutation(
   const variableDefs: string[] = ['$projectId: ID!', '$itemId: ID!'];
 
   updates.forEach((update, index) => {
-    const alias = `update${index}`;
-    if ('singleSelectOptionId' in update.value) {
-      const fieldVar = `statusFieldId${index}`;
-      const optionVar = `statusOptionId${index}`;
-      variables[fieldVar] = update.fieldId;
-      variables[optionVar] = update.value.singleSelectOptionId;
-      variableDefs.push(`$${fieldVar}: ID!`, `$${optionVar}: String!`);
-      mutationParts.push(`
-        ${alias}: updateProjectV2ItemFieldValue(
-          input: {
-            projectId: $projectId
-            itemId: $itemId
-            fieldId: $${fieldVar}
-            value: { singleSelectOptionId: $${optionVar} }
-          }
-        ) {
-          projectV2Item {
-            id
-          }
-        }
-      `);
-      return;
-    }
-    const fieldVar = `priorityFieldId${index}`;
-    const numberVar = `priorityNumber${index}`;
+    const fieldVar = `fieldId${index}`;
+    const valueVar = `value${index}`;
     variables[fieldVar] = update.fieldId;
-    variables[numberVar] = update.value.number;
-    variableDefs.push(`$${fieldVar}: ID!`, `$${numberVar}: Float!`);
+
+    const isSingleSelect = 'singleSelectOptionId' in update.value;
+    const valueType = isSingleSelect ? 'String!' : 'Float!';
+    const valueKey = isSingleSelect ? 'singleSelectOptionId' : 'number';
+    variables[valueVar] = isSingleSelect
+      ? update.value.singleSelectOptionId
+      : update.value.number;
+
+    variableDefs.push(`$${fieldVar}: ID!`, `$${valueVar}: ${valueType}`);
     mutationParts.push(`
-      ${alias}: updateProjectV2ItemFieldValue(
+      update${index}: updateProjectV2ItemFieldValue(
         input: {
           projectId: $projectId
           itemId: $itemId
           fieldId: $${fieldVar}
-          value: { number: $${numberVar} }
+          value: { ${valueKey}: $${valueVar} }
         }
       ) {
         projectV2Item {

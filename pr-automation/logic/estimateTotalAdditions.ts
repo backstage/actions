@@ -20,6 +20,8 @@ export function estimateTotalAdditions(
     0,
   );
 
+  // When totalCount > files.length, the file list was truncated due to GitHub API
+  // pagination limits. In that case we estimate based on the sample we have.
   if (totalCount <= files.length || files.length === 0) {
     return {
       additions: relevantAdditions,
