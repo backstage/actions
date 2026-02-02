@@ -128,7 +128,7 @@ describe('getCopilotReviewPriority', () => {
     expect(getCopilotReviewPriority(reviewsText)).toBe(0);
   });
 
-  it('uses the most recent Copilot review when there are multiple', () => {
+  it('uses the most recent Copilot review with a priority pattern when there are multiple', () => {
     const reviews: Review[] = [
       {
         state: 'COMMENTED',
@@ -151,6 +151,32 @@ describe('getCopilotReviewPriority', () => {
     ];
 
     expect(getCopilotReviewPriority(reviews)).toBe(80);
+  });
+
+  it('falls back to older review if most recent lacks priority pattern', () => {
+    const reviews: Review[] = [
+      {
+        state: 'COMMENTED',
+        submittedAt: '2024-01-01T12:00:00Z',
+        authorLogin: COPILOT_LOGIN,
+        body: '<!-- priority: 45 -->',
+      },
+      {
+        state: 'COMMENTED',
+        submittedAt: '2024-01-03T12:00:00Z',
+        authorLogin: COPILOT_LOGIN,
+        body: 'Just a follow-up comment without priority.',
+      },
+      {
+        state: 'COMMENTED',
+        submittedAt: '2024-01-02T12:00:00Z',
+        authorLogin: COPILOT_LOGIN,
+        body: '<!-- priority: 60 -->',
+      },
+    ];
+
+    // Should use the most recent one WITH a priority pattern (Jan 2nd, priority 60)
+    expect(getCopilotReviewPriority(reviews)).toBe(60);
   });
 
   it('ignores Copilot reviews without submittedAt', () => {
