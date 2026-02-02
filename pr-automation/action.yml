@@ -1,0 +1,28 @@
+name: Backstage PR Automation
+description: Action to automate PR labeling and project updates
+inputs:
+  app-id:
+    description: The Application ID of the GitHub App to use for authentication
+    required: true
+  private-key:
+    description: The Private Key of the GitHub App to use for authentication
+    required: true
+  installation-id:
+    description: The Installation ID of the GitHub App to use for authentication
+    required: true
+  project-owner:
+    description: The organization that owns the ProjectV2 board
+    required: false
+    default: backstage
+  project-number:
+    description: The ProjectV2 number to sync against
+    required: false
+    default: "14"
+  ignore-patterns:
+    description: Comma or newline-separated regex patterns for files to ignore
+    required: false
+    default: yarn\\.lock$
+outputs: {}
+runs:
+  using: node24
+  main: ./entry.js
