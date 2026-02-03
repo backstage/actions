@@ -12,7 +12,7 @@ export function calculatePriority(
       (additions - params.exponentOffset) / params.exponentDivisor,
     );
   let priority = Math.round(rawPriority);
-  priority = Math.max(params.min, Math.min(params.max, priority));
+  priority = Math.max(0, Math.min(params.base, priority));
 
   if (hasReviewerApproved) {
     priority += params.reviewerBump;

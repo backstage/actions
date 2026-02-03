@@ -7,8 +7,6 @@ describe('calculatePriority', () => {
     exponentBase: 0.5,
     exponentOffset: 0,
     exponentDivisor: 500,
-    min: 0,
-    max: 100,
     reviewerBump: 100,
   };
 
@@ -25,14 +23,10 @@ describe('calculatePriority', () => {
     expect(priorityWithBump).toBe(priorityWithoutBump + 100);
   });
 
-  it('respects min and max bounds', () => {
-    const paramsWithTightBounds = {
-      ...defaultParams,
-      min: 10,
-      max: 50,
-    };
+  it('clamps priority between 0 and base', () => {
+    const paramsWithLowBase = { ...defaultParams, base: 50 };
 
-    expect(calculatePriority(0, paramsWithTightBounds, false)).toBe(50);
-    expect(calculatePriority(5000, paramsWithTightBounds, false)).toBe(10);
+    expect(calculatePriority(0, paramsWithLowBase, false)).toBe(50);
+    expect(calculatePriority(5000, paramsWithLowBase, false)).toBe(0);
   });
 });
