@@ -34,6 +34,26 @@ inputs:
   actor:
     description: Override for the actor (user who triggered the event)
     required: false
+  priority-base:
+    description: Starting priority value before size-based reduction
+    required: false
+    default: "100"
+  priority-exponent-base:
+    description: Base of the exponential decay (0.5 = halve priority per divisor)
+    required: false
+    default: "0.5"
+  priority-exponent-offset:
+    description: Lines of additions before priority starts decreasing
+    required: false
+    default: "0"
+  priority-exponent-divisor:
+    description: Lines of additions per halving of priority
+    required: false
+    default: "500"
+  priority-reviewer-bump:
+    description: Priority boost when PR has reviewer-approved label
+    required: false
+    default: "100"
 outputs: {}
 runs:
   using: node24

@@ -36,13 +36,14 @@ export function getConfig(): Config {
     statusFieldName: 'Status',
     priorityFieldName: 'Priority',
     priorityParams: {
-      base: 100,
-      exponentBase: 0.5,
-      exponentOffset: 1,
-      exponentDivisor: 99,
-      min: 0,
-      max: 100,
-      reviewerBump: 100,
+      base: parseNumber(core.getInput('priority-base'), 100),
+      exponentBase: parseNumber(core.getInput('priority-exponent-base'), 0.5),
+      exponentOffset: parseNumber(core.getInput('priority-exponent-offset'), 0),
+      exponentDivisor: parseNumber(
+        core.getInput('priority-exponent-divisor'),
+        500,
+      ),
+      reviewerBump: parseNumber(core.getInput('priority-reviewer-bump'), 100),
     },
   };
 }
