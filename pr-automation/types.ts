@@ -104,11 +104,11 @@ export interface SizeLabelConfig {
 export interface PriorityParams {
   /** Starting priority value before size-based reduction */
   base: number;
-  /** Base of the exponential decay (e.g., 0.5 = halve priority) */
+  /** Base of the exponential decay (e.g., 0.5 = halve priority per divisor) */
   exponentBase: number;
   /** Lines of additions before priority starts decreasing */
   exponentOffset: number;
-  /** Lines of additions per halving of priority (when exponentBase is 0.5) */
+  /** Lines of additions per halving of priority (default 500: 0→100, 500→50, 5000→0) */
   exponentDivisor: number;
   /** Minimum allowed priority value */
   min: number;

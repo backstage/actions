@@ -38,8 +38,8 @@ export function getConfig(): Config {
     priorityParams: {
       base: 100,
       exponentBase: 0.5,
-      exponentOffset: 1,
-      exponentDivisor: 99,
+      exponentOffset: 0,
+      exponentDivisor: 500,
       min: 0,
       max: 100,
       reviewerBump: 100,
