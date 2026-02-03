@@ -11,13 +11,11 @@ const STATUS_FIELD_NAME = 'Status';
 const REVIEW_SCORES: Record<string, number> = {
   APPROVED: 2,
   CHANGES_REQUESTED: 3,
-  COMMENTED: 1,
 };
 
 const REVIEW_STATUS_LABELS: Record<string, string> = {
   APPROVED: 'Approve',
   CHANGES_REQUESTED: 'Request changes',
-  COMMENTED: 'Comment',
 };
 
 interface ProjectData {

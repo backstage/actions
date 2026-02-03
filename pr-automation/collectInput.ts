@@ -20,7 +20,6 @@ interface EventContext {
   repo: string;
   actor: string;
   labelAdded?: string;
-  commentAuthorLogin?: string;
   reviewState?: string;
 }
 
@@ -186,15 +185,6 @@ export async function collectInput(
   };
 
   const client = createAppClient();
-  const botLogin = await getBotLogin(client);
-
-  if (
-    botLogin &&
-    (event.actor === botLogin || event.commentAuthorLogin === botLogin)
-  ) {
-    core.info(`Skipping: triggered by bot (${botLogin})`);
-    return null;
-  }
 
   const data = await getPrAutomationData(client, {
     owner: ensuredEvent.owner,
@@ -232,9 +222,10 @@ export async function collectInput(
 }
 
 function getEventContext(): RawEventContext {
-  const prNumberInput = core.getInput('pr-number');
-  const labelAddedInput = core.getInput('label-added');
-  const reviewStateInput = core.getInput('review-state');
+  const prNumberInput = core.getInput('pr-number') || undefined;
+  const labelAddedInput = core.getInput('label-added') || undefined;
+  const reviewStateInput = core.getInput('review-state') || undefined;
+  const actorInput = core.getInput('actor') || undefined;
 
   // Infer event type from inputs
   let eventName = github.context.eventName;
@@ -253,15 +244,14 @@ function getEventContext(): RawEventContext {
     action,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    actor: github.context.actor,
+    actor: actorInput ?? github.context.actor,
     labelAdded:
-      labelAddedInput ||
+      labelAddedInput ??
       (github.context.payload.action === 'labeled'
         ? github.context.payload.label?.name
         : undefined),
-    commentAuthorLogin: github.context.payload.comment?.user?.login,
     reviewState:
-      reviewStateInput ||
+      reviewStateInput ??
       (github.context.payload.review?.state as string | undefined),
   };
 }
@@ -274,17 +264,6 @@ function getPrNumber() {
     return github.context.payload.issue.number;
   }
   return undefined;
-}
-
-async function getBotLogin(
-  client: ReturnType<typeof github.getOctokit>,
-): Promise<string | null> {
-  try {
-    const app = await client.rest.apps.getAuthenticated();
-    return app.data.slug ? `${app.data.slug}[bot]` : null;
-  } catch {
-    return null;
-  }
 }
 
 async function listTeamMembers(
