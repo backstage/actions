@@ -29,7 +29,10 @@ inputs:
     description: Simulate a label being added (implies labeled action)
     required: false
   review-state:
-    description: Simulate a review submission with this state (approved, changes_requested, commented)
+    description: Simulate a review submission with this state (approved, changes_requested)
+    required: false
+  actor:
+    description: Override for the actor (user who triggered the event)
     required: false
 outputs: {}
 runs:
