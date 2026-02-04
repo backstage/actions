@@ -30,7 +30,7 @@ interface ProjectData {
 interface LedgerEntry {
   itemId: string;
   assigneeLogin: string;
-  prRef: string;
+  prRef?: string;
   score?: number;
 }
 
@@ -206,6 +206,7 @@ async function getProjectData(
 async function getLedgerEntries(
   client: ReturnType<typeof github.getOctokit>,
   projectId: string,
+  filterQuery?: string,
 ): Promise<LedgerEntry[]> {
   const entries: LedgerEntry[] = [];
   let cursor: string | null = null;
@@ -213,10 +214,10 @@ async function getLedgerEntries(
   // Paginate through all items (expect < 1000 for this use case)
   for (let page = 0; page < 10; page++) {
     const query = `
-      query($projectId: ID!, $cursor: String) {
+      query($projectId: ID!, $cursor: String, $filterQuery: String) {
         node(id: $projectId) {
           ... on ProjectV2 {
-            items(first: 100, after: $cursor) {
+            items(first: 100, after: $cursor, query: $filterQuery) {
               pageInfo {
                 hasNextPage
                 endCursor
@@ -287,6 +288,7 @@ async function getLedgerEntries(
     const result: ProjectItemsResult = await client.graphql(query, {
       projectId,
       cursor,
+      filterQuery,
     });
 
     const items = result.node?.items;
@@ -305,14 +307,12 @@ async function getLedgerEntries(
       );
       const assigneeLogin = item.content?.assignees?.nodes?.[0]?.login;
 
-      if (prFieldValue?.text && assigneeLogin) {
-        entries.push({
-          itemId: item.id,
-          assigneeLogin,
-          prRef: prFieldValue.text,
-          score: scoreFieldValue?.number,
-        });
-      }
+      entries.push({
+        itemId: item.id,
+        assigneeLogin: assigneeLogin ?? '',
+        prRef: prFieldValue?.text,
+        score: scoreFieldValue?.number,
+      });
     }
 
     if (!items.pageInfo.hasNextPage) {
@@ -339,9 +339,12 @@ export async function getReviewerScore(
       return 0;
     }
 
-    const entries = await getLedgerEntries(client, project.id);
-    const userEntries = entries.filter(e => e.assigneeLogin === userLogin);
-    const totalScore = userEntries.reduce((sum, e) => sum + (e.score ?? 0), 0);
+    const entries = await getLedgerEntries(
+      client,
+      project.id,
+      `assignee:${userLogin}`,
+    );
+    const totalScore = entries.reduce((sum, e) => sum + (e.score ?? 0), 0);
 
     return totalScore;
   } catch (error) {

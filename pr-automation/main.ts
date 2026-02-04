@@ -27,9 +27,9 @@ export async function main() {
   const { event, data, reviewerLogins, reviewerTeamMissing } = input;
 
   core.info(
-    `Processing PR #${data.number}: "${data.title}" (${event.eventName}/${
-      event.action ?? 'n/a'
-    })`,
+    `Processing PR #${data.number} by ${data.authorLogin}: "${data.title}" (${
+      event.eventName
+    }/${event.action ?? 'n/a'})`,
   );
 
   // Log collected input
