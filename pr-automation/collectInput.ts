@@ -39,6 +39,7 @@ const QUERY = `
       pullRequest(number: $issueNumber) {
         number
         title
+        isDraft
         reviewDecision
         author {
           login
@@ -331,6 +332,7 @@ async function getPrAutomationData(
   return {
     number: pr.number,
     title: pr.title,
+    isDraft: pr.isDraft ?? false,
     authorLogin: pr.author?.login ?? undefined,
     reviewDecision,
     labels:

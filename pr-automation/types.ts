@@ -44,6 +44,7 @@ export interface Comment {
 export interface PrData {
   number: number;
   title: string;
+  isDraft: boolean;
   authorLogin?: string;
   reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   labels: string[];
