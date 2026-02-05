@@ -7,6 +7,44 @@ import {
   ProjectItemFieldValue,
 } from './types';
 
+export async function removeFromProjectBoard(
+  input: AutomationInput,
+): Promise<void> {
+  const { client, data } = input;
+
+  if (!data.projectItem) {
+    core.info('PR is not on the project board, nothing to remove');
+    return;
+  }
+
+  if (!data.projectId) {
+    core.info('No project ID configured, skipping removal');
+    return;
+  }
+
+  core.info(`Removing PR #${data.number} from project board`);
+
+  try {
+    await client.graphql(
+      `
+      mutation($projectId: ID!, $itemId: ID!) {
+        deleteProjectV2Item(input: { projectId: $projectId, itemId: $itemId }) {
+          deletedItemId
+        }
+      }
+      `,
+      { projectId: data.projectId, itemId: data.projectItem.id },
+    );
+    core.info('Successfully removed from project board');
+  } catch (error) {
+    if (isArchivedItemError(error)) {
+      core.info('Project item is archived, skipping removal');
+      return;
+    }
+    throw error;
+  }
+}
+
 export async function applyOutput(input: AutomationInput, output: OutputPlan) {
   const { event, config, client, data } = input;
   const { labelPlan, priority } = output;

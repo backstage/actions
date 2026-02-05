@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { collectInput } from './collectInput';
-import { applyOutput } from './applyOutput';
+import { applyOutput, removeFromProjectBoard } from './applyOutput';
 import { getConfig } from './getConfig';
 import { determineTargetStatusLabel } from './logic/determineTargetStatusLabel';
 import { estimateTotalAdditions } from './logic/estimateTotalAdditions';
@@ -31,6 +31,17 @@ export async function main() {
       event.eventName
     }/${event.action ?? 'n/a'})`,
   );
+
+  // Handle PR closed by non-bot: remove from project board and skip processing
+  if (
+    event.eventName === 'pull_request' &&
+    event.action === 'closed' &&
+    !event.actor.endsWith('[bot]')
+  ) {
+    core.info(`PR closed by ${event.actor}, removing from project board`);
+    await removeFromProjectBoard(input);
+    return;
+  }
 
   // Log collected input
   core.startGroup('Collected Input');
