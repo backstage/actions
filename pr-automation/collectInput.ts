@@ -221,49 +221,30 @@ export async function collectInput(
   };
 }
 
+/**
+ * Collects event context from action inputs.
+ *
+ * This action is expected to run via workflow_run, so all PR event
+ * information must be passed via inputs. The GitHub context only
+ * provides repo information.
+ */
 function getEventContext(): RawEventContext {
-  const prNumberInput = core.getInput('pr-number') || undefined;
-  const labelAddedInput = core.getInput('label-added') || undefined;
-  const reviewStateInput = core.getInput('review-state') || undefined;
-  const actorInput = core.getInput('actor') || undefined;
-
-  // Infer event type from inputs
-  let eventName = github.context.eventName;
-  let action = github.context.payload.action;
-
-  if (reviewStateInput) {
-    eventName = 'pull_request_review';
-    action = 'submitted';
-  } else if (labelAddedInput) {
-    action = 'labeled';
-  }
+  const prNumber = core.getInput('pr-number') || undefined;
+  const labelAdded = core.getInput('label-added') || undefined;
+  const reviewState = core.getInput('review-state') || undefined;
+  const actor = core.getInput('actor') || undefined;
+  const action = core.getInput('action') || undefined;
 
   return {
-    issueNumber: prNumberInput ? parseInt(prNumberInput, 10) : getPrNumber(),
-    eventName,
-    action,
+    issueNumber: prNumber ? parseInt(prNumber, 10) : undefined,
+    eventName: reviewState ? 'pull_request_review' : 'pull_request',
+    action: reviewState ? 'submitted' : action,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    actor: actorInput ?? github.context.actor,
-    labelAdded:
-      labelAddedInput ??
-      (github.context.payload.action === 'labeled'
-        ? github.context.payload.label?.name
-        : undefined),
-    reviewState:
-      reviewStateInput ??
-      (github.context.payload.review?.state as string | undefined),
+    actor: actor ?? github.context.actor,
+    labelAdded,
+    reviewState,
   };
-}
-
-function getPrNumber() {
-  if (github.context.payload.pull_request) {
-    return github.context.payload.pull_request.number;
-  }
-  if (github.context.payload.issue?.pull_request) {
-    return github.context.payload.issue.number;
-  }
-  return undefined;
 }
 
 async function listTeamMembers(

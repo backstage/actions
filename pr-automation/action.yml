@@ -34,6 +34,9 @@ inputs:
   actor:
     description: Override for the actor (user who triggered the event)
     required: false
+  action:
+    description: The PR event action (e.g., opened, closed, synchronize, labeled)
+    required: false
   priority-base:
     description: Starting priority value before size-based reduction
     required: false
