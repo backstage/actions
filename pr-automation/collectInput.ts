@@ -48,6 +48,9 @@ const QUERY = `
           target {
             ... on Commit {
               committedDate
+              statusCheckRollup {
+                state
+              }
             }
           }
         }
@@ -325,14 +328,31 @@ async function getPrAutomationData(
     | 'REVIEW_REQUIRED'
     | undefined;
 
-  const headCommitDate = (
-    pr as { headRef?: { target?: { committedDate?: string } } }
-  ).headRef?.target?.committedDate;
+  const headCommit = (
+    pr as {
+      headRef?: {
+        target?: {
+          committedDate?: string;
+          statusCheckRollup?: { state?: string };
+        };
+      };
+    }
+  ).headRef?.target;
+
+  const headCommitDate = headCommit?.committedDate;
+  const checkStatus = headCommit?.statusCheckRollup?.state as
+    | 'SUCCESS'
+    | 'FAILURE'
+    | 'PENDING'
+    | 'ERROR'
+    | 'EXPECTED'
+    | undefined;
 
   return {
     number: pr.number,
     title: pr.title,
-    isDraft: pr.isDraft ?? false,
+    isDraft: (pr as { isDraft?: boolean }).isDraft ?? false,
+    checkStatus,
     authorLogin: pr.author?.login ?? undefined,
     reviewDecision,
     labels:

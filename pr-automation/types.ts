@@ -41,10 +41,18 @@ export interface Comment {
   createdAt?: string;
 }
 
+export type CheckStatusState =
+  | 'SUCCESS'
+  | 'FAILURE'
+  | 'PENDING'
+  | 'ERROR'
+  | 'EXPECTED';
+
 export interface PrData {
   number: number;
   title: string;
   isDraft: boolean;
+  checkStatus?: CheckStatusState;
   authorLogin?: string;
   reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   labels: string[];
