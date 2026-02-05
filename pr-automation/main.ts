@@ -176,9 +176,19 @@ export async function main() {
   // Get copilot review priority boost
   const copilotPriority = getCopilotReviewPriority(data.reviews);
 
-  const priority = basePriority + authorScore + copilotPriority;
+  // Apply penalty multipliers for draft PRs (20%) and failing checks (50%)
+  const draftMultiplier = data.isDraft ? 0.2 : 1;
+  const checksPassing = data.checkStatus === 'SUCCESS';
+  const checksMultiplier = checksPassing ? 1 : 0.5;
+  const priority = Math.round(
+    (basePriority + authorScore + copilotPriority) *
+      draftMultiplier *
+      checksMultiplier,
+  );
 
   const priorityParts: string[] = [];
+  if (data.isDraft) priorityParts.push('draft ×0.2');
+  if (!checksPassing) priorityParts.push(`checks ${data.checkStatus} ×0.5`);
   if (reviewerApproved) priorityParts.push('reviewer approval');
   if (authorScore > 0) priorityParts.push(`author score +${authorScore}`);
   if (copilotPriority > 0) priorityParts.push(`copilot +${copilotPriority}`);
