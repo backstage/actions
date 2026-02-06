@@ -18,11 +18,15 @@ export function getConfig(): Config {
   const ignorePatterns = parseRegexList(
     core.getInput('ignore-patterns', { required: false }),
   );
+  const requiredChecks = parseStringList(
+    core.getInput('required-checks', { required: false }),
+  );
 
   return {
     projectOwner,
     projectNumber,
     ignorePatterns,
+    requiredChecks,
     sizeLabels: SIZE_LABELS,
     statusLabelMap: STATUS_LABEL_MAP,
     defaultStatusLabel: 'waiting-for:review',
@@ -54,6 +58,13 @@ function parseRegexList(value: string): RegExp[] {
     .map(item => item.trim())
     .filter(Boolean)
     .map(pattern => new RegExp(pattern));
+}
+
+function parseStringList(value: string): string[] {
+  return value
+    .split('\n')
+    .map(item => item.trim())
+    .filter(Boolean);
 }
 
 function parseNumber(raw: string, fallback: number): number {

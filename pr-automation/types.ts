@@ -41,18 +41,26 @@ export interface Comment {
   createdAt?: string;
 }
 
-export type CheckStatusState =
-  | 'SUCCESS'
-  | 'FAILURE'
-  | 'PENDING'
-  | 'ERROR'
-  | 'EXPECTED';
+export interface CheckRun {
+  name: string;
+  status: 'QUEUED' | 'IN_PROGRESS' | 'COMPLETED' | 'WAITING' | 'PENDING';
+  conclusion:
+    | 'SUCCESS'
+    | 'FAILURE'
+    | 'NEUTRAL'
+    | 'CANCELLED'
+    | 'TIMED_OUT'
+    | 'ACTION_REQUIRED'
+    | 'SKIPPED'
+    | 'STALE'
+    | null;
+}
 
 export interface PrData {
   number: number;
   title: string;
   isDraft: boolean;
-  checkStatus?: CheckStatusState;
+  checkRuns: CheckRun[];
   authorLogin?: string;
   reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   labels: string[];
@@ -127,6 +135,7 @@ export interface Config {
   projectOwner: string;
   projectNumber: number;
   ignorePatterns: RegExp[];
+  requiredChecks: string[];
   sizeLabels: SizeLabelConfig[];
   statusLabelMap: Record<string, string>;
   defaultStatusLabel: string;

@@ -15,6 +15,7 @@ import {
 } from './reviewerScoreLedger';
 import { hasAuthorRespondedToChangesRequest } from './logic/hasAuthorRespondedToChangesRequest';
 import { getCopilotReviewPriority } from './logic/getCopilotReviewPriority';
+import { getRequiredChecksStatus } from './logic/getRequiredChecksStatus';
 
 export async function main() {
   const config = getConfig();
@@ -178,17 +179,27 @@ export async function main() {
 
   // Apply penalty multipliers for draft PRs (20%) and failing checks (50%)
   const draftMultiplier = data.isDraft ? 0.2 : 1;
-  const checksPassing = data.checkStatus === 'SUCCESS';
-  const checksMultiplier = checksPassing ? 1 : 0.5;
+  const checksStatus = getRequiredChecksStatus(
+    data.checkRuns,
+    config.requiredChecks,
+  );
+
   const priority = Math.round(
     (basePriority + authorScore + copilotPriority) *
       draftMultiplier *
-      checksMultiplier,
+      checksStatus.multiplier,
   );
 
   const priorityParts: string[] = [];
   if (data.isDraft) priorityParts.push('draft ×0.2');
-  if (!checksPassing) priorityParts.push(`checks ${data.checkStatus} ×0.5`);
+  if (checksStatus.multiplier < 1) {
+    const statusParts: string[] = [];
+    if (checksStatus.failingChecks.length > 0)
+      statusParts.push(`failing: ${checksStatus.failingChecks.join(', ')}`);
+    if (checksStatus.pendingChecks.length > 0)
+      statusParts.push(`pending: ${checksStatus.pendingChecks.join(', ')}`);
+    priorityParts.push(`checks ×0.5 (${statusParts.join('; ')})`);
+  }
   if (reviewerApproved) priorityParts.push('reviewer approval');
   if (authorScore > 0) priorityParts.push(`author score +${authorScore}`);
   if (copilotPriority > 0) priorityParts.push(`copilot +${copilotPriority}`);

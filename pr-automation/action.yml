@@ -57,6 +57,9 @@ inputs:
     description: Priority boost when PR has reviewer-approved label
     required: false
     default: "100"
+  required-checks:
+    description: Newline-separated list of required check names for priority calculation
+    required: false
 outputs: {}
 runs:
   using: node24
