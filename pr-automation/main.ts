@@ -15,6 +15,7 @@ import {
 } from './reviewerScoreLedger';
 import { hasAuthorRespondedToChangesRequest } from './logic/hasAuthorRespondedToChangesRequest';
 import { getCopilotReviewPriority } from './logic/getCopilotReviewPriority';
+import { getRequiredChecksStatus } from './logic/getRequiredChecksStatus';
 
 export async function main() {
   const config = getConfig();
@@ -178,37 +179,25 @@ export async function main() {
 
   // Apply penalty multipliers for draft PRs (20%) and failing checks (50%)
   const draftMultiplier = data.isDraft ? 0.2 : 1;
-
-  // Check if all required checks are passing
-  const requiredChecks = data.checkRuns.filter(run =>
-    config.requiredChecks.includes(run.name),
+  const checksStatus = getRequiredChecksStatus(
+    data.checkRuns,
+    config.requiredChecks,
   );
-  const hasRequiredChecks = requiredChecks.length > 0;
-  const failingChecks = requiredChecks.filter(
-    run => run.status === 'COMPLETED' && run.conclusion !== 'SUCCESS',
-  );
-  const pendingChecks = requiredChecks.filter(
-    run => run.status !== 'COMPLETED',
-  );
-  const checksPassing = failingChecks.length === 0 && pendingChecks.length === 0;
-  const checksMultiplier = checksPassing || !hasRequiredChecks ? 1 : 0.5;
 
   const priority = Math.round(
     (basePriority + authorScore + copilotPriority) *
       draftMultiplier *
-      checksMultiplier,
+      checksStatus.multiplier,
   );
 
   const priorityParts: string[] = [];
   if (data.isDraft) priorityParts.push('draft ×0.2');
-  if (hasRequiredChecks && !checksPassing) {
-    const failingNames = failingChecks.map(r => r.name);
-    const pendingNames = pendingChecks.map(r => r.name);
+  if (checksStatus.multiplier < 1) {
     const statusParts: string[] = [];
-    if (failingNames.length > 0)
-      statusParts.push(`failing: ${failingNames.join(', ')}`);
-    if (pendingNames.length > 0)
-      statusParts.push(`pending: ${pendingNames.join(', ')}`);
+    if (checksStatus.failingChecks.length > 0)
+      statusParts.push(`failing: ${checksStatus.failingChecks.join(', ')}`);
+    if (checksStatus.pendingChecks.length > 0)
+      statusParts.push(`pending: ${checksStatus.pendingChecks.join(', ')}`);
     priorityParts.push(`checks ×0.5 (${statusParts.join('; ')})`);
   }
   if (reviewerApproved) priorityParts.push('reviewer approval');
