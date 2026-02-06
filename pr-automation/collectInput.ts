@@ -48,8 +48,16 @@ const QUERY = `
           target {
             ... on Commit {
               committedDate
-              statusCheckRollup {
-                state
+              checkSuites(first: 100) {
+                nodes {
+                  checkRuns(first: 100) {
+                    nodes {
+                      name
+                      status
+                      conclusion
+                    }
+                  }
+                }
               }
             }
           }
@@ -333,26 +341,54 @@ async function getPrAutomationData(
       headRef?: {
         target?: {
           committedDate?: string;
-          statusCheckRollup?: { state?: string };
+          checkSuites?: {
+            nodes?: {
+              checkRuns?: {
+                nodes?: {
+                  name?: string;
+                  status?: string;
+                  conclusion?: string | null;
+                }[];
+              };
+            }[];
+          };
         };
       };
     }
   ).headRef?.target;
 
   const headCommitDate = headCommit?.committedDate;
-  const checkStatus = headCommit?.statusCheckRollup?.state as
-    | 'SUCCESS'
-    | 'FAILURE'
-    | 'PENDING'
-    | 'ERROR'
-    | 'EXPECTED'
-    | undefined;
+
+  // Flatten check runs from all check suites
+  const checkRuns =
+    headCommit?.checkSuites?.nodes?.flatMap(
+      suite =>
+        suite?.checkRuns?.nodes?.map(run => ({
+          name: run?.name ?? '',
+          status: (run?.status ?? 'PENDING') as
+            | 'QUEUED'
+            | 'IN_PROGRESS'
+            | 'COMPLETED'
+            | 'WAITING'
+            | 'PENDING',
+          conclusion: (run?.conclusion ?? null) as
+            | 'SUCCESS'
+            | 'FAILURE'
+            | 'NEUTRAL'
+            | 'CANCELLED'
+            | 'TIMED_OUT'
+            | 'ACTION_REQUIRED'
+            | 'SKIPPED'
+            | 'STALE'
+            | null,
+        })) ?? [],
+    ) ?? [];
 
   return {
     number: pr.number,
     title: pr.title,
     isDraft: (pr as { isDraft?: boolean }).isDraft ?? false,
-    checkStatus,
+    checkRuns,
     authorLogin: pr.author?.login ?? undefined,
     reviewDecision,
     labels:

@@ -178,8 +178,21 @@ export async function main() {
 
   // Apply penalty multipliers for draft PRs (20%) and failing checks (50%)
   const draftMultiplier = data.isDraft ? 0.2 : 1;
-  const checksPassing = data.checkStatus === 'SUCCESS';
-  const checksMultiplier = checksPassing ? 1 : 0.5;
+
+  // Check if all required checks are passing
+  const requiredChecks = data.checkRuns.filter(run =>
+    config.requiredChecks.includes(run.name),
+  );
+  const hasRequiredChecks = requiredChecks.length > 0;
+  const failingChecks = requiredChecks.filter(
+    run => run.status === 'COMPLETED' && run.conclusion !== 'SUCCESS',
+  );
+  const pendingChecks = requiredChecks.filter(
+    run => run.status !== 'COMPLETED',
+  );
+  const checksPassing = failingChecks.length === 0 && pendingChecks.length === 0;
+  const checksMultiplier = checksPassing || !hasRequiredChecks ? 1 : 0.5;
+
   const priority = Math.round(
     (basePriority + authorScore + copilotPriority) *
       draftMultiplier *
@@ -188,7 +201,16 @@ export async function main() {
 
   const priorityParts: string[] = [];
   if (data.isDraft) priorityParts.push('draft ×0.2');
-  if (!checksPassing) priorityParts.push(`checks ${data.checkStatus} ×0.5`);
+  if (hasRequiredChecks && !checksPassing) {
+    const failingNames = failingChecks.map(r => r.name);
+    const pendingNames = pendingChecks.map(r => r.name);
+    const statusParts: string[] = [];
+    if (failingNames.length > 0)
+      statusParts.push(`failing: ${failingNames.join(', ')}`);
+    if (pendingNames.length > 0)
+      statusParts.push(`pending: ${pendingNames.join(', ')}`);
+    priorityParts.push(`checks ×0.5 (${statusParts.join('; ')})`);
+  }
   if (reviewerApproved) priorityParts.push('reviewer approval');
   if (authorScore > 0) priorityParts.push(`author score +${authorScore}`);
   if (copilotPriority > 0) priorityParts.push(`copilot +${copilotPriority}`);
