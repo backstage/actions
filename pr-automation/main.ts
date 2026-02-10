@@ -14,8 +14,6 @@ import {
   getReviewerScore,
 } from './reviewerScoreLedger';
 import { hasAuthorRespondedToChangesRequest } from './logic/hasAuthorRespondedToChangesRequest';
-import { getCopilotReviewPriority } from './logic/getCopilotReviewPriority';
-import { getRequiredChecksStatus } from './logic/getRequiredChecksStatus';
 
 export async function main() {
   const config = getConfig();
@@ -163,51 +161,20 @@ export async function main() {
   }
 
   // Priority calculation
-  const basePriority = calculatePriority(
-    additionsEstimate.additions,
-    config.priorityParams,
-    reviewerApproved,
-  );
-
-  // Get author's ledger score to boost priority
   const authorScore = data.authorLogin
     ? await getReviewerScore(input.client, event.owner, data.authorLogin)
     : 0;
 
-  // Get copilot review priority boost
-  const copilotPriority = getCopilotReviewPriority(data.reviews);
-
-  // Apply penalty multipliers for draft PRs (20%) and failing checks (50%)
-  const draftMultiplier = data.isDraft ? 0.2 : 1;
-  const checksStatus = getRequiredChecksStatus(
-    data.checkRuns,
-    config.requiredChecks,
-  );
-
-  const priority = Math.round(
-    (basePriority + authorScore + copilotPriority) *
-      draftMultiplier *
-      checksStatus.multiplier,
-  );
-
-  const priorityParts: string[] = [];
-  if (data.isDraft) priorityParts.push('draft ×0.2');
-  if (checksStatus.multiplier < 1) {
-    const statusParts: string[] = [];
-    if (checksStatus.failingChecks.length > 0)
-      statusParts.push(`failing: ${checksStatus.failingChecks.join(', ')}`);
-    if (checksStatus.pendingChecks.length > 0)
-      statusParts.push(`pending: ${checksStatus.pendingChecks.join(', ')}`);
-    priorityParts.push(`checks ×0.5 (${statusParts.join('; ')})`);
-  }
-  if (reviewerApproved) priorityParts.push('reviewer approval');
-  if (authorScore > 0) priorityParts.push(`author score +${authorScore}`);
-  if (copilotPriority > 0) priorityParts.push(`copilot +${copilotPriority}`);
-  core.info(
-    `Priority: ${priority}${
-      priorityParts.length > 0 ? ` (${priorityParts.join(', ')})` : ''
-    }`,
-  );
+  const priority = calculatePriority({
+    additions: additionsEstimate.additions,
+    priorityParams: config.priorityParams,
+    reviewerApproved,
+    authorScore,
+    reviews: data.reviews,
+    isDraft: data.isDraft,
+    checkRuns: data.checkRuns,
+    requiredChecks: config.requiredChecks,
+  });
 
   // Stale review check
   const hasWaitingForReviewLabel = existingLabels.has(config.needsReviewLabel);
