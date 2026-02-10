@@ -1,6 +1,7 @@
 import { Review } from '../types';
 
-const COPILOT_LOGIN = 'copilot-pull-request-reviewer[bot]';
+const COPILOT_LOGIN = 'copilot-pull-request-reviewer';
+const COPILOT_LOGIN_BOT = `${COPILOT_LOGIN}[bot]`;
 const PRIORITY_PATTERN = /<!--\s*priority:\s*(\d+)\s*-->/i;
 
 function extractPriority(body: string): number | undefined {
@@ -23,7 +24,13 @@ function extractPriority(body: string): number | undefined {
  */
 export function getCopilotReviewPriority(reviews: Review[]): number {
   const copilotReviewsWithPriority = reviews
-    .filter(r => r.authorLogin === COPILOT_LOGIN && r.body && r.submittedAt)
+    .filter(
+      r =>
+        (r.authorLogin === COPILOT_LOGIN ||
+          r.authorLogin === COPILOT_LOGIN_BOT) &&
+        r.body &&
+        r.submittedAt,
+    )
     .map(r => ({ review: r, priority: extractPriority(r.body!) }))
     .filter(
       (r): r is { review: Review; priority: number } =>

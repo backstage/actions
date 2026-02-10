@@ -1,7 +1,8 @@
 import { getCopilotReviewPriority } from './getCopilotReviewPriority';
 import { Review } from '../types';
 
-const COPILOT_LOGIN = 'copilot-pull-request-reviewer[bot]';
+const COPILOT_LOGIN = 'copilot-pull-request-reviewer';
+const COPILOT_LOGIN_BOT = `${COPILOT_LOGIN}[bot]`;
 
 describe('getCopilotReviewPriority', () => {
   it('returns 0 when there are no reviews', () => {
@@ -19,6 +20,29 @@ describe('getCopilotReviewPriority', () => {
     ];
 
     expect(getCopilotReviewPriority(reviews)).toBe(0);
+  });
+
+  it('matches the copilot login both with and without [bot] suffix', () => {
+    const withoutBot: Review[] = [
+      {
+        state: 'COMMENTED',
+        submittedAt: '2024-01-01T12:00:00Z',
+        authorLogin: COPILOT_LOGIN,
+        body: '<!-- priority: 60 -->',
+      },
+    ];
+
+    const withBot: Review[] = [
+      {
+        state: 'COMMENTED',
+        submittedAt: '2024-01-01T12:00:00Z',
+        authorLogin: COPILOT_LOGIN_BOT,
+        body: '<!-- priority: 60 -->',
+      },
+    ];
+
+    expect(getCopilotReviewPriority(withoutBot)).toBe(60);
+    expect(getCopilotReviewPriority(withBot)).toBe(60);
   });
 
   it('returns 0 when Copilot review has no body', () => {

@@ -44,9 +44,9 @@ const QUERY = `
         author {
           login
         }
-        headRef {
-          target {
-            ... on Commit {
+        commits(last: 1) {
+          nodes {
+            commit {
               committedDate
               checkSuites(first: 100) {
                 nodes {
@@ -338,24 +338,26 @@ async function getPrAutomationData(
 
   const headCommit = (
     pr as {
-      headRef?: {
-        target?: {
-          committedDate?: string;
-          checkSuites?: {
-            nodes?: {
-              checkRuns?: {
-                nodes?: {
-                  name?: string;
-                  status?: string;
-                  conclusion?: string | null;
-                }[];
-              };
-            }[];
+      commits?: {
+        nodes?: {
+          commit?: {
+            committedDate?: string;
+            checkSuites?: {
+              nodes?: {
+                checkRuns?: {
+                  nodes?: {
+                    name?: string;
+                    status?: string;
+                    conclusion?: string | null;
+                  }[];
+                };
+              }[];
+            };
           };
-        };
+        }[];
       };
     }
-  ).headRef?.target;
+  ).commits?.nodes?.[0]?.commit;
 
   const headCommitDate = headCommit?.committedDate;
 
