@@ -8,5 +8,5 @@ inputs:
 
 outputs: {}
 runs:
-  using: node20
+  using: node24
   main: ./entry.js
