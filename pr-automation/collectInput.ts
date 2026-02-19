@@ -208,6 +208,7 @@ export async function collectInput(
 
   let reviewerLogins: Set<string> | undefined;
   let reviewerTeamMissing = false;
+  let maintainerLogins: Set<string> | undefined;
 
   try {
     reviewerLogins = await listTeamMembers(
@@ -223,6 +224,18 @@ export async function collectInput(
     }
   }
 
+  try {
+    maintainerLogins = await listTeamMembers(
+      client,
+      config.reviewerTeamOrg,
+      config.maintainerTeamSlug,
+    );
+  } catch (error) {
+    if ((error as { status?: number }).status !== 404) {
+      throw error;
+    }
+  }
+
   return {
     event: ensuredEvent,
     config,
@@ -230,6 +243,7 @@ export async function collectInput(
     data,
     reviewerLogins,
     reviewerTeamMissing,
+    maintainerLogins,
   };
 }
 

@@ -53,8 +53,14 @@ export async function applyOutput(input: AutomationInput, output: OutputPlan) {
     labelPlan.labelsToAdd.size > 0 || labelPlan.labelsToRemove.size > 0;
   const hasProjectChanges = data.projectItem !== undefined;
   const hasUnassignment = output.shouldUnassign && data.assignees.length > 0;
+  const hasAssignment = Boolean(output.assignReviewer);
 
-  if (!hasLabelChanges && !hasProjectChanges && !hasUnassignment) {
+  if (
+    !hasLabelChanges &&
+    !hasProjectChanges &&
+    !hasUnassignment &&
+    !hasAssignment
+  ) {
     core.info('No changes to apply');
     return;
   }
@@ -77,6 +83,15 @@ export async function applyOutput(input: AutomationInput, output: OutputPlan) {
       repo: event.repo,
       issueNumber: event.issueNumber,
       assignees: data.assignees,
+    });
+  }
+
+  if (output.assignReviewer) {
+    await assignReviewer(client, {
+      owner: event.owner,
+      repo: event.repo,
+      issueNumber: event.issueNumber,
+      login: output.assignReviewer,
     });
   }
 
@@ -158,6 +173,25 @@ async function unassignReviewers(
     assignees,
   });
   core.info(`Unassigned stale reviewers: ${assignees.join(', ')}`);
+}
+
+async function assignReviewer(
+  client: ReturnType<typeof github.getOctokit>,
+  options: {
+    owner: string;
+    repo: string;
+    issueNumber: number;
+    login: string;
+  },
+) {
+  const { owner, repo, issueNumber, login } = options;
+  await client.rest.issues.addAssignees({
+    owner,
+    repo,
+    issue_number: issueNumber,
+    assignees: [login],
+  });
+  core.info(`Assigned reviewer: ${login}`);
 }
 
 async function syncProjectFields(

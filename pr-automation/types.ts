@@ -93,6 +93,7 @@ export interface AutomationInput {
   data: PrData;
   reviewerLogins?: Set<string>;
   reviewerTeamMissing: boolean;
+  maintainerLogins?: Set<string>;
 }
 
 export interface OutputPlan {
@@ -103,6 +104,7 @@ export interface OutputPlan {
   };
   priority: number;
   shouldUnassign?: boolean;
+  assignReviewer?: string;
 }
 
 export interface DataOptions {
@@ -146,6 +148,7 @@ export interface Config {
   reviewerApprovedLabel: string;
   reviewerTeamOrg: string;
   reviewerTeamSlug: string;
+  maintainerTeamSlug: string;
   statusFieldName: string;
   priorityFieldName: string;
   priorityParams: PriorityParams;

@@ -14,6 +14,7 @@ import {
   getReviewerScore,
 } from './reviewerScoreLedger';
 import { hasAuthorRespondedToChangesRequest } from './logic/hasAuthorRespondedToChangesRequest';
+import { shouldAutoAssignReviewer } from './logic/shouldAutoAssignReviewer';
 
 export async function main() {
   const config = getConfig();
@@ -23,7 +24,8 @@ export async function main() {
     return;
   }
 
-  const { event, data, reviewerLogins, reviewerTeamMissing } = input;
+  const { event, data, reviewerLogins, reviewerTeamMissing, maintainerLogins } =
+    input;
 
   core.info(
     `Processing PR #${data.number} by ${data.authorLogin}: "${data.title}" (${
@@ -202,6 +204,27 @@ export async function main() {
     );
   }
 
+  // Auto-assign reviewer on changes_requested
+  const autoAssign = shouldAutoAssignReviewer({
+    reviewState: event.reviewState,
+    reviewerLogin: event.actor,
+    assignees: data.assignees,
+    maintainerLogins,
+  });
+  const assignReviewer = autoAssign ? event.actor : undefined;
+
+  if (assignReviewer) {
+    core.info(`Auto-assign reviewer: ${assignReviewer}`);
+  } else if (event.reviewState === 'changes_requested') {
+    core.info(
+      `Auto-assign reviewer: no (${
+        data.assignees.length > 0
+          ? 'PR already has assignees'
+          : 'reviewer is not a maintainer'
+      })`,
+    );
+  }
+
   // Plan label changes
   const sizeLabelSet = new Set(config.sizeLabels.map(s => s.label));
   const labelPlan = planLabelChanges({
@@ -232,9 +255,17 @@ export async function main() {
   core.info(`Status to sync: ${labelPlan.statusLabelToSync ?? 'none'}`);
   core.info(`Priority: ${priority}`);
   core.info(`Unassign stale reviewers: ${shouldUnassign}`);
+  if (assignReviewer) {
+    core.info(`Assign reviewer: ${assignReviewer}`);
+  }
   core.endGroup();
 
-  await applyOutput(input, { labelPlan, priority, shouldUnassign });
+  await applyOutput(input, {
+    labelPlan,
+    priority,
+    shouldUnassign,
+    assignReviewer,
+  });
 
   await updateReviewerScoreLedger(input, reviewerLogins);
 }
