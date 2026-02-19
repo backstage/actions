@@ -34,6 +34,8 @@ const QUERY = `
     $issueNumber: Int!
     $projectOwner: String!
     $projectNumber: Int!
+    $reviewerTeamSlug: String!
+    $maintainerTeamSlug: String!
   ) {
     repository(owner: $owner, name: $repo) {
       pullRequest(number: $issueNumber) {
@@ -178,6 +180,20 @@ const QUERY = `
           }
         }
       }
+      reviewerTeam: team(slug: $reviewerTeamSlug) {
+        members(first: 100) {
+          nodes {
+            login
+          }
+        }
+      }
+      maintainerTeam: team(slug: $maintainerTeamSlug) {
+        members(first: 100) {
+          nodes {
+            login
+          }
+        }
+      }
     }
   }
 `;
@@ -198,43 +214,16 @@ export async function collectInput(
 
   const client = createAppClient();
 
-  const data = await getPrAutomationData(client, {
-    owner: ensuredEvent.owner,
-    repo: ensuredEvent.repo,
-    issueNumber: ensuredEvent.issueNumber,
-    projectOwner: config.projectOwner,
-    projectNumber: config.projectNumber,
-  });
-
-  let reviewerLogins: Set<string> | undefined;
-  let reviewerTeamMissing = false;
-  let maintainerLogins: Set<string> | undefined;
-
-  try {
-    reviewerLogins = await listTeamMembers(
-      client,
-      config.reviewerTeamOrg,
-      config.reviewerTeamSlug,
-    );
-  } catch (error) {
-    if ((error as { status?: number }).status === 404) {
-      reviewerTeamMissing = true;
-    } else {
-      throw error;
-    }
-  }
-
-  try {
-    maintainerLogins = await listTeamMembers(
-      client,
-      config.reviewerTeamOrg,
-      config.maintainerTeamSlug,
-    );
-  } catch (error) {
-    if ((error as { status?: number }).status !== 404) {
-      throw error;
-    }
-  }
+  const { data, reviewerLogins, maintainerLogins } =
+    await getPrAutomationData(client, {
+      owner: ensuredEvent.owner,
+      repo: ensuredEvent.repo,
+      issueNumber: ensuredEvent.issueNumber,
+      projectOwner: config.projectOwner,
+      projectNumber: config.projectNumber,
+      reviewerTeamSlug: config.reviewerTeamSlug,
+      maintainerTeamSlug: config.maintainerTeamSlug,
+    });
 
   return {
     event: ensuredEvent,
@@ -242,7 +231,6 @@ export async function collectInput(
     client,
     data,
     reviewerLogins,
-    reviewerTeamMissing,
     maintainerLogins,
   };
 }
@@ -273,34 +261,34 @@ function getEventContext(): RawEventContext {
   };
 }
 
-async function listTeamMembers(
-  client: ReturnType<typeof github.getOctokit>,
-  org: string,
-  teamSlug: string,
-): Promise<Set<string>> {
-  const members = await client.paginate(client.rest.teams.listMembersInOrg, {
-    org,
-    team_slug: teamSlug,
-    per_page: 100,
-  });
-  return new Set(members.map(member => member.login));
+interface QueryResult {
+  data: PrData;
+  reviewerLogins?: Set<string>;
+  maintainerLogins?: Set<string>;
 }
 
 async function getPrAutomationData(
   client: ReturnType<typeof github.getOctokit>,
   options: DataOptions,
-): Promise<PrData> {
-  const data = await client.graphql<{
+): Promise<QueryResult> {
+  const rawData = await client.graphql<{
     repository?: Repository;
     organization?: Organization;
   }>(QUERY, { ...options });
 
-  const pr = data.repository?.pullRequest;
+  const pr = rawData.repository?.pullRequest;
   if (!pr) {
     throw new Error(`Failed to load PR #${options.issueNumber}`);
   }
 
-  const project = data.organization?.projectV2;
+  const org = rawData.organization as
+    | (Organization & {
+        reviewerTeam?: { members?: { nodes?: { login: string }[] } } | null;
+        maintainerTeam?: { members?: { nodes?: { login: string }[] } } | null;
+      })
+    | undefined;
+
+  const project = org?.projectV2;
   const projectId = project?.id ?? undefined;
   const projectFields = (project?.fields?.nodes ?? [])
     .map(field => mapProjectField(field))
@@ -400,40 +388,54 @@ async function getPrAutomationData(
         })) ?? [],
     ) ?? [];
 
+  const reviewerTeamMembers = org?.reviewerTeam?.members?.nodes;
+  const reviewerLogins = reviewerTeamMembers
+    ? new Set(reviewerTeamMembers.map(m => m.login))
+    : undefined;
+
+  const maintainerTeamMembers = org?.maintainerTeam?.members?.nodes;
+  const maintainerLogins = maintainerTeamMembers
+    ? new Set(maintainerTeamMembers.map(m => m.login))
+    : undefined;
+
   return {
-    number: pr.number,
-    title: pr.title,
-    isDraft: (pr as { isDraft?: boolean }).isDraft ?? false,
-    checkRuns,
-    authorLogin: pr.author?.login ?? undefined,
-    reviewDecision,
-    labels:
-      pr.labels?.nodes
-        ?.map(label => label?.name)
-        .filter((label): label is string => Boolean(label)) ?? [],
-    assignees,
-    mostRecentAssignmentAt,
-    headCommitDate,
-    reviews:
-      pr.reviews?.nodes?.map(review => ({
-        state: review?.state ?? '',
-        submittedAt: review?.submittedAt ?? undefined,
-        authorLogin: review?.author?.login ?? undefined,
-        body: review?.body ?? undefined,
-      })) ?? [],
-    latestReviews,
-    comments,
-    files:
-      pr.files?.nodes?.map(file => ({
-        path: file?.path ?? '',
-        additions: file?.additions ?? 0,
-      })) ?? [],
-    filesTotalCount: pr.files?.totalCount ?? 0,
-    projectId,
-    projectFields,
-    projectItem: projectItem
-      ? { id: projectItem.id, fieldValues: projectItemFieldValues }
-      : undefined,
+    data: {
+      number: pr.number,
+      title: pr.title,
+      isDraft: (pr as { isDraft?: boolean }).isDraft ?? false,
+      checkRuns,
+      authorLogin: pr.author?.login ?? undefined,
+      reviewDecision,
+      labels:
+        pr.labels?.nodes
+          ?.map(label => label?.name)
+          .filter((label): label is string => Boolean(label)) ?? [],
+      assignees,
+      mostRecentAssignmentAt,
+      headCommitDate,
+      reviews:
+        pr.reviews?.nodes?.map(review => ({
+          state: review?.state ?? '',
+          submittedAt: review?.submittedAt ?? undefined,
+          authorLogin: review?.author?.login ?? undefined,
+          body: review?.body ?? undefined,
+        })) ?? [],
+      latestReviews,
+      comments,
+      files:
+        pr.files?.nodes?.map(file => ({
+          path: file?.path ?? '',
+          additions: file?.additions ?? 0,
+        })) ?? [],
+      filesTotalCount: pr.files?.totalCount ?? 0,
+      projectId,
+      projectFields,
+      projectItem: projectItem
+        ? { id: projectItem.id, fieldValues: projectItemFieldValues }
+        : undefined,
+    },
+    reviewerLogins,
+    maintainerLogins,
   };
 }
 

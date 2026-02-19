@@ -92,7 +92,6 @@ export interface AutomationInput {
   client: ReturnType<typeof github.getOctokit>;
   data: PrData;
   reviewerLogins?: Set<string>;
-  reviewerTeamMissing: boolean;
   maintainerLogins?: Set<string>;
 }
 
@@ -113,6 +112,8 @@ export interface DataOptions {
   issueNumber: number;
   projectOwner: string;
   projectNumber: number;
+  reviewerTeamSlug: string;
+  maintainerTeamSlug: string;
 }
 
 export interface SizeLabelConfig {

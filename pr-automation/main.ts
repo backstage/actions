@@ -24,8 +24,7 @@ export async function main() {
     return;
   }
 
-  const { event, data, reviewerLogins, reviewerTeamMissing, maintainerLogins } =
-    input;
+  const { event, data, reviewerLogins, maintainerLogins } = input;
 
   core.info(
     `Processing PR #${data.number} by ${data.authorLogin}: "${data.title}" (${
@@ -102,11 +101,7 @@ export async function main() {
   // Reviewer approved calculation
   const existingLabels = new Set(data.labels);
   let reviewerApproved = existingLabels.has(config.reviewerApprovedLabel);
-  if (reviewerTeamMissing) {
-    core.info(
-      `Reviewer approved: keeping existing (team ${config.reviewerTeamOrg}/${config.reviewerTeamSlug} not accessible)`,
-    );
-  } else if (reviewerLogins) {
+  if (reviewerLogins) {
     reviewerApproved = shouldHaveReviewerApprovedLabel(
       data.reviews,
       reviewerLogins,
@@ -115,7 +110,7 @@ export async function main() {
       `Reviewer approved: ${reviewerApproved} (based on ${reviewerLogins.size} team members)`,
     );
   } else {
-    core.info(`Reviewer approved: ${reviewerApproved} (keeping existing)`);
+    core.info(`Reviewer approved: keeping existing (reviewer team not accessible)`);
   }
 
   // Status label calculation
