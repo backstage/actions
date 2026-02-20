@@ -37,6 +37,7 @@ export function getConfig(): Config {
     reviewerApprovedLabel: 'reviewer-approved',
     reviewerTeamOrg: 'backstage',
     reviewerTeamSlug: 'reviewers',
+    maintainerTeamSlug: 'maintainers',
     statusFieldName: 'Status',
     priorityFieldName: 'Priority',
     priorityParams: {

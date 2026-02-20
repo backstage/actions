@@ -92,7 +92,7 @@ export interface AutomationInput {
   client: ReturnType<typeof github.getOctokit>;
   data: PrData;
   reviewerLogins?: Set<string>;
-  reviewerTeamMissing: boolean;
+  maintainerLogins?: Set<string>;
 }
 
 export interface OutputPlan {
@@ -103,6 +103,7 @@ export interface OutputPlan {
   };
   priority: number;
   shouldUnassign?: boolean;
+  assignReviewer?: string;
 }
 
 export interface DataOptions {
@@ -111,6 +112,8 @@ export interface DataOptions {
   issueNumber: number;
   projectOwner: string;
   projectNumber: number;
+  reviewerTeamSlug: string;
+  maintainerTeamSlug: string;
 }
 
 export interface SizeLabelConfig {
@@ -146,6 +149,7 @@ export interface Config {
   reviewerApprovedLabel: string;
   reviewerTeamOrg: string;
   reviewerTeamSlug: string;
+  maintainerTeamSlug: string;
   statusFieldName: string;
   priorityFieldName: string;
   priorityParams: PriorityParams;
