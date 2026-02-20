@@ -2,6 +2,7 @@ import { getExecOutput, exec } from '@actions/exec';
 import fs from 'fs/promises';
 import { resolve as resolvePath, relative as relativePath } from 'path';
 import { getPackages, type Package } from '@manypkg/get-packages';
+import { getDependencyManager } from './dependencyConfig';
 
 export async function getBranchName() {
   const { stdout } = await getExecOutput('git', ['branch', '--show-current']);
@@ -34,7 +35,7 @@ export async function getChangesetFilename() {
   const { stdout: shortHash } = await getExecOutput(
     'git rev-parse --short HEAD',
   );
-  return `.changeset/renovate-${shortHash.trim()}.md`;
+  return `.changeset/${getDependencyManager()}-${shortHash.trim()}.md`;
 }
 
 export async function createChangeset(

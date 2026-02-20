@@ -7,11 +7,12 @@ import {
   getChangedFiles,
   getChangesetFilename,
   listPackages,
-} from './renovateChangesets';
+} from './manageChangesets';
 import { relative as relativePath, resolve as resolvePath } from 'path';
+import { getDependencyManager } from './dependencyConfig';
 
 async function main() {
-  core.info('Running Renovate Changesets');
+  core.info(`Running ${getDependencyManager()} Changesets`);
 
   const isMultipleWorkspaces = core.getBooleanInput('multiple-workspaces', {
     required: false,
@@ -19,8 +20,8 @@ async function main() {
 
   const branchName = await getBranchName();
 
-  if (!branchName.startsWith('renovate/')) {
-    core.info('Not a renovate branch, skipping');
+  if (!branchName.startsWith(getDependencyManager())) {
+    core.info(`Not a ${getDependencyManager()} branch, skipping`);
     return;
   }
 
