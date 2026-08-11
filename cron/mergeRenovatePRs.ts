@@ -11,7 +11,7 @@ export async function mergeRenovatePRs(
   const { owner, repo } = repoInfo;
 
   const date = new Date();
-  if (date.getDay() === 2) {
+  if (date.getUTCDay() === 2) {
     log('Skipping auto merge because Tuesday is release day');
     return;
   }

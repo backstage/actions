@@ -96,19 +96,7 @@ describe('mergeRenovatePRs', () => {
   });
 
   it('should not merge on Tuesdays', async () => {
-    // NOTE: This test would previously pass/fail based on the phystical
-    // location where it was run.
-    // Example: Midnight UTC is 7pm CDT on the previous day
-    //
-    // To fix this, we adjust the generated date by the timezone offset
-    const desiredDate = new Date('2022-06-28T00:00:00.000Z');
-    const ONE_EARTH_MINUTE = 60_000;
-    jest.useFakeTimers({
-      now: new Date(
-        desiredDate.getTime() +
-          desiredDate.getTimezoneOffset() * ONE_EARTH_MINUTE,
-      ),
-    });
+    jest.useFakeTimers({ now: new Date('2022-06-28T00:00:00.000Z') });
 
     await mergeRenovatePRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
