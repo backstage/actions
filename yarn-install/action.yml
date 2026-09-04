@@ -12,12 +12,12 @@ outputs:
     description: The location of the global yarn cache
     value: ${{ steps.yarn-cache.outputs.dir }}
 runs:
-  using: 'composite'
+  using: composite
   steps:
     # Cache every node_modules folder inside the monorepo
     - name: cache all node_modules
       id: cache-modules
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: '**/node_modules'
         # We use both yarn.lock and package.json as cache keys to ensure that
@@ -30,11 +30,23 @@ runs:
     - name: find location of global yarn cache
       id: yarn-cache
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: echo "dir=$([[ "$(yarn --version)" =~ "1.*" ]] && yarn cache dir || yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      run: |
+        if [[ "$(yarn --version)" =~ ^1\. ]]; then
+          dir="$(yarn cache dir)"
+          flag='--frozen-lockfile'
+        else
+          dir="$(yarn config get cacheFolder)"
+          flag='--immutable'
+        fi
+
+        {
+          echo dir="$dir"
+          echo install-flag="$flag"
+        } >> "$GITHUB_OUTPUT"
       shell: bash
 
     - name: cache global yarn cache
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       if: steps.cache-modules.outputs.cache-hit != 'true'
       with:
         path: ${{ steps.yarn-cache.outputs.dir }}
@@ -43,6 +55,8 @@ runs:
           ${{ inputs.cache-prefix }}-yarn-
 
     - name: yarn install
+      env:
+        YARN_INSTALL_FLAG: ${{ steps.yarn-cache.outputs.install-flag }}
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: '[[ "$(yarn --version)" =~ "1.*" ]] && yarn install --frozen-lockfile || yarn install --immutable'
+      run: yarn install "$YARN_INSTALL_FLAG"
       shell: bash
