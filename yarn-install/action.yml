@@ -31,12 +31,12 @@ runs:
       id: yarn-cache
       if: steps.cache-modules.outputs.cache-hit != 'true'
       run: |
-        if [[ "$(yarn --version)" =~ "1.*" ]]; then
+        if [[ "$(yarn --version)" =~ ^1\\. ]]; then
           dir="$(yarn cache dir)"
-          flag='--fronzen-lockfile'
+          flag='--frozen-lockfile'
         else
           dir="$(yarn config get cacheFolder)"
-          flag='--frozen-lockfile'
+          flag='--immutable'
         fi
 
         {
