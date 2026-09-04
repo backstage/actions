@@ -31,7 +31,7 @@ runs:
       id: yarn-cache
       if: steps.cache-modules.outputs.cache-hit != 'true'
       run: |
-        if [[ "$(yarn --version)" =~ ^1\\. ]]; then
+        if [[ "$(yarn --version)" =~ ^1\. ]]; then
           dir="$(yarn cache dir)"
           flag='--frozen-lockfile'
         else
