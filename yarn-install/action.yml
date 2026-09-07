@@ -56,7 +56,7 @@ runs:
 
     - name: yarn install
       env:
-        YARN_INSTALL_FLAG: ${{ steps.yarn-cache.outputs.install-flag }}
+        INSTALL_FLAG: ${{ steps.yarn-cache.outputs.install-flag }}
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: yarn install "$YARN_INSTALL_FLAG"
+      run: yarn install "$INSTALL_FLAG"
       shell: bash
