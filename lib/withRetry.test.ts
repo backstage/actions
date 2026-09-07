@@ -60,6 +60,16 @@ describe('withRetry', () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
+  it('preserves errors with non-string codes', async () => {
+    const forbidden = Object.assign(new Error('Forbidden'), { code: 403 });
+    const fn = jest.fn<() => Promise<string>>().mockRejectedValue(forbidden);
+
+    await expect(
+      withRetry(fn, { maxAttempts: 5, initialDelayMs: 1 }),
+    ).rejects.toBe(forbidden);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
   it('exhausts all attempts and re-throws the last transient error', async () => {
     const hangUp = new Error('socket hang up');
     const fn = jest.fn<() => Promise<string>>().mockRejectedValue(hangUp);
