@@ -1,6 +1,6 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import { getOctokit } from '@actions/github';
-import { mergeRenovatePRs } from './mergeRenovatePRs';
+import { mergeDependencyPRs } from './mergeDependencyPRs';
 
 type Octokit = ReturnType<typeof getOctokit>;
 
@@ -19,7 +19,7 @@ const repoInfo = {
   repo: 'le-repo',
 };
 
-describe('mergeRenovatePRs', () => {
+describe('mergeDependencyPRs', () => {
   afterEach(() => {
     jest.useRealTimers();
     jest.clearAllMocks();
@@ -53,7 +53,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).toHaveBeenCalledWith({
       owner: 'le-owner',
       repo: 'le-repo',
@@ -62,7 +62,101 @@ describe('mergeRenovatePRs', () => {
     expect(log).toBeCalledWith('Merging #1 - test-pr');
   });
 
-  it('should not merge non-renovate PRs', async () => {
+  it('should merge green dependabot PRs', async () => {
+    jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
+
+    mockClient.graphql.mockResolvedValueOnce({
+      repository: {
+        pullRequests: {
+          nodes: [
+            {
+              title: 'test-pr',
+              number: 1,
+              author: { login: 'dependabot' },
+              mergeable: 'MERGEABLE',
+              reviewDecision: 'APPROVED',
+              changedFiles: 1,
+              files: {
+                nodes: [{ path: 'yarn.lock' }],
+              },
+              commits: {
+                nodes: [
+                  { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    await mergeDependencyPRs(client, repoInfo, log, 0);
+    expect(mockClient.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'le-owner',
+      repo: 'le-repo',
+      pull_number: 1,
+    });
+    expect(log).toBeCalledWith('Merging #1 - test-pr');
+  });
+
+  it('should merge PRs from later pages', async () => {
+    jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
+
+    mockClient.graphql
+      .mockResolvedValueOnce({
+        repository: {
+          pullRequests: {
+            pageInfo: {
+              hasNextPage: true,
+              endCursor: 'first-page',
+            },
+            nodes: [],
+          },
+        },
+      })
+      .mockResolvedValueOnce({
+        repository: {
+          pullRequests: {
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: null,
+            },
+            nodes: [
+              {
+                title: 'test-pr',
+                number: 1,
+                author: { login: 'renovate' },
+                mergeable: 'MERGEABLE',
+                reviewDecision: 'APPROVED',
+                changedFiles: 1,
+                files: {
+                  nodes: [{ path: 'yarn.lock' }],
+                },
+                commits: {
+                  nodes: [
+                    { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      });
+
+    await mergeDependencyPRs(client, repoInfo, log, 0);
+    expect(mockClient.graphql).toHaveBeenLastCalledWith(expect.any(String), {
+      owner: 'le-owner',
+      repo: 'le-repo',
+      after: 'first-page',
+    });
+    expect(mockClient.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'le-owner',
+      repo: 'le-repo',
+      pull_number: 1,
+    });
+  });
+
+  it('should not merge PRs from unknown authors', async () => {
     jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
 
     mockClient.graphql.mockResolvedValueOnce({
@@ -90,7 +184,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalledWith();
     expect(log).toBeCalledWith('No mergeable PRs');
   });
@@ -98,7 +192,7 @@ describe('mergeRenovatePRs', () => {
   it('should not merge on Tuesdays', async () => {
     jest.useFakeTimers({ now: new Date('2022-06-28T00:00:00.000Z') });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
     expect(log).toBeCalledWith(
       'Skipping auto merge because Tuesday is release day',
@@ -133,7 +227,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
     expect(log).toBeCalledWith('No mergeable PRs');
   });
@@ -166,7 +260,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
     expect(log).toBeCalledWith('No mergeable PRs');
   });
@@ -199,7 +293,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
     expect(log).toBeCalledWith('No mergeable PRs');
   });
@@ -232,7 +326,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
     expect(log).toBeCalledWith('No mergeable PRs');
   });
@@ -265,7 +359,7 @@ describe('mergeRenovatePRs', () => {
       },
     });
 
-    await mergeRenovatePRs(client, repoInfo, log, 0);
+    await mergeDependencyPRs(client, repoInfo, log, 0);
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
     expect(log).toBeCalledWith('No mergeable PRs');
   });
