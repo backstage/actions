@@ -70,6 +70,25 @@ describe('withRetry', () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
+  it('does not read deprecated Octokit request error codes', async () => {
+    const requestError = Object.assign(new Error('Forbidden'), {
+      status: 403,
+    });
+    const getCode = jest.fn(() => 403);
+
+    Object.defineProperty(requestError, 'code', {
+      get: getCode,
+    });
+
+    const fn = jest.fn<() => Promise<string>>().mockRejectedValue(requestError);
+
+    await expect(
+      withRetry(fn, { maxAttempts: 5, initialDelayMs: 1 }),
+    ).rejects.toBe(requestError);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(getCode).not.toHaveBeenCalled();
+  });
+
   it('exhausts all attempts and re-throws the last transient error', async () => {
     const hangUp = new Error('socket hang up');
     const fn = jest.fn<() => Promise<string>>().mockRejectedValue(hangUp);

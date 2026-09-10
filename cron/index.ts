@@ -9,12 +9,20 @@ async function main() {
   core.info(`Running cron!`);
 
   const client = createAppClient();
+  const mergeToken = core.getInput('merge-token');
+  const mergeClient = mergeToken ? github.getOctokit(mergeToken) : client;
 
   const repoInfo = github.context.repo;
 
   await Promise.all([
     verifyDCO(client, repoInfo, mkLog('verify-dco')),
-    mergeDependencyPRs(client, repoInfo, mkLog('merge-dependency-prs')),
+    mergeDependencyPRs(
+      client,
+      repoInfo,
+      mkLog('merge-dependency-prs'),
+      undefined,
+      mergeClient,
+    ),
   ]);
 }
 

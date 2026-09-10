@@ -10,6 +10,9 @@ inputs:
   installation-id:
     description: The Installation ID of the GitHub App to use for authentication
     required: true
+  merge-token:
+    description: A GitHub token to use for merging dependency pull requests
+    required: false
 outputs: {}
 runs:
   using: node24

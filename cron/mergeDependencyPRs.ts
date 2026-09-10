@@ -13,6 +13,7 @@ export async function mergeDependencyPRs(
   repoInfo: { owner: string; repo: string },
   log = core.info,
   waitTimeMs = 2000,
+  mergeClient = client,
 ) {
   const { owner, repo } = repoInfo;
 
@@ -104,7 +105,7 @@ export async function mergeDependencyPRs(
       continue;
     }
     log(`Merging #${pr.number} - ${pr.title}`);
-    await client.rest.pulls.merge({
+    await mergeClient.rest.pulls.merge({
       owner,
       repo,
       pull_number: pr.number,

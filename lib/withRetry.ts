@@ -21,7 +21,8 @@ export interface RetryOptions {
 function isTransientError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const msg = error.message;
-  const code = (error as NodeJS.ErrnoException).code;
+  const code =
+    'status' in error ? undefined : (error as NodeJS.ErrnoException).code;
   return RETRYABLE_PATTERNS.some(
     p => msg.includes(p) || (typeof code === 'string' && code.includes(p)),
   );
