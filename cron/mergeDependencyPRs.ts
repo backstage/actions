@@ -2,7 +2,13 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Repository } from '@octokit/graphql-schema';
 
-export async function mergeRenovatePRs(
+type PullRequest = NonNullable<
+  NonNullable<Repository['pullRequests']['nodes']>[number]
+>;
+
+const AUTOMERGE_AUTHORS = new Set(['dependabot', 'renovate']);
+
+export async function mergeDependencyPRs(
   client: ReturnType<typeof github.getOctokit>,
   repoInfo: { owner: string; repo: string },
   log = core.info,
@@ -16,10 +22,18 @@ export async function mergeRenovatePRs(
     return;
   }
 
-  const data = await client.graphql<{ repository?: Repository }>(
-    `query ($owner: String!, $repo: String!) {
+  const pullRequests = [];
+  let after: string | null | undefined;
+
+  do {
+    const data = await client.graphql<{ repository?: Repository }>(
+      `query ($owner: String!, $repo: String!, $after: String) {
       repository(owner: $owner, name: $repo) {
-        pullRequests(labels: ["dependencies"], last: 10, states: [OPEN]) {
+        pullRequests(labels: ["dependencies"], first: 100, after: $after, states: [OPEN]) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
           nodes {
             title
             author {
@@ -54,21 +68,31 @@ export async function mergeRenovatePRs(
         }
       }
     }`,
-    { owner, repo },
-  );
-  if (!data.repository) {
-    throw new Error(`No such repository ${owner}/${repo}`);
-  }
+      { owner, repo, after },
+    );
+    if (!data.repository) {
+      throw new Error(`No such repository ${owner}/${repo}`);
+    }
 
-  const mergeable = data.repository.pullRequests.nodes?.filter(
-    pr =>
-      pr &&
-      pr.author?.login === 'renovate' &&
-      pr.mergeable === 'MERGEABLE' &&
-      pr.changedFiles === 1 &&
-      pr.files?.nodes?.[0]?.path.split('/').slice(-1)[0] === 'yarn.lock' &&
-      pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state === 'SUCCESS' &&
-      pr.reviewDecision === 'APPROVED',
+    pullRequests.push(...(data.repository.pullRequests.nodes ?? []));
+    after = data.repository.pullRequests.pageInfo?.hasNextPage
+      ? data.repository.pullRequests.pageInfo.endCursor
+      : undefined;
+  } while (after);
+
+  const mergeable = pullRequests.filter(
+    (pr): pr is PullRequest =>
+      Boolean(
+        pr &&
+          pr.author?.login &&
+          AUTOMERGE_AUTHORS.has(pr.author.login) &&
+          pr.mergeable === 'MERGEABLE' &&
+          pr.changedFiles === 1 &&
+          pr.files?.nodes?.[0]?.path.split('/').slice(-1)[0] === 'yarn.lock' &&
+          pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state ===
+            'SUCCESS' &&
+          pr.reviewDecision === 'APPROVED',
+      ),
   );
   if (!mergeable?.length) {
     log('No mergeable PRs');

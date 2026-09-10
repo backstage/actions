@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { verifyDCO } from './verifyDCO';
-import { mergeRenovatePRs } from './mergeRenovatePRs';
+import { mergeDependencyPRs } from './mergeDependencyPRs';
 import { mkLog } from '../lib/mkLog';
 import { createAppClient } from '../lib/createAppClient';
 
@@ -14,7 +14,7 @@ async function main() {
 
   await Promise.all([
     verifyDCO(client, repoInfo, mkLog('verify-dco')),
-    mergeRenovatePRs(client, repoInfo, mkLog('merge-renovate-prs')),
+    mergeDependencyPRs(client, repoInfo, mkLog('merge-dependency-prs')),
   ]);
 }
 
