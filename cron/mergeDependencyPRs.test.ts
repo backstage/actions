@@ -99,6 +99,52 @@ describe('mergeDependencyPRs', () => {
     expect(log).toBeCalledWith('Merging #1 - test-pr');
   });
 
+  it('should use a separate merge client when provided', async () => {
+    jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
+
+    const mergeClient = {
+      rest: {
+        pulls: {
+          merge: jest.fn<Octokit['rest']['pulls']['merge']>(),
+        },
+      },
+    } as unknown as Octokit;
+
+    mockClient.graphql.mockResolvedValueOnce({
+      repository: {
+        pullRequests: {
+          nodes: [
+            {
+              title: 'test-pr',
+              number: 1,
+              author: { login: 'dependabot' },
+              mergeable: 'MERGEABLE',
+              reviewDecision: 'APPROVED',
+              changedFiles: 1,
+              files: {
+                nodes: [{ path: 'yarn.lock' }],
+              },
+              commits: {
+                nodes: [
+                  { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    await mergeDependencyPRs(client, repoInfo, log, 0, mergeClient);
+
+    expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
+    expect(mergeClient.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'le-owner',
+      repo: 'le-repo',
+      pull_number: 1,
+    });
+  });
+
   it('should merge PRs from later pages', async () => {
     jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
 
