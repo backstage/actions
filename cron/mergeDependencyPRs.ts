@@ -105,11 +105,27 @@ export async function mergeDependencyPRs(
       continue;
     }
     log(`Merging #${pr.number} - ${pr.title}`);
-    await mergeClient.rest.pulls.merge({
-      owner,
-      repo,
-      pull_number: pr.number,
-    });
+    try {
+      await mergeClient.rest.pulls.merge({
+        owner,
+        repo,
+        pull_number: pr.number,
+      });
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'status' in error &&
+        error.status === 405
+      ) {
+        const message = error instanceof Error ? error.message : String(error);
+        log(
+          `Skipping #${pr.number} because it is no longer mergeable: ${message}`,
+        );
+        continue;
+      }
+      throw error;
+    }
 
     if (waitTimeMs) {
       await new Promise(r => setTimeout(r, waitTimeMs));

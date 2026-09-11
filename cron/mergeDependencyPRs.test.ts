@@ -99,6 +99,70 @@ describe('mergeDependencyPRs', () => {
     expect(log).toBeCalledWith('Merging #1 - test-pr');
   });
 
+  it('should continue merging after a pull request develops merge conflicts', async () => {
+    jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
+
+    mockClient.graphql.mockResolvedValueOnce({
+      repository: {
+        pullRequests: {
+          nodes: [
+            {
+              title: 'conflicting-pr',
+              number: 1,
+              author: { login: 'dependabot' },
+              mergeable: 'MERGEABLE',
+              reviewDecision: 'APPROVED',
+              changedFiles: 1,
+              files: {
+                nodes: [{ path: 'yarn.lock' }],
+              },
+              commits: {
+                nodes: [
+                  { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                ],
+              },
+            },
+            {
+              title: 'mergeable-pr',
+              number: 2,
+              author: { login: 'dependabot' },
+              mergeable: 'MERGEABLE',
+              reviewDecision: 'APPROVED',
+              changedFiles: 1,
+              files: {
+                nodes: [{ path: 'yarn.lock' }],
+              },
+              commits: {
+                nodes: [
+                  { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+    mockClient.rest.pulls.merge
+      .mockRejectedValueOnce(
+        Object.assign(new Error('Pull Request has merge conflicts'), {
+          status: 405,
+        }),
+      )
+      .mockResolvedValueOnce({} as never);
+
+    await mergeDependencyPRs(client, repoInfo, log, 0);
+
+    expect(mockClient.rest.pulls.merge).toHaveBeenCalledTimes(2);
+    expect(mockClient.rest.pulls.merge).toHaveBeenLastCalledWith({
+      owner: 'le-owner',
+      repo: 'le-repo',
+      pull_number: 2,
+    });
+    expect(log).toHaveBeenCalledWith(
+      'Skipping #1 because it is no longer mergeable: Pull Request has merge conflicts',
+    );
+  });
+
   it('should use a separate merge client when provided', async () => {
     jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
 
