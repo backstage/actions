@@ -1,10 +1,14 @@
-name: Backstage Renovate Changeset Creator
-description: Create changesets on the renovate bot PR's if needed
+name: Backstage Dependency Manager Changeset Creator
+description: Create changesets on the dependency manager bot PR's if needed
 inputs:
   multiple-workspaces:
     description: If it's this repository is a collection of workspaces
     required: false
     default: 'false'
+  dependency-manager:
+    description: The dependency manager to use
+    required: false
+    default: 'renovate'
 
 outputs: {}
 runs:
