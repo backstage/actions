@@ -42,7 +42,7 @@ export async function mergeDependencyPRs(
             }
             number
             mergeable
-            files(first: 1) {
+            files(first: 100) {
               nodes {
                 path
               }
@@ -88,8 +88,11 @@ export async function mergeDependencyPRs(
           pr.author?.login &&
           AUTOMERGE_AUTHORS.has(pr.author.login) &&
           pr.mergeable === 'MERGEABLE' &&
-          pr.changedFiles === 1 &&
-          pr.files?.nodes?.[0]?.path.split('/').slice(-1)[0] === 'yarn.lock' &&
+          pr.changedFiles > 0 &&
+          pr.files?.nodes?.length === pr.changedFiles &&
+          pr.files.nodes.every(
+            file => file?.path.split('/').slice(-1)[0] === 'yarn.lock',
+          ) &&
           pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state ===
             'SUCCESS' &&
           pr.reviewDecision === 'APPROVED',

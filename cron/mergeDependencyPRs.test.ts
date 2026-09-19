@@ -309,7 +309,87 @@ describe('mergeDependencyPRs', () => {
     );
   });
 
-  it('should not merge if multiple files are changed', async () => {
+  it('should merge if multiple yarn.lock files are changed', async () => {
+    jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
+
+    mockClient.graphql.mockResolvedValueOnce({
+      repository: {
+        pullRequests: {
+          nodes: [
+            {
+              title: 'test-pr',
+              number: 1,
+              author: { login: 'renovate' },
+              mergeable: 'MERGEABLE',
+              reviewDecision: 'APPROVED',
+              changedFiles: 2,
+              files: {
+                nodes: [
+                  { path: 'yarn.lock' },
+                  { path: 'docs-ui/yarn.lock' },
+                ],
+              },
+              commits: {
+                nodes: [
+                  { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    await mergeDependencyPRs(client, repoInfo, log, 0);
+    expect(mockClient.rest.pulls.merge).toHaveBeenCalledWith({
+      owner: 'le-owner',
+      repo: 'le-repo',
+      pull_number: 1,
+    });
+    expect(mockClient.graphql).toHaveBeenCalledWith(
+      expect.stringContaining('files(first: 100)'),
+      expect.any(Object),
+    );
+  });
+
+  it('should not merge if any changed file is not a yarn.lock', async () => {
+    jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
+
+    mockClient.graphql.mockResolvedValueOnce({
+      repository: {
+        pullRequests: {
+          nodes: [
+            {
+              title: 'test-pr',
+              number: 1,
+              author: { login: 'renovate' },
+              mergeable: 'MERGEABLE',
+              reviewDecision: 'APPROVED',
+              changedFiles: 2,
+              files: {
+                nodes: [
+                  { path: 'yarn.lock' },
+                  { path: 'package.json' },
+                ],
+              },
+              commits: {
+                nodes: [
+                  { commit: { statusCheckRollup: { state: 'SUCCESS' } } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    await mergeDependencyPRs(client, repoInfo, log, 0);
+
+    expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledWith('No mergeable PRs');
+  });
+
+  it('should not merge if the changed file list is incomplete', async () => {
     jest.useFakeTimers({ now: new Date('2022-06-27T00:00:00.000Z') });
 
     mockClient.graphql.mockResolvedValueOnce({
@@ -338,8 +418,9 @@ describe('mergeDependencyPRs', () => {
     });
 
     await mergeDependencyPRs(client, repoInfo, log, 0);
+
     expect(mockClient.rest.pulls.merge).not.toHaveBeenCalled();
-    expect(log).toBeCalledWith('No mergeable PRs');
+    expect(log).toHaveBeenCalledWith('No mergeable PRs');
   });
 
   it('should not merge if not mergable', async () => {
